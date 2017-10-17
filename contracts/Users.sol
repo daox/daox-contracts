@@ -13,7 +13,7 @@ contract Users {
         users[userAddress] = User(sha256(name), sha256(secondName), sha256(email));
     }
 
-    function exists(address userAddress) public constant returns(bool) {
+    function isExists(address userAddress) public constant returns(bool) {
         return users[userAddress].name != 0x0;
     }
 }

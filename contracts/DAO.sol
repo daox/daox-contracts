@@ -23,7 +23,7 @@ contract DAO is Owned {
     /*
     Reference to external contract
     */
-    Users users;
+    Users public users;
 
     struct Vote {
         bool inSupport;
@@ -35,6 +35,11 @@ contract DAO is Owned {
         bool proposalPassed;
         Vote[] votes;
         mapping (address => bool) voted;
+        uint votesAmount;
+        uint currentResult;
+        uint duration; // UNIX
+        uint created_at; // UNIX
+        bool finished;
     }
 
     /*
@@ -44,15 +49,15 @@ contract DAO is Owned {
     string public name;
     uint256 public created_at; // UNIX time
     string public description;
-    Proposal[] proposals;
+    Proposal[] public proposals;
 
-    function DAO(address usersAddress, string name, string description)
+    function DAO(address _address, string _name, string _description)
     Owned()
     {
-        users = Users(usersAddress);
-        name = name;
+        users = Users(_address);
+        name = _name;
         created_at = block.timestamp;
-        description = description;
+        description = _description;
     }
 
     function isParticipant(address participantAddress) constant returns(bool) {
@@ -60,7 +65,7 @@ contract DAO is Owned {
     }
 
     function addParticipant(address participantAddress) returns(bool) {
-        if (users.exists(participantAddress)) {
+        if (users.isExists(participantAddress)) {
             participants[participantAddress] = true;
         }
 
@@ -70,11 +75,35 @@ contract DAO is Owned {
     /*
     Not tested function
     */
-    function addProposal(string description) {
-        uint proposalID = proposals.length + 1;
-        Proposal p = proposals[proposalID];
-        p.description = description;
+    function addProposal(string _description, uint _duration) returns(uint) {
+        uint proposalID = proposals.length++;
+        Proposal storage p = proposals[proposalID];
+        p.description = _description;
         p.proposalPassed = false;
+        p.created_at = block.timestamp;
+        p.duration = _duration;
+
+        return proposalID;
+    }
+
+    function addVote(uint proposalID, bool isSupported) {
+        require(proposalID < proposals.length);
+        Proposal storage p = proposals[proposalID];
+        require(!p.finished);
+        require(!p.voted[msg.sender]);
+        p.votesAmount++;
+        if (isSupported) {
+            p.currentResult++;
+        } else {
+            p.currentResult--;
+        }
+    }
+
+    function finishProposal(uint proposalID) {
+        require(proposalID < proposals.length);
+        Proposal storage p = proposals[proposalID];
+        require(p.duration + p.created_at >= block.timestamp);
+        p.finished = true;
     }
 
     modifier onlyParticipant {
