@@ -56,11 +56,11 @@ contract DAO is Owned {
     }
 
     function isParticipant(address participantAddress) constant returns(bool) {
-        return participants[participantAddress] == true;
+        return participants[participantAddress];
     }
 
     function addParticipant(address participantAddress) returns(bool) {
-        if (users.isExist(participantAddress)) {
+        if (users.exists(participantAddress)) {
             participants[participantAddress] = true;
         }
 
@@ -71,7 +71,7 @@ contract DAO is Owned {
     Not tested function
     */
     function addProposal(string description) {
-        uint proposalID = ++proposals.length;
+        uint proposalID = proposals.length + 1;
         Proposal p = proposals[proposalID];
         p.description = description;
         p.proposalPassed = false;
