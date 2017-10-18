@@ -27,7 +27,7 @@ contract DAO is Owned {
 
     struct Option {
         address[] votes;
-        string description;
+        bytes32 description;
     }
 
     struct Vote {
@@ -55,7 +55,8 @@ contract DAO is Owned {
     uint256 public created_at; // UNIX time
     string public description;
     uint8 public minVote; // in percents
-    Proposal[] public proposals;
+    Proposal[] proposals;
+    uint participantsCount;
 
     function DAO(address _address, string _name, string _description, uint8 _minVote)
     Owned()
@@ -72,8 +73,9 @@ contract DAO is Owned {
     }
 
     function addParticipant(address participantAddress) returns (bool) {
-        if (users.isExists(participantAddress)) {
+        if (users.doesExist(participantAddress)) {
             participants[participantAddress] = true;
+            participantsCount++;
         }
 
         return participants[participantAddress];
@@ -82,14 +84,19 @@ contract DAO is Owned {
     /*
     Not tested function
     */
-    function addProposal(string _description, uint _duration, string[] _options) returns (uint) {
+    function addProposal(string _description, uint _duration, bytes32[] _options) returns (uint) {
         uint proposalID = proposals.length++;
         Proposal storage p = proposals[proposalID];
         p.description = _description;
         p.proposalPassed = false;
         p.created_at = block.timestamp;
         p.duration = _duration;
-        p.options = _options;
+
+        for (uint i = 0; i < _options.length; i++) {
+            Option storage option = p.options[i];
+            option.description = _options[i];
+            p.options[i] = option;
+        }
 
         return proposalID;
     }
@@ -104,19 +111,23 @@ contract DAO is Owned {
 
     }
 
-    function finishProposal(uint proposalID) {
+    function finishProposal(uint proposalID) returns (bool) {
         require(proposalID < proposals.length);
         Proposal storage p = proposals[proposalID];
         require(p.duration + p.created_at >= block.timestamp);
         p.finished = true;
-        if(!(p.votesCount/users.length)*100 >= minVote) return;
+        if(p.votesCount/participantsCount*100 < minVote) return;
 
-        Option result;
+        Option storage result = p.options[0];
         for(uint i = 0; i< p.options.length; i++) {
-            if(result.votes.length < p.options[i].length) result = p.options[i];
+            if(result.votes.length < p.options[i].votes.length) result = p.options[i];
         }
 
         p.result = result;
+    }
+
+    function getProposalInfo(uint proposalID) public constant returns (string) {
+        return proposals[proposalID].description;
     }
 
     modifier onlyParticipant {
