@@ -25,6 +25,11 @@ contract DAO is Owned {
     */
     Users public users;
 
+    struct Option {
+        address[] votes;
+        string description;
+    }
+
     struct Vote {
         bool inSupport;
         address voter;
@@ -33,10 +38,10 @@ contract DAO is Owned {
     struct Proposal {
         string description;
         bool proposalPassed;
-        Vote[] votes;
+        Option[] options;
         mapping (address => bool) voted;
-        uint votesAmount;
-        uint currentResult;
+        Option result;
+        uint votesCount;
         uint duration; // UNIX
         uint created_at; // UNIX
         bool finished;
@@ -45,26 +50,28 @@ contract DAO is Owned {
     /*
     Public dao properties
     */
-    mapping(address => bool) public participants;
+    mapping (address => bool) public participants;
     string public name;
     uint256 public created_at; // UNIX time
     string public description;
+    uint8 public minVote; // in percents
     Proposal[] public proposals;
 
-    function DAO(address _address, string _name, string _description)
+    function DAO(address _address, string _name, string _description, uint8 _minVote)
     Owned()
     {
         users = Users(_address);
         name = _name;
         created_at = block.timestamp;
         description = _description;
+        minVote = _minVote;
     }
 
-    function isParticipant(address participantAddress) constant returns(bool) {
+    function isParticipant(address participantAddress) constant returns (bool) {
         return participants[participantAddress];
     }
 
-    function addParticipant(address participantAddress) returns(bool) {
+    function addParticipant(address participantAddress) returns (bool) {
         if (users.isExists(participantAddress)) {
             participants[participantAddress] = true;
         }
@@ -75,28 +82,26 @@ contract DAO is Owned {
     /*
     Not tested function
     */
-    function addProposal(string _description, uint _duration) returns(uint) {
+    function addProposal(string _description, uint _duration, string[] _options) returns (uint) {
         uint proposalID = proposals.length++;
         Proposal storage p = proposals[proposalID];
         p.description = _description;
         p.proposalPassed = false;
         p.created_at = block.timestamp;
         p.duration = _duration;
+        p.options = _options;
 
         return proposalID;
     }
 
-    function addVote(uint proposalID, bool isSupported) {
-        require(proposalID < proposals.length);
+    function addVote(uint proposalID, uint optionID, address _address) {
+        require(proposalID < proposals.length && optionID < p.options.length);
         Proposal storage p = proposals[proposalID];
-        require(!p.finished);
-        require(!p.voted[msg.sender]);
-        p.votesAmount++;
-        if (isSupported) {
-            p.currentResult++;
-        } else {
-            p.currentResult--;
-        }
+        require(!p.finished && !p.voted[msg.sender]);
+        Option storage o = p.options[optionID];
+        o.votes[o.votes.length+1] = _address;
+        p.votesCount++;
+
     }
 
     function finishProposal(uint proposalID) {
@@ -104,6 +109,14 @@ contract DAO is Owned {
         Proposal storage p = proposals[proposalID];
         require(p.duration + p.created_at >= block.timestamp);
         p.finished = true;
+        if(!(p.votesCount/users.length)*100 >= minVote) return;
+
+        Option result;
+        for(uint i = 0; i< p.options.length; i++) {
+            if(result.votes.length < p.options[i].length) result = p.options[i];
+        }
+
+        p.result = result;
     }
 
     modifier onlyParticipant {
