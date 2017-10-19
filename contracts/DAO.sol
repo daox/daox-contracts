@@ -58,7 +58,7 @@ contract DAO is Owned {
     Proposal[] proposals;
     uint participantsCount;
 
-    function DAO(address _address, string _name, string _description, uint8 _minVote)
+    function DAO(address _address, string _name, string _description, uint8 _minVote, address[] _participants)
     Owned()
     {
         users = Users(_address);
@@ -66,6 +66,10 @@ contract DAO is Owned {
         created_at = block.timestamp;
         description = _description;
         minVote = _minVote;
+        for(uint i =0; i<_participants.length; i++) {
+            require(users.doesExist(_participants[i]));
+            participants[_participants[i]] = true;
+        }
     }
 
     function isParticipant(address participantAddress) constant returns (bool) {
@@ -73,16 +77,25 @@ contract DAO is Owned {
     }
 
     function addParticipant(address participantAddress) onlyOwner returns (bool) {
-        if (users.doesExist(participantAddress)) {
-            participants[participantAddress] = true;
-            participantsCount++;
-        }
+        require(users.doesExist(participantAddress));
+        participants[participantAddress] = true;
+        participantsCount++;
+
 
         return participants[participantAddress];
     }
 
-    function removeParticipant(address _participantAddress) onlyOwner {
-        participants[_participantAddress] = false;
+    function remove(address _participantAddress) onlyOwner {
+        removeParticipant(_participantAddress);
+    }
+
+    function leave() {
+        removeParticipant(msg.sender);
+    }
+
+    function removeParticipant(address _address) private {
+        require(users.doesExist(_address));
+        participants[_address] = false;
         participantsCount--;
     }
 
@@ -97,7 +110,6 @@ contract DAO is Owned {
         for (uint i = 0; i < _options.length; i++) {
             Option storage option = p.options[i];
             option.description = _options[i];
-            p.options[i] = option;
         }
 
         return proposalID;
@@ -108,7 +120,7 @@ contract DAO is Owned {
         Proposal storage p = proposals[proposalID];
         require(!p.finished && !p.voted[msg.sender]);
         Option storage o = p.options[optionID];
-        o.votes[o.votes.length+1] = _address;
+        o.votes.push(_address);
         p.votesCount++;
 
     }
