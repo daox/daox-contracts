@@ -72,7 +72,7 @@ contract DAO is Owned {
         return participants[participantAddress];
     }
 
-    function addParticipant(address participantAddress) returns (bool) {
+    function addParticipant(address participantAddress) onlyOwner returns (bool) {
         if (users.doesExist(participantAddress)) {
             participants[participantAddress] = true;
             participantsCount++;
@@ -81,9 +81,11 @@ contract DAO is Owned {
         return participants[participantAddress];
     }
 
-    /*
-    Not tested function
-    */
+    function removeParticipant(address _participantAddress) onlyOwner {
+        participants[_participantAddress] = false;
+        participantsCount--;
+    }
+
     function addProposal(string _description, uint _duration, bytes32[] _options) returns (uint) {
         uint proposalID = proposals.length++;
         Proposal storage p = proposals[proposalID];
