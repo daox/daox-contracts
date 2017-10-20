@@ -12,6 +12,6 @@ contract DAOFactory {
         address newDAO = new DAO(_address, _name, _description, _minVote, _participants);
         DAOs[newDAO] = _name;
 
-        return newDao;
+        return newDAO;
     }
 }
