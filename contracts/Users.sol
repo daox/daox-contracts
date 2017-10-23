@@ -5,10 +5,10 @@ contract Users {
     mapping(bytes32 => bool) public properties;
 
     struct User {
-    bytes32 name;
-    bytes32 secondName;
-    bytes32 email;
-    mapping(bytes32 => address[]) approves;
+        bytes32 name;
+        bytes32 secondName;
+        bytes32 email;
+        mapping(bytes32 => address[]) approves;
     }
 
     function Users() {
@@ -32,6 +32,7 @@ contract Users {
     function approve(address _address, bytes32[] _properties) {
         require(doesExist(_address));
         User storage user = users[_address];
+        //ToDo: replace require by if (???)
         for(uint i = 0; i < _properties.length; i++) {
             require(properties[_properties[i]]);
             user.approves[_properties[i]].push(msg.sender);
