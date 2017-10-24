@@ -4,7 +4,7 @@ import "./DAO.sol";
 
 contract DAOFactory {
     event DAOCreated(
-        address _adress,
+        address _address,
         string _name,
         string _description,
         uint8 _minVote,
@@ -18,6 +18,6 @@ contract DAOFactory {
         address newDAO = new DAO(_address, _name, _description, _minVote, _participants);
         DAOs[newDAO] = _name;
 
-        DAOCreated(_address, _name, _description, _minVote, _participants);
+        DAOCreated(newDAO, _name, _description, _minVote, _participants);
     }
 }
