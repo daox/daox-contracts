@@ -25,9 +25,12 @@ contract DAO is Owned {
     */
     Users public users;
 
+    event ProposalCreated(uint proposalID);
+    event OptionCreated(uint optionID);
+
     struct Option {
         uint votes;
-        bytes32 description;
+        bytes256 description;
     }
 
     struct Vote {
@@ -36,7 +39,7 @@ contract DAO is Owned {
     }
 
     struct Proposal {
-        string description;
+        bytes256 description;
         bool proposalPassed;
         Option[] options;
         mapping (address => bool) voted;
@@ -99,19 +102,21 @@ contract DAO is Owned {
         participantsCount--;
     }
 
-    function addProposal(string _description, uint _duration, bytes32[] _options) returns (uint) {
+    function addProposal(string _description, uint _duration, bytes256[] _options) returns (uint) {
+        require(_options.length >= 2);
         uint proposalID = proposals.length++;
         Proposal storage p = proposals[proposalID];
-        p.description = _description;
+        p.description = stringToBytes256(_description);
         p.proposalPassed = false;
         p.created_at = block.timestamp;
         p.duration = _duration;
 
         for (uint i = 0; i < _options.length; i++) {
             p.options.push(Option(0, _options[i]));
+            OptionCreated(i);
         }
 
-        return proposalID;
+        ProposalCreated(proposalID);
     }
 
     function addVote(uint proposalID, uint optionID, address _address) {
@@ -121,7 +126,6 @@ contract DAO is Owned {
         Option storage o = p.options[optionID];
         o.votes++;
         p.votesCount++;
-
     }
 
     function finishProposal(uint proposalID) returns (bool) {
@@ -139,12 +143,37 @@ contract DAO is Owned {
         p.result = result;
     }
 
-    function getProposalInfo(uint proposalID) public constant returns (string) {
+    function getProposalInfo(uint proposalID) public constant returns (bytes256) {
         return proposals[proposalID].description;
+    }
+
+    function getProposalOptions(uint proposalID) public constant returns(bytes256[]) {
+        Option[] storage options = proposals[proposalID].options;
+        bytes256[] memory optionDescriptions = new bytes256[](options.length);
+        for(uint i = 0; i < options.length; i++) {
+            optionDescriptions[i] = options[i].description;
+        }
+
+        return optionDescriptions;
+    }
+
+    function getProposals() public constant returns(bytes256[]) {
+        bytes256[] memory _proposalDescriptions = new bytes256[](proposals.length);
+        for(uint i = 0; i < proposals.length; i++) {
+            _proposalDescriptions[i] = proposals[i].description;
+        }
+
+        return _proposalDescriptions;
     }
 
     modifier onlyParticipant {
         require(participants[msg.sender] == true);
         _;
+    }
+
+    function stringToBytes256(string memory source) private returns (bytes256 result) {
+        assembly {
+            result := mload(add(source, 256))
+        }
     }
 }
