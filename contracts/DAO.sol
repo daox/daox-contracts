@@ -26,7 +26,7 @@ contract DAO is Owned {
     Users public users;
 
     struct Option {
-        address[] votes;
+        uint votes;
         bytes32 description;
     }
 
@@ -108,8 +108,7 @@ contract DAO is Owned {
         p.duration = _duration;
 
         for (uint i = 0; i < _options.length; i++) {
-            Option storage option = p.options[i];
-            option.description = _options[i];
+            p.options.push(Option(0, _options[i]));
         }
 
         return proposalID;
@@ -120,7 +119,7 @@ contract DAO is Owned {
         Proposal storage p = proposals[proposalID];
         require(!p.finished && !p.voted[msg.sender]);
         Option storage o = p.options[optionID];
-        o.votes.push(_address);
+        o.votes++;
         p.votesCount++;
 
     }
@@ -134,7 +133,7 @@ contract DAO is Owned {
 
         Option storage result = p.options[0];
         for(uint i = 0; i< p.options.length; i++) {
-            if(result.votes.length < p.options[i].votes.length) result = p.options[i];
+            if(result.votes < p.options[i].votes) result = p.options[i];
         }
 
         p.result = result;
