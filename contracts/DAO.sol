@@ -30,16 +30,11 @@ contract DAO is Owned {
 
     struct Option {
         uint votes;
-        bytes256 description;
-    }
-
-    struct Vote {
-        bool inSupport;
-        address voter;
+        bytes32 description;
     }
 
     struct Proposal {
-        bytes256 description;
+        bytes32 description;
         bool proposalPassed;
         Option[] options;
         mapping (address => bool) voted;
@@ -102,11 +97,11 @@ contract DAO is Owned {
         participantsCount--;
     }
 
-    function addProposal(string _description, uint _duration, bytes256[] _options) returns (uint) {
+    function addProposal(string _description, uint _duration, bytes32[] _options) returns (uint) {
         require(_options.length >= 2);
         uint proposalID = proposals.length++;
         Proposal storage p = proposals[proposalID];
-        p.description = stringToBytes256(_description);
+        p.description = stringTobytes32(_description);
         p.proposalPassed = false;
         p.created_at = block.timestamp;
         p.duration = _duration;
@@ -119,11 +114,12 @@ contract DAO is Owned {
         ProposalCreated(proposalID);
     }
 
-    function addVote(uint proposalID, uint optionID, address _address) {
+    function addVote(uint proposalID, uint optionID, address _votingUser) {
         require(proposalID < proposals.length && optionID < p.options.length);
         Proposal storage p = proposals[proposalID];
         require(!p.finished && !p.voted[msg.sender]);
         Option storage o = p.options[optionID];
+        p.voted[_votingUser] = true;
         o.votes++;
         p.votesCount++;
     }
@@ -143,13 +139,13 @@ contract DAO is Owned {
         p.result = result;
     }
 
-    function getProposalInfo(uint proposalID) public constant returns (bytes256) {
+    function getProposalInfo(uint proposalID) public constant returns (bytes32) {
         return proposals[proposalID].description;
     }
 
-    function getProposalOptions(uint proposalID) public constant returns(bytes256[]) {
+    function getProposalOptions(uint proposalID) public constant returns(bytes32[]) {
         Option[] storage options = proposals[proposalID].options;
-        bytes256[] memory optionDescriptions = new bytes256[](options.length);
+        bytes32[] memory optionDescriptions = new bytes32[](options.length);
         for(uint i = 0; i < options.length; i++) {
             optionDescriptions[i] = options[i].description;
         }
@@ -157,8 +153,8 @@ contract DAO is Owned {
         return optionDescriptions;
     }
 
-    function getProposals() public constant returns(bytes256[]) {
-        bytes256[] memory _proposalDescriptions = new bytes256[](proposals.length);
+    function getProposals() public constant returns(bytes32[]) {
+        bytes32[] memory _proposalDescriptions = new bytes32[](proposals.length);
         for(uint i = 0; i < proposals.length; i++) {
             _proposalDescriptions[i] = proposals[i].description;
         }
@@ -171,9 +167,9 @@ contract DAO is Owned {
         _;
     }
 
-    function stringToBytes256(string memory source) private returns (bytes256 result) {
+    function stringTobytes32(string memory source) private returns (bytes32 result) {
         assembly {
-            result := mload(add(source, 256))
+            result := mload(add(source, 32))
         }
     }
 }

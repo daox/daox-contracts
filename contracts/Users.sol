@@ -5,10 +5,10 @@ contract Users {
     mapping(bytes32 => bool) public properties;
 
     struct User {
-    bytes32 name;
-    bytes32 secondName;
-    bytes32 email;
-    mapping(bytes32 => address[]) approves;
+        bytes32 name;
+        bytes32 secondName;
+        bytes32 email;
+        mapping(bytes32 => address[]) approves;
     }
 
     function Users() {
@@ -48,7 +48,7 @@ contract Users {
 
     function stringToBytes32(string memory source) private returns (bytes32 result) {
         assembly {
-        result := mload(add(source, 32))
+            result := mload(add(source, 32))
         }
     }
 }

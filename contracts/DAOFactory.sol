@@ -25,6 +25,3 @@ contract DAOFactory {
         DAOCreated(newDAO, _name, _description, _minVote, _participants);
     }
 }
-
-
-0x9BDBc894e62E00a64Afe0C674E248f6AD4AAEbCd
