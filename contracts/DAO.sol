@@ -92,7 +92,7 @@ contract DAO is Owned {
     }
 
     function removeParticipant(address _address) private {
-        require(users.doesExist(_address));
+        require(participants[_address]);
         participants[_address] = false;
         participantsCount--;
     }
@@ -115,7 +115,7 @@ contract DAO is Owned {
     }
 
     function addVote(uint proposalID, uint optionID, address _votingUser) {
-        require(proposalID < proposals.length && optionID < p.options.length);
+        require(participants[_address] && proposalID < proposals.length && optionID < p.options.length);
         Proposal storage p = proposals[proposalID];
         require(!p.finished && !p.voted[msg.sender]);
         Option storage o = p.options[optionID];
