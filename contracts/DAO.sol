@@ -25,7 +25,10 @@ contract DAO is Owned {
     */
     Users public users;
 
-    event ProposalCreated(uint proposalID);
+    event ProposalCreated(
+        uint proposalID,
+        bytes32[] options
+    );
     event OptionCreated(uint optionID);
 
     struct Option {
@@ -108,14 +111,13 @@ contract DAO is Owned {
 
         for (uint i = 0; i < _options.length; i++) {
             p.options.push(Option(0, _options[i]));
-            OptionCreated(i);
         }
 
-        ProposalCreated(proposalID);
+        ProposalCreated(proposalID, _options);
     }
 
     function addVote(uint proposalID, uint optionID, address _votingUser) {
-        require(participants[_address] && proposalID < proposals.length && optionID < p.options.length);
+        require(participants[_votingUser] && proposalID < proposals.length && optionID < p.options.length);
         Proposal storage p = proposals[proposalID];
         require(!p.finished && !p.voted[msg.sender]);
         Option storage o = p.options[optionID];
