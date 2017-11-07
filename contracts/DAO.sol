@@ -61,7 +61,7 @@ contract DAO is Owned {
     uint8 public minVote; // in percents
     Voting[] votings;
     uint participantsCount;
-    //    Token public token;
+
 
     function DAO(address _address, string _name, string _description, uint8 _minVote, address[] _participants)
     Owned()
@@ -81,8 +81,9 @@ contract DAO is Owned {
         return participants[participantAddress];
     }
 
-    function addParticipant(address participantAddress) onlyOwner returns (bool) {
-        require(users.doesExist(participantAddress));
+    function addParticipant(address participantAddress) returns (bool) {
+        require(users.doesExist(participantAddress) && !isParticipant(participantAddress)
+        && (msg.sender == owner || msg.sender == participantAddress));
         participants[participantAddress] = true;
         participantsCount++;
 
@@ -104,7 +105,7 @@ contract DAO is Owned {
         participantsCount--;
     }
 
-    function addProposal(string _description, uint _duration, bytes32[] _options) {
+    function addProposal(string _description, uint _duration, bytes32[] _options) onlyParticipant {
         require(_options.length >= 2);
         uint proposalID = votings.length++;
         createBasicVoting(proposalID, _description, _duration, _options);
@@ -188,11 +189,6 @@ contract DAO is Owned {
 
         return _proposalDescriptions;
     }
-
-    //    function createTokens(string name, string symbol, uint decimals) {
-    //        address _token = new Token(name, symbol, decimals);
-    //        token = Token(_token);
-    //    }
 
     modifier onlyParticipant {
         require(participants[msg.sender] == true);
