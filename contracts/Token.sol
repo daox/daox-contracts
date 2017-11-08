@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
-import 'zeppelin-solidity/contracts/token/BasicToken.sol';
-import 'zeppelin-solidity/contracts/token/MintableToken.sol';
+import '../node_modules/zeppelin-solidity/contracts/token/BasicToken.sol';
+import '../node_modules/zeppelin-solidity/contracts/token/MintableToken.sol';
 
 contract Token is MintableToken {
     string public constant name;

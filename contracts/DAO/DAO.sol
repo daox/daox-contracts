@@ -1,6 +1,6 @@
 pragma solidity ^0.4.11;
 
-import "./Users.sol";
+import "../Users.sol";
 //import "./Token.sol";
 
 contract Owned {
@@ -63,10 +63,10 @@ contract DAO is Owned {
     uint participantsCount;
 
 
-    function DAO(address _address, string _name, string _description, uint8 _minVote, address[] _participants)
-    Owned()
+    function DAO(address _usersAddress, string _name, string _description, uint8 _minVote, address[] _participants, address _owner)
+    Owned(_owner)
     {
-        users = Users(_address);
+        users = Users(_usersAddress);
         name = _name;
         created_at = block.timestamp;
         description = _description;
