@@ -1,6 +1,5 @@
 pragma solidity ^0.4.0;
 
-
-contract OrdinaryDAO is DAO {
-
-}
+//contract OrdinaryDAO is DAO {
+//
+//}

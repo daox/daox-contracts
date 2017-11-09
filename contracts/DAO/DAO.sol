@@ -6,8 +6,8 @@ import "../Users.sol";
 contract Owned {
     address public owner;
 
-    function Owned() {
-        owner = msg.sender;
+    function Owned(address _owner) {
+        owner = _owner;
     }
 
     modifier onlyOwner {
@@ -33,22 +33,22 @@ contract DAO is Owned {
     event OptionCreated(uint optionID);
 
     struct Option {
-    uint votes;
-    bytes32 description;
+        uint votes;
+        bytes32 description;
     }
 
     struct Voting {
-    address creator;
-    bytes32 description;
-    bool votingPassed;
-    Option[] options;
-    mapping (address => bool) voted;
-    Option result;
-    uint votesCount;
-    uint duration; // UNIX
-    uint created_at; // UNIX
-    bool finished;
-    uint withdrawalSum;
+        address creator;
+        bytes32 description;
+        bool votingPassed;
+        Option[] options;
+        mapping (address => bool) voted;
+        Option result;
+        uint votesCount;
+        uint duration; // UNIX
+        uint created_at; // UNIX
+        bool finished;
+        uint withdrawalSum;
     }
 
     /*

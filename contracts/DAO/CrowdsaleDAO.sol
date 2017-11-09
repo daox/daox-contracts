@@ -1,6 +1,7 @@
 pragma solidity ^0.4.11;
 
 import "../Token.sol";
+import "./DAO.sol";
 
 contract CrowdsaleDAO is DAO {
     /*
@@ -20,17 +21,26 @@ contract CrowdsaleDAO is DAO {
     uint startBlock;
     uint endBlock;
     bool isCrowdsaleFinished = false;
+    uint public weiRaised = 0;
 
-    function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote, address[] _participants,
-    uint _softCap, uint _hardCap, uint rate, string _tokenName, string _tokenSymbol, uint _tokenDecimals, uint _startBlock, uint _endBlock)
-    DAO(_usersAddress, _name, _description, _minVote, _participants) {
+    function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote, address[] _participants, address _owner)
+    DAO(_usersAddress, _name, _description, _minVote, _participants, _owner) {
+
+    }
+
+    function initTokenParameters(string _tokenName, string _tokenSymbol, uint _tokenDecimals) public {
+        address _token = new Token(_tokenName, _tokenSymbol, _tokenDecimals);
+        token = Token(_token);
+    }
+
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) public {
         softCap = _softCap;
         hardCap = _hardCap;
 
         startBlock = _startBlock;
         endBlock = _endBlock;
 
-        createToken(_tokenName, _tokenSymbol, _tokenDecimals);
+        rate = _rate;
     }
 
     function() payable {
@@ -39,13 +49,13 @@ contract CrowdsaleDAO is DAO {
         uint weiAmount = msg.value;
 
         //ToDo: rate in ethers or weis?
-        uint tokensAmount = weiAmount.mul(rate);
+        uint tokensAmount = weiAmount * rate;
 
         // update state
-        weiRaised = weiRaised.add(weiAmount);
+        weiRaised = weiRaised + weiAmount;
 
-        token.mint(beneficiary, tokensAmount);
-        TokenPurchase(msg.sender, beneficiary, weiAmount, tokens);
+        token.mint(msg.sender, tokensAmount);
+        TokenPurchase(msg.sender, weiAmount, tokensAmount);
 
         //forwardFunds();
     }
@@ -53,7 +63,7 @@ contract CrowdsaleDAO is DAO {
     function validPurchase(uint value) constant returns(bool) {
         if (value * rate > hardCap) return false;
         if (block.number > endBlock) return false;
-        require(token.canMint());
+        //if (token.mintingFinished == true) return false; ToDo: do we need to check that?
 
         return true;
     }
@@ -63,10 +73,5 @@ contract CrowdsaleDAO is DAO {
         isCrowdsaleFinished = true;
 
         token.finishMinting();
-    }
-
-    function createToken(string _name, string _symbol, uint _decimals) {
-        address _token = new Token(_name, _symbol, _decimals);
-        token = Token(_token);
     }
 }
