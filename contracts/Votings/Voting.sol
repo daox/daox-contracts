@@ -1,23 +1,19 @@
 pragma solidity ^0.4.0;
 
 import "../Common.sol";
-import "../DAO/DAO.sol";
+import "../DAO/DAOInterface.sol";
 
 contract Voting {
-
-    using Common for string;
-
-    DAO dao;
-    address creator;
-    bytes32 description;
-    bool votingPassed;
+    DAOInterface dao;
+    address public creator;
+    bytes32 public description;
     Option[] options;
-    mapping (address => bool) voted;
+    mapping (address => bool) public voted;
     Option result;
-    uint votesCount;
-    uint duration; // UNIX
-    uint created_at; // UNIX
-    bool finished;
+    uint public votesCount;
+    uint public duration; // UNIX
+    uint public created_at; // UNIX
+    bool public finished;
 
     struct Option {
         uint votes;
@@ -25,19 +21,18 @@ contract Voting {
     }
 
     function Voting(address _creator, string _description, uint _duration){
-        dao = DAO(msg.sender);
+        dao = DAOInterface(msg.sender);
         creator = _creator;
-        description = _description.stringToBytes32();
-        votingPassed = false;
+        description = Common.stringToBytes32(_description);
         finished = false;
         created_at = block.timestamp;
         duration = _duration;
     }
 
-    function addVote(uint optionID)  {
-        require(dao.participants[msg.sender] && optionID < options.length && !v.finished && !voted[msg.sender]);
+    function addVote(uint optionID) {
+        require(dao.isParticipant(msg.sender) && optionID < options.length && !finished && !voted[msg.sender]);
         Option storage o = options[optionID];
-        v.voted[_votingUser] = true;
+        voted[msg.sender] = true;
         votesCount++;
         o.votes++;
     }
@@ -45,7 +40,7 @@ contract Voting {
     function finish() constant returns (bool) {
         require(duration + created_at >= block.timestamp);
         finished = true;
-        if(votesCount < dao.minVote) return false;
+        if(percent(votesCount, dao.getParticipantsCount(), 2) < dao.getMinVotes()) return false;
 
         Option storage _result = options[0];
         for(uint i = 0; i< options.length; i++) {
@@ -55,9 +50,6 @@ contract Voting {
         result = _result;
 
         return true;
-        if(withdrawalSum > 0 && result.description == "yes") {
-            assert(!owner.call.value(withdrawalSum*1 ether)());
-        }
     }
 
     function createOptions(bytes32[] _options) internal {
@@ -66,8 +58,12 @@ contract Voting {
         }
     }
 
-    modifier onlyDAO {
-        require(participants[msg.sender] == true);
-        _;
+    function getProposalOptions(uint proposalID) public constant returns(bytes32[]) {
+        bytes32[] memory optionDescriptions = new bytes32[](options.length);
+        for(uint i = 0; i < options.length; i++) {
+            optionDescriptions[i] = options[i].description;
+        }
+
+        return optionDescriptions;
     }
 }

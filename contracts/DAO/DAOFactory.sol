@@ -4,11 +4,11 @@ import "./DAO.sol";
 
 contract DAOFactory {
     event DAOCreated(
-        address _address,
-        string _name,
-        string _description,
-        uint8 _minVote,
-        address[] _participants
+    address _address,
+    string _name,
+    string _description,
+    uint8 _minVote,
+    address[] _participants
     );
     mapping(address => string) DAOs;
     address public usersContract;
