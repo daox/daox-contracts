@@ -75,7 +75,7 @@ contract Voting {
         }
     }
 
-    function getProposalOptions(uint proposalID) public constant returns(bytes32[]) {
+    function getProposalOptions() public constant returns(bytes32[]) {
         bytes32[] memory optionDescriptions = new bytes32[](options.length);
         for(uint i = 0; i < options.length; i++) {
             optionDescriptions[i] = options[i].description;
