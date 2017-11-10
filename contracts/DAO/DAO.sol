@@ -90,22 +90,12 @@ contract DAO is Owned, DAOInterface {
         participantsCount--;
     }
 
-    function addProposal(string _description, uint _duration, bytes32[] _options) onlyParticipant {
-        require(_options.length >= 2);
-        address proposal = new Proposal(msg.sender, _description, _duration, _options);
-        votings[proposal] = _description;
+    function addVoting(string _description, uint _duration, bytes32[] _options, uint _sum) onlyParticipant {
+        address voting = new Voting(msg.sender, _description, _duration, _options, _sum);
+        votings[voting] = _description;
 
-        VotingCreated(proposal);
+        VotingCreated(voting);
     }
-
-    function addWithdrawal(string _description, uint _duration, uint _sum) onlyOwner {
-        require(_sum > 0);
-        address withdrawal = new Withdrawal(msg.sender, _description, _duration, _sum);
-        votings[withdrawal] = _description;
-
-        VotingCreated(withdrawal);
-    }
-
 
     function getMinVotes() public constant returns(uint) {
         return minVote;
