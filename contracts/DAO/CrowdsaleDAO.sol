@@ -53,6 +53,7 @@ contract CrowdsaleDAO is Owned {
         token = TokenInterface(_tokenAddress);
     }
 
+    //ToDo: move these parameters to the contract constructor???
     function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) public {
         softCap = _softCap;
         hardCap = _hardCap;
