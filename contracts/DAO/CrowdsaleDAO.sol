@@ -23,8 +23,8 @@ contract CrowdsaleDAO is DAO {
     bool isCrowdsaleFinished = false;
     uint public weiRaised = 0;
 
-    function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote, address[] _participants, address _owner)
-    DAO(_usersAddress, _name, _description, _minVote, _participants, _owner) {
+    function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote, address _owner)
+    DAO(_usersAddress, _name, _description, _minVote, _owner) {
 
     }
 

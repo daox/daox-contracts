@@ -43,31 +43,35 @@ contract DAO is Owned, DAOInterface {
     mapping(address => string) public votings;
     uint participantsCount;
 
+    modifier isUser(address _userAddress) {
+        require(users.doesExist(_userAddress));
+        _;
+    }
 
-    function DAO(address _usersAddress, string _name, string _description, uint8 _minVote, address[] _participants, address _owner)
-    Owned(_owner)
+    modifier isNotParticipant(address _userAddress) {
+        require(participants[_userAddress]);
+        _;
+    }
+
+    function DAO(address _usersAddress, string _name, string _description, uint8 _minVote, address _owner, address _creator)
+    Owned(_owner) isUser(_owner)
     {
         users = UserInterface(_usersAddress);
         name = _name;
         created_at = block.timestamp;
         description = _description;
         minVote = _minVote;
-        for(uint i =0; i<_participants.length; i++) {
-            require(users.doesExist(_participants[i]));
-            participants[_participants[i]] = true;
-        }
+        participants[_owner] = true;
     }
 
     function isParticipant(address participantAddress) constant returns (bool) {
         return participants[participantAddress];
     }
 
-    function addParticipant(address participantAddress) returns (bool) {
-        require(users.doesExist(participantAddress) && !isParticipant(participantAddress)
-        && (msg.sender == owner || msg.sender == participantAddress));
+    function addParticipant(address participantAddress) isUser(participantAddress) isNotParticipant(participantAddress) returns (bool) {
+        require(msg.sender == owner || msg.sender == participantAddress);
         participants[participantAddress] = true;
         participantsCount++;
-
 
         return participants[participantAddress];
     }
@@ -103,7 +107,7 @@ contract DAO is Owned, DAOInterface {
     }
 
 
-    function getMinVotes() public constant returns(uint8) {
+    function getMinVotes() public constant returns(uint) {
         return minVote;
     }
 

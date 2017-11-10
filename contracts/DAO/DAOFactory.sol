@@ -18,7 +18,7 @@ contract DAOFactory {
     }
 
     function createOrdinaryDAO(string _name, string _description, uint8 _minVote, address[] _participants, address _owner) {
-        address newDAO = new DAO(usersContract, _name, _description, _minVote, _participants, _owner);
+        address newDAO = new DAO(usersContract, _name, _description, _minVote, _owner);
         DAOs[newDAO] = _name;
 
         DAOCreated(newDAO, "ordinary");

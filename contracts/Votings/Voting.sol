@@ -40,7 +40,7 @@ contract Voting {
     function finish() constant returns (bool) {
         require(duration + created_at >= block.timestamp);
         finished = true;
-        if(percent(votesCount, dao.getParticipantsCount(), 2) < dao.getMinVotes()) return false;
+        if(Common.percent(votesCount, dao.getParticipantsCount(), 2) < dao.getMinVotes()) return false;
 
         Option storage _result = options[0];
         for(uint i = 0; i< options.length; i++) {
