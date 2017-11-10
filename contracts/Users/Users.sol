@@ -1,6 +1,9 @@
 pragma solidity ^0.4.11;
 
-contract Users {
+import "../Common.sol";
+import "./UserInterface.sol";
+
+contract Users is UserInterface {
     mapping(address => User) public users;
     mapping(bytes32 => bool) public properties;
 
@@ -43,12 +46,6 @@ contract Users {
         require(doesExist(_address));
         User storage user = users[_address];
 
-        return user.approves[stringToBytes32(property)];
-    }
-
-    function stringToBytes32(string memory source) private returns (bytes32 result) {
-        assembly {
-            result := mload(add(source, 32))
-        }
+        return user.approves[Common.stringToBytes32(property)];
     }
 }

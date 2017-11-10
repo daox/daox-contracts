@@ -4,7 +4,6 @@ import "./DAO.sol";
 import "./CrowdsaleDAO.sol";
 
 contract DAOFactory {
-
     event DAOCreated(
         address _address,
         //string _name,

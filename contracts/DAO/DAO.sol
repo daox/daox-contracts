@@ -1,7 +1,9 @@
 pragma solidity ^0.4.11;
 
-import "../Users.sol";
-//import "./Token.sol";
+import "../UserInterface.sol";
+import "./DAOInterface.sol";
+import "../Votings/Proposal.sol";
+import "../Votings/Withdrawal.sol";
 
 contract Owned {
     address public owner;
@@ -20,36 +22,15 @@ contract Owned {
     }
 }
 
-contract DAO is Owned {
+contract DAO is Owned, DAOInterface {
     /*
     Reference to external contract
     */
-    Users public users;
+    UserInterface public users;
 
     event VotingCreated(
-    uint votingID,
-    bytes32[] options
+        address votingAddress
     );
-    event OptionCreated(uint optionID);
-
-    struct Option {
-        uint votes;
-        bytes32 description;
-    }
-
-    struct Voting {
-        address creator;
-        bytes32 description;
-        bool votingPassed;
-        Option[] options;
-        mapping (address => bool) voted;
-        Option result;
-        uint votesCount;
-        uint duration; // UNIX
-        uint created_at; // UNIX
-        bool finished;
-        uint withdrawalSum;
-    }
 
     /*
     Public dao properties
@@ -59,14 +40,14 @@ contract DAO is Owned {
     uint256 public created_at; // UNIX time
     string public description;
     uint8 public minVote; // in percents
-    Voting[] votings;
+    mapping(address => string) public votings;
     uint participantsCount;
 
 
     function DAO(address _usersAddress, string _name, string _description, uint8 _minVote, address[] _participants, address _owner)
     Owned(_owner)
     {
-        users = Users(_usersAddress);
+        users = UserInterface(_usersAddress);
         name = _name;
         created_at = block.timestamp;
         description = _description;
@@ -107,97 +88,31 @@ contract DAO is Owned {
 
     function addProposal(string _description, uint _duration, bytes32[] _options) onlyParticipant {
         require(_options.length >= 2);
-        uint proposalID = votings.length++;
-        createBasicVoting(proposalID, _description, _duration, _options);
+        address proposal = new Proposal(msg.sender, _description, _duration, _options);
+        votings[proposal] = _description;
 
-        VotingCreated(proposalID, _options);
+        VotingCreated(proposal);
     }
 
     function addWithdrawal(string _description, uint _duration, uint _sum) onlyOwner {
-        uint proposalID = votings.length++;
-        bytes32[] memory _options = new bytes32[](2);
-        _options[0] = "yes";
-        _options[1] = "no";
-        Voting storage v  = createBasicVoting(proposalID, _description, _duration, _options);
-        v.withdrawalSum = _sum;
+        require(_sum > 0);
+        address withdrawal = new Withdrawal(msg.sender, _description, _duration, _sum);
+        votings[withdrawal] = _description;
 
-        VotingCreated(proposalID, _options);
+        VotingCreated(withdrawal);
     }
 
-    function createBasicVoting(uint proposalID, string _description, uint _duration, bytes32[] _options) private returns(Voting storage) {
-        Voting storage v = votings[proposalID];
-        v.creator = msg.sender;
-        v.description = stringToBytes32(_description);
-        v.votingPassed = false;
-        v.created_at = block.timestamp;
-        v.duration = _duration;
 
-        for (uint i = 0; i < _options.length; i++) {
-            v.options.push(Option(0, _options[i]));
-        }
-
-        return v;
+    function getMinVotes() public constant returns(uint8) {
+        return minVote;
     }
 
-    function addVote(uint proposalID, uint optionID, address _votingUser) {
-        Voting storage v = votings[proposalID];
-        require(participants[_votingUser] && proposalID < votings.length && optionID < v.options.length);
-        require(!v.finished && !v.voted[msg.sender]);
-        Option storage o = v.options[optionID];
-        v.voted[_votingUser] = true;
-        o.votes++;
-        v.votesCount++;
-    }
-
-    function finishProposal(uint proposalID) returns (bool) {
-        require(proposalID < votings.length);
-        Voting storage v = votings[proposalID];
-        require(v.duration + v.created_at >= block.timestamp);
-        v.finished = true;
-        if(v.votesCount/participantsCount*100 < minVote) return;
-
-        Option storage result = v.options[0];
-        for(uint i = 0; i< v.options.length; i++) {
-            if(result.votes < v.options[i].votes) result = v.options[i];
-        }
-
-        v.result = result;
-        if(v.withdrawalSum > 0 && v.result.description == "yes") {
-            assert(!owner.call.value(v.withdrawalSum*1 ether)());
-        }
-    }
-
-    function getProposalInfo(uint proposalID) public constant returns (bytes32) {
-        return votings[proposalID].description;
-    }
-
-    function getProposalOptions(uint proposalID) public constant returns(bytes32[]) {
-        Option[] storage options = votings[proposalID].options;
-        bytes32[] memory optionDescriptions = new bytes32[](options.length);
-        for(uint i = 0; i < options.length; i++) {
-            optionDescriptions[i] = options[i].description;
-        }
-
-        return optionDescriptions;
-    }
-
-    function getProposals() public constant returns(bytes32[]) {
-        bytes32[] memory _proposalDescriptions = new bytes32[](votings.length);
-        for(uint i = 0; i < votings.length; i++) {
-            _proposalDescriptions[i] = votings[i].description;
-        }
-
-        return _proposalDescriptions;
+    function getParticipantsCount() public constant returns(uint) {
+        return participantsCount;
     }
 
     modifier onlyParticipant {
         require(participants[msg.sender] == true);
         _;
-    }
-
-    function stringToBytes32(string memory source) private returns (bytes32 result) {
-        assembly {
-        result := mload(add(source, 32))
-        }
     }
 }
