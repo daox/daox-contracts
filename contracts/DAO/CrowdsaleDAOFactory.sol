@@ -15,10 +15,11 @@ contract CrowdsaleDAOFactory {
         usersContract = _usersContract;
     }
 
-    function createCrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote, address _ownerAddress, address _tokenAddress) {
-        address newDAO = new CrowdsaleDAO(_usersAddress, _name, _description, _minVote, _ownerAddress, _tokenAddress);
+    function createCrowdsaleDAO(string _name, string _description, uint8 _minVote, address _ownerAddress, address _tokenAddress,
+    uint _softCap,uint _hardCap,uint _rate,uint _startBlock,uint _endBlock) {
+        address newDAO = new CrowdsaleDAO(usersContract, _name, _description, _minVote, _ownerAddress, _tokenAddress);
         CrowdsaleDAO dao = CrowdsaleDAO(newDAO);
-//        dao.initCrowdsaleParameters(_softCap, _hardCap, _rate, _startBlock, _endBlock);
+        dao.initCrowdsaleParameters(_softCap, _hardCap, _rate, _startBlock, _endBlock);
 
         DAOs[newDAO] = _name;
 

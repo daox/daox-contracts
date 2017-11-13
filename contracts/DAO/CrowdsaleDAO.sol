@@ -41,15 +41,15 @@ contract CrowdsaleDAO is Owned {
     bool isCrowdsaleFinished = false;
     uint public weiRaised = 0;
 
-    function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote, address _owner, address _tokenAddress)
-    Owned(_owner)
+    function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote, address _ownerAddress, address _tokenAddress)
+    Owned(_ownerAddress)
     {
         users = UserInterface(_usersAddress);
         name = _name;
         created_at = block.timestamp;
         description = _description;
         minVote = _minVote;
-        participants[_owner] = true;
+        participants[_ownerAddress] = true;
         token = TokenInterface(_tokenAddress);
     }
 
