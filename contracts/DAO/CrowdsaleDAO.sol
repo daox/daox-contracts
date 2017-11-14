@@ -92,7 +92,7 @@ contract CrowdsaleDAO is Owned {
     }
 
     function validPurchase(uint value) constant returns(bool) {
-        if (value * rate > hardCap) return false;
+        if (weiRaised + value > hardCap) return false;
         if (block.number > endBlock) return false;
         //if (token.mintingFinished == true) return false; ToDo: do we need to check that?
 
