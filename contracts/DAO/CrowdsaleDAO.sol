@@ -34,11 +34,11 @@ contract CrowdsaleDAO is Owned {
 
     TokenInterface token;
     uint public rate;
-    uint softCap;
-    uint hardCap;
-    uint startBlock;
-    uint endBlock;
-    bool isCrowdsaleFinished = false;
+    uint public softCap;
+    uint public hardCap;
+    uint public startBlock;
+    uint public endBlock;
+    bool public isCrowdsaleFinished = false;
     uint public weiRaised = 0;
 
     function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote, address _ownerAddress, address _tokenAddress)
@@ -55,8 +55,8 @@ contract CrowdsaleDAO is Owned {
 
     //ToDo: move these parameters to the contract constructor???
     function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) public {
-        softCap = _softCap;
-        hardCap = _hardCap;
+        softCap = _softCap * 1 ether;
+        hardCap = _hardCap * 1 ether;
 
         startBlock = _startBlock;
         endBlock = _endBlock;
