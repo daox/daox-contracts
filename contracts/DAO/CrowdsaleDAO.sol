@@ -32,6 +32,14 @@ contract CrowdsaleDAO is Owned {
         uint tokensAmount
     );
 
+    event InitCrowdsaleParameters(
+        uint soft,
+        uint hard,
+        uint start,
+        uint end,
+        uint rate
+    );
+
     TokenInterface token;
     uint public rate;
     uint public softCap;
@@ -62,6 +70,8 @@ contract CrowdsaleDAO is Owned {
         endBlock = _endBlock;
 
         rate = _rate;
+
+        InitCrowdsaleParameters(_softCap, _hardCap, _rate, _startBlock, _endBlock);
     }
 
     function() payable {
