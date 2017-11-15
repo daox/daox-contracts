@@ -41,6 +41,7 @@ contract CrowdsaleDAO is Owned {
     );
 
     TokenInterface token;
+    address serviceContract;
     uint public rate;
     uint public softCap;
     uint public hardCap;
@@ -48,8 +49,11 @@ contract CrowdsaleDAO is Owned {
     uint public endBlock;
     bool public isCrowdsaleFinished = false;
     uint public weiRaised = 0;
+    bool refundable = false;
+    uint newRate = 0;
 
-    function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote, address _ownerAddress, address _tokenAddress)
+    function CrowdsaleDAO(address _usersAddress, string _name, string _description,
+    uint8 _minVote, address _ownerAddress, address _tokenAddress, address _serviceContract)
     Owned(_ownerAddress)
     {
         users = UserInterface(_usersAddress);
@@ -58,6 +62,7 @@ contract CrowdsaleDAO is Owned {
         description = _description;
         minVote = _minVote;
         participants[_ownerAddress] = true;
+        serviceContract = _serviceContract;
         token = TokenInterface(_tokenAddress);
     }
 
@@ -102,8 +107,31 @@ contract CrowdsaleDAO is Owned {
     function finish() public onlyOwner {
         require(endBlock >= block.number);
         isCrowdsaleFinished = true;
-
         token.finishMinting();
+
+        if(weiRaised >= softCap) {
+            uint commission = (weiRaised/100)*4;
+            assert(!serviceContract.call.value(commission*1 wei)());
+        }
+    }
+
+    function withdrawal(address _address, uint withdrawalSum) onlyVoting {
+        assert(!_address.call.value(withdrawalSum*1 ether)());
+    }
+
+    function makeRefundable() onlyVoting {
+        refundable = true;
+        newRate = token.totalSupply() / this.balance;
+    }
+
+    function refund() whenRefundable {
+        uint multiplier = 1000;
+        uint newRateToOld = newRate*multiplier / rate;
+        uint weiSpent = token.balanceOf(msg.sender) / rate;
+        uint weiToRefund = weiSpent*multiplier / newRateToOld;
+
+        assert(!msg.sender.call.value(weiToRefund*1 wei)());
+        token.burn(msg.sender);
     }
 
     /*
@@ -120,18 +148,8 @@ contract CrowdsaleDAO is Owned {
     uint256 public created_at; // UNIX time
     string public description;
     uint8 public minVote; // in percents
-    mapping(address => string) public votings;
+    mapping(address => bytes32) public votings;
     uint participantsCount;
-
-    modifier isUser(address _userAddress) {
-        require(users.doesExist(_userAddress));
-        _;
-    }
-
-    modifier isNotParticipant(address _userAddress) {
-        require(participants[_userAddress]);
-        _;
-    }
 
     function isParticipant(address participantAddress) constant returns (bool) {
         return participants[participantAddress];
@@ -159,9 +177,23 @@ contract CrowdsaleDAO is Owned {
         participantsCount--;
     }
 
-    function addVoting(string _description, uint _duration, bytes32[] _options, uint _sum) onlyParticipant {
-        address voting = new Voting(msg.sender, _description, _duration, _options, _sum);
-        votings[voting] = _description;
+    function addProposal(string _description, uint _duration, bytes32[] _options, uint _sum) onlyParticipant {
+        addVoting(_description, _duration, _options, 0, 0);
+    }
+
+    function addWithdrawal(string _description, uint _duration, bytes32[] _options, uint _sum) onlyParticipant {
+        addVoting(_description, _duration, new bytes32[](0), _sum, 1);
+    }
+
+    function addRefund(string _description, uint _duration, bytes32[] _options, uint _sum) onlyParticipant {
+        addVoting(_description, _duration, new bytes32[](0), 0, 2);
+    }
+
+    function addVoting(string _description, uint _duration, bytes32[] _options, uint _sum, uint votingType) private {
+        uint quorum = minVote;
+        if(votingType == 2) quorum = 95;
+        address voting = new Voting(msg.sender, _description, _duration, _options, _sum, votingType, quorum);
+        votings[voting] = Common.stringToBytes32(_description);
 
         VotingCreated(voting);
     }
@@ -176,6 +208,26 @@ contract CrowdsaleDAO is Owned {
 
     modifier onlyParticipant {
         require(participants[msg.sender] == true);
+        _;
+    }
+
+    modifier onlyVoting() {
+        require(votings[msg.sender] != 0x0);
+        _;
+    }
+
+    modifier isUser(address _userAddress) {
+        require(users.doesExist(_userAddress));
+        _;
+    }
+
+    modifier whenRefundable() {
+        require(refundable);
+        _;
+    }
+
+    modifier isNotParticipant(address _userAddress) {
+        require(participants[_userAddress]);
         _;
     }
 }

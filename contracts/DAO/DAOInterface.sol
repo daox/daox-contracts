@@ -7,4 +7,8 @@ interface DAOInterface {
     function getMinVotes() public constant returns(uint);
 
     function getParticipantsCount() public constant returns(uint);
+
+    function withdrawal(address _address, uint withdrawalSum);
+
+    function makeRefundable();
 }

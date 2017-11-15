@@ -4,6 +4,9 @@ import "../Common.sol";
 import "../DAO/DAOInterface.sol";
 
 contract Voting {
+
+    enum VotingType {Proposal, Withdrawal, Refund}
+
     DAOInterface dao;
     address public creator;
     bytes32 public description;
@@ -15,33 +18,28 @@ contract Voting {
     uint public created_at; // UNIX
     bool public finished;
     uint withdrawalSum;
+    uint public quorum;
+    uint votingType;
 
     struct Option {
-        uint votes;
-        bytes32 description;
+    uint votes;
+    bytes32 description;
     }
 
-    modifier notFinished() {
-        require(!finished);
-        _;
-    }
-
-    function Voting(address _creator, string _description, uint _duration, bytes32[] _options, uint _sum){
+    function Voting(address _creator, string _description, uint _duration, bytes32[] _options, uint _sum, uint _votingType, uint _quorum){
         dao = DAOInterface(msg.sender);
         creator = _creator;
         description = Common.stringToBytes32(_description);
         finished = false;
         created_at = block.timestamp;
         duration = _duration;
-        if(_sum > 0) {
-            withdrawalSum = _sum;
-            bytes32[] memory defaultOptions = new bytes32[](2);
-            defaultOptions[0] = "yes";
-            defaultOptions[1] = "no";
-            createOptions(defaultOptions);
-        } else {
-            createOptions(_options);
-        }
+        quorum = _quorum;
+        votingType = _votingType;
+
+        if(votingType != uint(VotingType.Proposal)) createOptions(createDefaultOptions());
+        else createOptions(_options);
+
+        if(votingType == uint(VotingType.Withdrawal)) withdrawalSum = _sum;
     }
 
     function addVote(uint optionID) notFinished {
@@ -55,17 +53,16 @@ contract Voting {
     function finish() notFinished constant returns (bool)  {
         require(duration + created_at >= block.timestamp);
         finished = true;
-        if(Common.percent(votesCount, dao.getParticipantsCount(), 2) < dao.getMinVotes()) return false;
+        if(Common.percent(votesCount, dao.getParticipantsCount(), 2) < quorum) return false;
 
         Option memory _result = options[0];
         for(uint i = 0; i< options.length; i++) {
             if(_result.votes < options[i].votes) _result = options[i];
         }
-
         result = _result;
-        if(withdrawalSum > 0 && result.description == "yes") {
-            assert(!creator.call.value(withdrawalSum*1 ether)());
-        }
+        if(votingType==uint(VotingType.Withdrawal) && result.description == "yes") dao.withdrawal(creator, withdrawalSum);
+        if(votingType==uint(VotingType.Refund) && result.description == "yes") dao.makeRefundable();
+
         return true;
     }
 
@@ -82,5 +79,18 @@ contract Voting {
         }
 
         return optionDescriptions;
+    }
+
+    function createDefaultOptions() private constant returns (bytes32[]) {
+        bytes32[] memory defaultOptions = new bytes32[](2);
+        defaultOptions[0] = "yes";
+        defaultOptions[1] = "no";
+
+        return defaultOptions;
+    }
+
+    modifier notFinished() {
+        require(!finished);
+        _;
     }
 }
