@@ -31,6 +31,6 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     }
 
     function exists(address _address) public constant returns (bool) {
-        return DAOs[userAddress] != 0x0;
+        return bytes(DAOs[_address]).length != 0;
     }
 }

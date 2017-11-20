@@ -1,8 +1,10 @@
-const ConvertLib = artifacts.require("./ConvertLib.sol");
-const MetaCoin = artifacts.require("./MetaCoin.sol");
+const Common = artifacts.require("./Common.sol");
+const Users = artifacts.require("./Users/Users.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(ConvertLib);
-  deployer.link(ConvertLib, MetaCoin);
-  deployer.deploy(MetaCoin);
+    deployer.deploy(Common);
+    deployer.link(Common, Users);
+    deployer.deploy(Users);
+  // deployer.link(ConvertLib, MetaCoin);
+  // deployer.deploy(MetaCoin);
 };

@@ -33,14 +33,6 @@ contract CrowdsaleDAO is Owned {
         uint tokensAmount
     );
 
-    event InitCrowdsaleParameters(
-        uint soft,
-        uint hard,
-        uint start,
-        uint end,
-        uint rate
-    );
-
     TokenInterface token;
     address commissionContract;
     address serviceContract;
@@ -68,6 +60,7 @@ contract CrowdsaleDAO is Owned {
         participants[_ownerAddress] = true;
         serviceContract = _serviceContract;
         token = TokenInterface(_tokenAddress);
+        transferOwnership(_ownerAddress);
         commissionContract = new Commission(this);
     }
 
@@ -80,8 +73,6 @@ contract CrowdsaleDAO is Owned {
         endBlock = _endBlock;
 
         rate = _rate;
-
-        InitCrowdsaleParameters(_softCap, _hardCap, _rate, _startBlock, _endBlock);
     }
 
     function() payable {
@@ -89,11 +80,11 @@ contract CrowdsaleDAO is Owned {
         //forwardFunds();
     }
 
-    function handleCommissionPayment(address _sender) onlyCommission {
+    function handleCommissionPayment(address _sender) onlyCommission payable {
         handlePayment(_sender, true);
     }
 
-    function handlePayment(address _sender, bool commission) private payable {
+    function handlePayment(address _sender, bool commission) private {
         require(_sender != 0x0);
         require(validPurchase(msg.value));
 
@@ -106,8 +97,8 @@ contract CrowdsaleDAO is Owned {
         // update state
         weiRaised = weiRaised + weiAmount;
 
-        token.mint(msg.sender, tokensAmount);
-        TokenPurchase(msg.sender, weiAmount, tokensAmount);
+        token.mint(_sender, tokensAmount);
+        TokenPurchase(_sender, weiAmount, tokensAmount);
     }
 
     function validPurchase(uint value) constant returns(bool) {

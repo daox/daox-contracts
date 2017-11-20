@@ -13,11 +13,11 @@ contract Token is MintableToken {
         symbol = _symbol;
     }
 
-    function burn(address burner) onlyOwner {
-        require(_address != 0x0);
+    function burn(address _burner) onlyOwner {
+        require(_burner != 0x0);
 
-        uint balance = balanceOf(burner);
-        balances[burner] = balances[burner].sub(balance);
+        uint balance = balanceOf(_burner);
+        balances[_burner] = balances[_burner].sub(balance);
         totalSupply = totalSupply.sub(balance);
     }
 }
