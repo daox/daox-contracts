@@ -53,7 +53,7 @@ contract Voting {
     function finish() notFinished constant returns (bool)  {
         require(duration + created_at >= block.timestamp);
         finished = true;
-        if(Common.percent(votesCount, dao.getParticipantsCount(), 2) < quorum) return false;
+        if(Common.percent(votesCount, dao.participantsCount(), 2) < quorum) return false;
 
         Option memory _result = options[0];
         for(uint i = 0; i< options.length; i++) {

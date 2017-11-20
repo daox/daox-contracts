@@ -3,6 +3,7 @@ pragma solidity ^0.4.11;
 import "../Token/TokenInterface.sol";
 import "../Users/UserInterface.sol";
 import "../Votings/Voting.sol";
+import "../Commission.sol";
 
 contract Owned {
     address public owner;
@@ -41,6 +42,7 @@ contract CrowdsaleDAO is Owned {
     );
 
     TokenInterface token;
+    address commissionContract;
     address serviceContract;
     uint public rate;
     uint public softCap;
@@ -49,6 +51,8 @@ contract CrowdsaleDAO is Owned {
     uint public endBlock;
     bool public isCrowdsaleFinished = false;
     uint public weiRaised = 0;
+    uint commissionRaised = 0;
+    mapping(address => bool) public team;
     bool refundable = false;
     uint newRate = 0;
 
@@ -64,6 +68,7 @@ contract CrowdsaleDAO is Owned {
         participants[_ownerAddress] = true;
         serviceContract = _serviceContract;
         token = TokenInterface(_tokenAddress);
+        commissionContract = new Commission(this);
     }
 
     //ToDo: move these parameters to the contract constructor???
@@ -80,9 +85,20 @@ contract CrowdsaleDAO is Owned {
     }
 
     function() payable {
-        require(msg.sender != 0x0);
+        handlePayment(msg.sender, false);
+        //forwardFunds();
+    }
+
+    function handleCommissionPayment(address _sender) onlyCommission {
+        handlePayment(_sender, true);
+    }
+
+    function handlePayment(address _sender, bool commission) private payable {
+        require(_sender != 0x0);
         require(validPurchase(msg.value));
+
         uint weiAmount = msg.value;
+        if(commission) commissionRaised = commissionRaised + weiAmount;
 
         //ToDo: rate in ethers or weis?
         uint tokensAmount = weiAmount * rate;
@@ -92,8 +108,6 @@ contract CrowdsaleDAO is Owned {
 
         token.mint(msg.sender, tokensAmount);
         TokenPurchase(msg.sender, weiAmount, tokensAmount);
-
-        //forwardFunds();
     }
 
     function validPurchase(uint value) constant returns(bool) {
@@ -110,8 +124,11 @@ contract CrowdsaleDAO is Owned {
         token.finishMinting();
 
         if(weiRaised >= softCap) {
-            uint commission = (weiRaised/100)*4;
+            uint commission = (commissionRaised/100)*4;
             assert(!serviceContract.call.value(commission*1 wei)());
+        } else {
+            refundable = true;
+            newRate = rate;
         }
     }
 
@@ -125,6 +142,8 @@ contract CrowdsaleDAO is Owned {
     }
 
     function refund() whenRefundable {
+        require(!team[msg.sender]);
+
         uint multiplier = 1000;
         uint newRateToOld = newRate*multiplier / rate;
         uint weiSpent = token.balanceOf(msg.sender) / rate;
@@ -198,14 +217,6 @@ contract CrowdsaleDAO is Owned {
         VotingCreated(voting);
     }
 
-    function getMinVotes() public constant returns(uint) {
-        return minVote;
-    }
-
-    function getParticipantsCount() public constant returns(uint) {
-        return participantsCount;
-    }
-
     modifier onlyParticipant {
         require(participants[msg.sender] == true);
         _;
@@ -228,6 +239,11 @@ contract CrowdsaleDAO is Owned {
 
     modifier isNotParticipant(address _userAddress) {
         require(participants[_userAddress]);
+        _;
+    }
+
+    modifier onlyCommission() {
+        require(commissionContract == msg.sender);
         _;
     }
 }

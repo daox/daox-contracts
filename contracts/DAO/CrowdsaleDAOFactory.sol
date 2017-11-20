@@ -22,6 +22,7 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     uint _softCap,uint _hardCap,uint _rate,uint _startBlock,uint _endBlock) {
         address newDAO = new CrowdsaleDAO(usersContract, _name, _description, _minVote, _ownerAddress, _tokenAddress, serviceContract);
         CrowdsaleDAO dao = CrowdsaleDAO(newDAO);
+
         dao.initCrowdsaleParameters(_softCap, _hardCap, _rate, _startBlock, _endBlock);
 
         DAOs[newDAO] = _name;
