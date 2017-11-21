@@ -50,6 +50,7 @@ contract CrowdsaleDAO is Owned {
     uint[] teamBonusesArr;
     uint[] bonusPeriods;
     uint[] bonusRates;
+    bool public refundableSoftCap = false;
     bool public refundable = false;
     uint newRate = 0;
 
@@ -112,6 +113,7 @@ contract CrowdsaleDAO is Owned {
         if(commission) commissionRaised = commissionRaised + weiAmount;
         weiRaised = weiRaised + weiAmount;
         depositedWei[_sender] = depositedWei[_sender] + weiAmount;
+
         if(!isParticipant(_sender)) addParticipant(_sender);
 
         TokenPurchase(_sender, weiAmount, DAOLib.countTokens(token, weiAmount, bonusPeriods, bonusRates, rate));
@@ -123,7 +125,7 @@ contract CrowdsaleDAO is Owned {
 
         if(weiRaised >= softCap) DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, team, teamBonusesArr);
         else {
-            refundable = true;
+            refundableSoftCap = true;
             newRate = rate;
         }
 
@@ -142,10 +144,17 @@ contract CrowdsaleDAO is Owned {
     function refund() whenRefundable {
         require(teamBonuses[msg.sender] == 0);
 
-        assert(!msg.sender.call.value(depositedWei[msg.sender])());
+        assert(!msg.sender.call.value(DAOLib.countRefundSum(token, rate, newRate)*1 wei)());
         token.burn(msg.sender);
     }
 
+    function refundSoftCap() whenRefundable {
+        require(weiRaised[msg.sender] != 0);
+
+        assert(!msg.sender.call.value(weiRaised[msg.sender])());
+        token.burn(msg.sender);
+        weiRaised[msg.sender] = 0;
+    }
     /*
     Public dao properties
     */
@@ -226,7 +235,7 @@ contract CrowdsaleDAO is Owned {
     }
 
     modifier whenRefundable() {
-        require(refundable);
+        require(refundable || refundableSoftCap);
         _;
     }
 
