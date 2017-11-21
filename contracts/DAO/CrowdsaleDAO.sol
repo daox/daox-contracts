@@ -112,6 +112,7 @@ contract CrowdsaleDAO is Owned {
         if(commission) commissionRaised = commissionRaised + weiAmount;
         weiRaised = weiRaised + weiAmount;
         depositedWei[_sender] = depositedWei[_sender] + weiAmount;
+        if(!isParticipant(_sender)) addParticipant(_sender);
 
         TokenPurchase(_sender, weiAmount, DAOLib.countTokens(token, weiAmount, bonusPeriods, bonusRates, rate));
     }
