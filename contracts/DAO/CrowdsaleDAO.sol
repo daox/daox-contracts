@@ -115,7 +115,7 @@ contract CrowdsaleDAO is Owned {
     }
 
     function finish() external onlyOwner {
-        require(endBlock >= block.number);
+        require(block.number >= endBlock);
         isCrowdsaleFinished = true;
 
         if(weiRaised >= softCap) DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, team, teamBonusesArr);
@@ -137,7 +137,7 @@ contract CrowdsaleDAO is Owned {
     }
 
     function refund() whenRefundable {
-        require(!teamBonuses[msg.sender]);
+        require(teamBonuses[msg.sender] == 0);
 
         assert(!msg.sender.call.value(DAOLib.countRefundSum(token, rate, newRate)*1 wei)());
         token.burn(msg.sender);
