@@ -46,6 +46,7 @@ contract CrowdsaleDAO is Owned {
     uint public commissionRaised = 0;
     address[] team;
     mapping(address => uint) teamBonuses;
+    mapping(address => uint) public depositedWei;
     uint[] teamBonusesArr;
     uint[] bonusPeriods;
     uint[] bonusRates;
@@ -110,11 +111,12 @@ contract CrowdsaleDAO is Owned {
         uint weiAmount = msg.value;
         if(commission) commissionRaised = commissionRaised + weiAmount;
         weiRaised = weiRaised + weiAmount;
+        depositedWei[_sender] = depositedWei[_sender] + weiAmount;
 
         TokenPurchase(_sender, weiAmount, DAOLib.countTokens(token, weiAmount, bonusPeriods, bonusRates, rate));
     }
 
-    function finish() external onlyOwner {
+    function finish() onlyOwner {
         require(block.number >= endBlock);
         isCrowdsaleFinished = true;
 
@@ -139,7 +141,7 @@ contract CrowdsaleDAO is Owned {
     function refund() whenRefundable {
         require(teamBonuses[msg.sender] == 0);
 
-        assert(!msg.sender.call.value(DAOLib.countRefundSum(token, rate, newRate)*1 wei)());
+        assert(!msg.sender.call.value(depositedWei[msg.sender])());
         token.burn(msg.sender);
     }
 
