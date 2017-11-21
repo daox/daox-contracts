@@ -13,7 +13,7 @@ contract Owned {
     }
 
     modifier onlyOwner {
-        require(msg.sender != owner);
+        require(msg.sender == owner);
         _;
     }
 
@@ -34,7 +34,7 @@ contract CrowdsaleDAO is Owned {
     );
 
     TokenInterface token;
-    address commissionContract;
+    address public commissionContract;
     address serviceContract;
     uint public rate;
     uint public softCap;
@@ -43,13 +43,13 @@ contract CrowdsaleDAO is Owned {
     uint public endBlock;
     bool public isCrowdsaleFinished = false;
     uint public weiRaised = 0;
-    uint commissionRaised = 0;
+    uint public commissionRaised = 0;
     address[] team;
     mapping(address => uint) teamBonuses;
     uint[] teamBonusesArr;
     uint[] bonusPeriods;
     uint[] bonusRates;
-    bool refundable = false;
+    bool public refundable = false;
     uint newRate = 0;
 
     function CrowdsaleDAO(address _usersAddress, string _name, string _description,
