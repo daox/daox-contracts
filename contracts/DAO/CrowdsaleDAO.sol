@@ -148,7 +148,7 @@ contract CrowdsaleDAO is Owned {
         token.burn(msg.sender);
     }
 
-    function refundSoftCap() whenRefundable {
+    function refundSoftCap() whenRefundableSoftCap {
         require(weiRaised[msg.sender] != 0);
 
         assert(!msg.sender.call.value(weiRaised[msg.sender])());
@@ -235,7 +235,12 @@ contract CrowdsaleDAO is Owned {
     }
 
     modifier whenRefundable() {
-        require(refundable || refundableSoftCap);
+        require(refundable);
+        _;
+    }
+
+    modifier whenRefundableSoftCap() {
+        require(refundableSoftCap);
         _;
     }
 
