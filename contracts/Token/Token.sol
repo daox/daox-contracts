@@ -47,4 +47,3 @@ contract Token is MintableToken {
         _;
     }
 }
-}
