@@ -21,7 +21,7 @@ library DAOLib {
         return weiSpent*multiplier / newRateToOld;
     }
 
-    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, address[] team, uint[] teamBonuses) {
+    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, address[] bonusPeriods, uint[] bonusRates) {
         uint commission = (commissionRaised/100)*4;
         assert(!serviceContract.call.value(commission*1 wei)());
         for(uint i = 0; i < team.length; i++) {
