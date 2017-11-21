@@ -1,18 +1,15 @@
 pragma solidity ^0.4.11;
 
-import "./DAO/DAOFactoryInterface.sol";
 import "./Token/Token.sol";
 
 contract DAOx {
 
-    DAOFactoryInterface public DAOFactory;
     Token public token;
     uint public constant tokenRate = 100;
     uint weiRaised;
 
     function DAOx(address daoFactoryAddress){
         token = new Token("DAOx", "DAOX");
-        DAOFactory = DAOFactoryInterface(daoFactoryAddress);
     }
 
     function() payable onlyDAO {
@@ -26,10 +23,5 @@ contract DAOx {
         token.mint(msg.sender, tokensAmount);
 
         //forwardFunds();
-    }
-
-    modifier onlyDAO {
-        require(DAOFactory.exists(msg.sender));
-        _;
     }
 }

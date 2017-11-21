@@ -6,4 +6,5 @@ interface TokenInterface {
     function totalSupply() public constant returns (uint);
     function balanceOf(address _address) public constant returns (uint);
     function burn(address burner);
+    function setHolding(uint _unholdTime);
 }
