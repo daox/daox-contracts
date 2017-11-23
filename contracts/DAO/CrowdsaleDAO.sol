@@ -2,8 +2,9 @@ pragma solidity ^0.4.11;
 
 import "../Token/TokenInterface.sol";
 import "../Users/UserInterface.sol";
-import "../Votings/Voting.sol";
 import "../Commission.sol";
+import "./DAOLib.sol";
+import "../Votings/VotingFactoryInterface.sol";
 
 contract Owned {
     address public owner;
@@ -34,6 +35,7 @@ contract CrowdsaleDAO is Owned {
     );
 
     TokenInterface token;
+    VotingFactoryInterface votingFactory;
     address public commissionContract;
     address serviceContract;
     uint public rate;
@@ -106,7 +108,7 @@ contract CrowdsaleDAO is Owned {
         handlePayment(_sender, true);
     }
 
-    function handlePayment(address _sender, bool commission) CrowdsaleStarted validPurchase private {
+    function handlePayment(address _sender, bool commission) CrowdsaleStarted validPurchase(msg.value) private {
         require(_sender != 0x0);
 
         uint weiAmount = msg.value;
@@ -116,14 +118,14 @@ contract CrowdsaleDAO is Owned {
 
         if(!isParticipant(_sender)) addParticipant(_sender);
 
-        TokenPurchase(_sender, weiAmount, DAOLib.countTokens(token, weiAmount, bonusPeriods, bonusRates, rate));
+        TokenPurchase(_sender, weiAmount, DAOLib.countTokens(token, weiAmount, bonusPeriods, bonusRates, rate, _sender));
     }
 
     function finish() onlyOwner {
         require(block.number >= endBlock);
         isCrowdsaleFinished = true;
 
-        if(weiRaised >= softCap) DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, team, teamBonusesArr);
+        if(weiRaised >= softCap) DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team);
         else {
             refundableSoftCap = true;
             newRate = rate;
@@ -149,11 +151,11 @@ contract CrowdsaleDAO is Owned {
     }
 
     function refundSoftCap() whenRefundableSoftCap {
-        require(weiRaised[msg.sender] != 0);
+        require(depositedWei[msg.sender] != 0);
 
-        assert(!msg.sender.call.value(weiRaised[msg.sender])());
+        assert(!msg.sender.call.value(depositedWei[msg.sender])());
         token.burn(msg.sender);
-        weiRaised[msg.sender] = 0;
+        depositedWei[msg.sender] = 0;
     }
     /*
     Public dao properties
@@ -199,25 +201,25 @@ contract CrowdsaleDAO is Owned {
     }
 
     function addProposal(string _description, uint _duration, bytes32[] _options) onlyParticipant {
-        addVoting(_description, _duration, _options, 0, 0);
+        votingFactory.createProposal(msg.sender, _description, _duration, _options);
     }
 
     function addWithdrawal(string _description, uint _duration, uint _sum) onlyParticipant {
-        addVoting(_description, _duration, new bytes32[](0), _sum, 1);
+        votingFactory.createWithdrawal(msg.sender, _description, _duration, _sum);
     }
 
     function addRefund(string _description, uint _duration) onlyParticipant {
-        addVoting(_description, _duration, new bytes32[](0), 0, 2);
+        votingFactory.createRefund(msg.sender, _description, _duration);
     }
 
-    function addVoting(string _description, uint _duration, bytes32[] _options, uint _sum, uint votingType) private {
-        uint quorum = minVote;
-        if(votingType == 2) quorum = 95;
-        address voting = new Voting(msg.sender, _description, _duration, _options, _sum, votingType, quorum);
-        votings[voting] = Common.stringToBytes32(_description);
-
-        VotingCreated(voting);
-    }
+//    function addVoting(string _description, uint _duration, bytes32[] _options, uint _sum, uint votingType) private {
+//        uint quorum = minVote;
+//        if(votingType == 2) quorum = 95;
+//        address voting = new Voting(msg.sender, _description, _duration, _options, _sum, votingType, quorum);
+//        votings[voting] = Common.stringToBytes32(_description);
+//
+//        VotingCreated(voting);
+//    }
 
     modifier onlyParticipant {
         require(participants[msg.sender] == true);
@@ -261,5 +263,6 @@ contract CrowdsaleDAO is Owned {
 
     modifier validPurchase(uint value) {
         require(weiRaised + value < hardCap && block.number < endBlock);
+        _;
     }
 }

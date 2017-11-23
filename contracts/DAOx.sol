@@ -12,7 +12,7 @@ contract DAOx {
         token = new Token("DAOx", "DAOX");
     }
 
-    function() payable onlyDAO {
+    function() payable {
         uint weiAmount = msg.value;
 
         uint tokensAmount = weiAmount * tokenRate;

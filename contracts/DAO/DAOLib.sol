@@ -1,17 +1,17 @@
 pragma solidity ^0.4.0;
 
-import "../Token/TokenInterface";
+import "../Token/TokenInterface.sol";
 
 library DAOLib {
-    function countTokens(TokenInterface token, uint weiAmount, uint[] bonusPeriods, uint[] bonusRates) constant returns (uint) {
+    function countTokens(TokenInterface token, uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate, address _sender) constant returns (uint) {
         uint tokenRate = rate;
         for(uint i = 0; i < bonusPeriods.length; i++) {
             if(now < bonusPeriods[i]) tokenRate = bonusRates[i];
         }
-        uint tokenAmount = weiAmount * tokenRate;
+        uint tokensAmount = weiAmount * tokenRate;
         token.mint(_sender, tokensAmount);
 
-        return tokenAmount;
+        return tokensAmount;
     }
 
     function countRefundSum(TokenInterface token, uint rate, uint newRate) constant returns (uint) {
@@ -21,7 +21,7 @@ library DAOLib {
         return weiSpent*multiplier / newRateToOld;
     }
 
-    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, address[] bonusPeriods, uint[] bonusRates) {
+    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team) {
         uint commission = (commissionRaised/100)*4;
         assert(!serviceContract.call.value(commission*1 wei)());
         for(uint i = 0; i < team.length; i++) {

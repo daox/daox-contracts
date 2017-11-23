@@ -1,9 +1,9 @@
-pragma solidity ^0.4.11;
-
-import "./DAO.sol";
-import "./CrowdsaleDAO.sol";
-
-contract DAOFactory {
+//pragma solidity ^0.4.11;
+//
+//import "./DAO.sol";
+//import "./CrowdsaleDAO.sol";
+//
+//contract DAOFactory {
 //    event DAOCreated(
 //        address _address,
 //        //string _name,
@@ -35,4 +35,4 @@ contract DAOFactory {
 //
 //        DAOCreated(newDAO, "crowdsale");
 //    }
-}
+//}
