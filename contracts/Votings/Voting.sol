@@ -8,7 +8,7 @@ contract Voting is VotingFields {
 
     VotingLib.VotingType votingType;
 
-    function create(address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum){
+    function create(address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum) external {
         dao = DAOInterface(_dao);
         creator = _creator;
         description = _description;
@@ -16,14 +16,14 @@ contract Voting is VotingFields {
         quorum = _quorum;
     }
 
-    function addVote(uint optionID) notFinished {
+    function addVote(uint optionID) external notFinished {
         require(dao.isParticipant(msg.sender) && optionID < options.length && !voted[msg.sender]);
         options[optionID].votes++;
         voted[msg.sender] = true;
         votesCount++;
     }
 
-    function finish() notFinished constant returns (bool) {
+    function finish() external notFinished constant returns (bool) {
         require(duration + created_at >= block.timestamp);
         finished = true;
         if(Common.percent(votesCount, dao.participantsCount(), 2) < quorum) return false;
@@ -45,12 +45,6 @@ contract Voting is VotingFields {
     function finishNotProposal() private {
         if(options[0].votes > options[1].votes) result = options[0];
         else result = options[1];
-    }
-
-    function createOptions(bytes32[] _options) internal {
-        for (uint i = 0; i < _options.length; i++) {
-            options.push(VotingLib.Option(0, _options[i]));
-        }
     }
 
     function getProposalOptions() public constant returns(bytes32[]) {

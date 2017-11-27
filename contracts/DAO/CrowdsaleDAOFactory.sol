@@ -21,6 +21,8 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         serviceContractAddress = _serviceContractAddress;
         votingFactoryContractAddress = _votingFactoryAddress;
         parentDAOAddress = _parentDAOAddress;
+
+        votingFactoryContractAddress.call(bytes4(keccak256("setDaoFactory(address)")), this);
     }
 
     function createCrowdsaleDAO(string _name, string _description, uint8 _minVote, address _ownerAddress, address _tokenAddress,
