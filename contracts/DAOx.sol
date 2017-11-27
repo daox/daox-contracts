@@ -8,7 +8,7 @@ contract DAOx {
     uint public constant tokenRate = 100;
     uint weiRaised;
 
-    function DAOx(address daoFactoryAddress){
+    function DAOx(){
         token = new Token("DAOx", "DAOX");
     }
 

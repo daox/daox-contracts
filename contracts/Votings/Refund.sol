@@ -1,5 +1,9 @@
 pragma solidity ^0.4.0;
 
+import "./VotingLib.sol";
+import "./VotingFields.sol";
+import "../Common.sol";
+
 contract Refund is VotingFields {
     address baseVoting;
     VotingLib.VotingType constant votingType = VotingLib.VotingType.Refund;

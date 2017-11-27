@@ -1,29 +1,10 @@
 pragma solidity ^0.4.11;
 
-import "../Token/TokenInterface.sol";
-import "../Users/UserInterface.sol";
 import "../Commission.sol";
 import "./DAOLib.sol";
-import "../Votings/VotingFactoryInterface.sol";
+import "./DAOFields.sol";
 
-contract Owned {
-    address public owner;
-
-    function Owned(address _owner) {
-        owner = _owner;
-    }
-
-    modifier onlyOwner {
-        require(msg.sender == owner);
-        _;
-    }
-
-    function transferOwnership(address newOwner) onlyOwner {
-        owner = newOwner;
-    }
-}
-
-contract CrowdsaleDAO is Owned {
+contract CrowdsaleDAO is DAOFields {
     /*
     Emits when someone send ether to the contract
     and successfully buy tokens
@@ -34,10 +15,6 @@ contract CrowdsaleDAO is Owned {
         uint tokensAmount
     );
 
-    TokenInterface token;
-    VotingFactoryInterface votingFactory;
-    address public commissionContract;
-    address serviceContract;
     uint public rate;
     uint public softCap;
     uint public hardCap;
@@ -55,22 +32,18 @@ contract CrowdsaleDAO is Owned {
     bool public refundableSoftCap = false;
     bool public refundable = false;
     uint newRate = 0;
+    address public commissionContract;
+    address serviceContract;
+    address parentAddress;
 
-    function CrowdsaleDAO(address _usersAddress, string _name, string _description,
-    uint8 _minVote, address _ownerAddress, address _tokenAddress, address _serviceContract)
-    Owned(_ownerAddress)
+    function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote,
+    address _tokenAddress, address _votingFactory, address _serviceContract, address _ownerAddress, address _parentAddress)
+    DAOFields(_ownerAddress, _tokenAddress, _votingFactory, _usersAddress, _name, _description, _minVote)
     {
-        require(_usersAddress != 0x0 && _ownerAddress != 0x0 && _tokenAddress != 0x0 && _serviceContract != 0x0);
-        users = UserInterface(_usersAddress);
-        name = _name;
-        created_at = block.timestamp;
-        description = _description;
-        minVote = _minVote;
-        participants[_ownerAddress] = true;
+        require(_serviceContract != 0x0);
         serviceContract = _serviceContract;
-        token = TokenInterface(_tokenAddress);
-        transferOwnership(_ownerAddress);
         commissionContract = new Commission(this);
+        parentAddress = _parentAddress;
     }
 
     //ToDo: move these parameters to the contract constructor???
@@ -157,84 +130,46 @@ contract CrowdsaleDAO is Owned {
         token.burn(msg.sender);
         depositedWei[msg.sender] = 0;
     }
+
     /*
-    Public dao properties
+    Voting related methods
     */
-    UserInterface public users;
 
-    event VotingCreated(
-        address votingAddress
-    );
-
-    mapping (address => bool) public participants;
-    string public name;
-    uint256 public created_at; // UNIX time
-    string public description;
-    uint8 public minVote; // in percents
-    mapping(address => bytes32) public votings;
-    uint participantsCount;
-
-    function isParticipant(address participantAddress) constant returns (bool) {
-        return participants[participantAddress];
+    function addProposal(string _description, uint _duration, bytes32[] _options) {
+        DAOLib.delegatedCreateProposal(votingFactory, _description, _duration, _options);
     }
 
-    function addParticipant(address participantAddress) isUser(participantAddress) isNotParticipant(participantAddress) returns (bool) {
-        require(msg.sender == owner || msg.sender == participantAddress);
-        participants[participantAddress] = true;
-        participantsCount++;
+    function addWithdrawal(string _description, uint _duration, uint _sum) {
+        DAOLib.delegatedCreateWithdrawal(votingFactory, _description, _duration, _sum);
+    }
 
-        return participants[participantAddress];
+    function addRefund(string _description, uint _duration) {
+        DAOLib.delegatedCreateRefund(votingFactory, _description, _duration);
+    }
+
+    /*
+    DAO methods
+    */
+
+    function isParticipant(address _participantAddress) constant returns (bool) {
+        DAOLib.delegateIsParticipant(parentAddress, _participantAddress);
+    }
+
+    function addParticipant(address _participantAddress) isUser(_participantAddress) isNotParticipant(_participantAddress) returns (bool) {
+        DAOLib.delegateAddParticipant(parentAddress, _participantAddress);
     }
 
     function remove(address _participantAddress) onlyOwner {
-        removeParticipant(_participantAddress);
+        DAOLib.delegateRemove(parentAddress, _participantAddress);
     }
 
     function leave() {
-        removeParticipant(msg.sender);
+        DAOLib.delegateRemove(parentAddress, msg.sender);
     }
 
-    function removeParticipant(address _address) private {
-        require(participants[_address]);
-        participants[_address] = false;
-        participantsCount--;
-    }
-
-    function addProposal(string _description, uint _duration, bytes32[] _options) onlyParticipant {
-        votingFactory.createProposal(msg.sender, _description, _duration, _options);
-    }
-
-    function addWithdrawal(string _description, uint _duration, uint _sum) onlyParticipant {
-        votingFactory.createWithdrawal(msg.sender, _description, _duration, _sum);
-    }
-
-    function addRefund(string _description, uint _duration) onlyParticipant {
-        votingFactory.createRefund(msg.sender, _description, _duration);
-    }
-
-//    function addVoting(string _description, uint _duration, bytes32[] _options, uint _sum, uint votingType) private {
-//        uint quorum = minVote;
-//        if(votingType == 2) quorum = 95;
-//        address voting = new Voting(msg.sender, _description, _duration, _options, _sum, votingType, quorum);
-//        votings[voting] = Common.stringToBytes32(_description);
-//
-//        VotingCreated(voting);
-//    }
-
-    modifier onlyParticipant {
-        require(participants[msg.sender] == true);
-        _;
-    }
-
-    modifier onlyVoting() {
-        require(votings[msg.sender] != 0x0);
-        _;
-    }
-
-    modifier isUser(address _userAddress) {
-        require(users.doesExist(_userAddress));
-        _;
-    }
+    /*
+    Modifiers
+    */
 
     modifier whenRefundable() {
         require(refundable);
@@ -243,11 +178,6 @@ contract CrowdsaleDAO is Owned {
 
     modifier whenRefundableSoftCap() {
         require(refundableSoftCap);
-        _;
-    }
-
-    modifier isNotParticipant(address _userAddress) {
-        require(participants[_userAddress]);
         _;
     }
 

@@ -6,7 +6,6 @@ import "../Common.sol";
 
 contract Voting is VotingFields {
 
-    uint withdrawalSum;
     VotingLib.VotingType votingType;
 
     function create(address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum){
@@ -43,13 +42,9 @@ contract Voting is VotingFields {
         result = _result;
     }
 
-    function finishNotProposal() private constant returns (bool) {
+    function finishNotProposal() private {
         if(options[0].votes > options[1].votes) result = options[0];
         else result = options[1];
-
-        if(result.description != "yes") return false;
-        if(votingType == VotingLib.VotingType.Withdrawal) dao.withdrawal(creator, withdrawalSum);
-        if(votingType == VotingLib.VotingType.Refund) dao.makeRefundable();
     }
 
     function createOptions(bytes32[] _options) internal {
