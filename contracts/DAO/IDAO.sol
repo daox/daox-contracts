@@ -1,6 +1,6 @@
 pragma solidity ^0.4.0;
 
-contract IDAO {
+interface IDAO {
     function isParticipant(address _participantAddress) external constant returns (bool);
 
     function addParticipant(address _participantAddress) external returns (bool);

@@ -8,7 +8,8 @@ import "../DAO/DAOFactoryInterface.sol";
 
 contract VotingFactory is VotingFactoryInterface {
     address baseVoting;
-    DAOFactoryInterface daoFactory = 0x0;
+    DAOFactoryInterface daoFactory;
+    bool private setted = false;
 
     function VotingFactory(address _baseVoting){
         baseVoting = _baseVoting;
@@ -27,12 +28,13 @@ contract VotingFactory is VotingFactoryInterface {
     }
 
     function setDaoFactory(address _dao) external {
-        require(daoFactory == 0x0);
-        daoFactory = _dao;
+        require(!setted && _dao != 0x0);
+        setted = true;
+        daoFactory = DAOFactoryInterface(_dao);
     }
 
     modifier onlyDAO() {
-        require(daoFactory != 0x0 && daoFactory.exists(msg.sender));
+        require(daoFactory.exists(msg.sender));
         _;
     }
 }

@@ -4,6 +4,15 @@ import "./IDAO.sol";
 import "./DAOFields.sol";
 
 contract DAO is IDAO, DAOFields {
+
+    function DAO(address _ownerAddress, address _tokenAddress, address _votingFactory, address _usersAddress,
+    string _name, string _description, uint _minVote)
+    DAOFields(_ownerAddress, _tokenAddress, _votingFactory, _usersAddress,
+    _name, _description, _minVote)
+    {
+
+    }
+
     function isParticipant(address _participantAddress) external constant returns (bool) {
         return participants[_participantAddress];
     }
@@ -35,10 +44,10 @@ contract DAO is IDAO, DAOFields {
     }
 
     function addWithdrawal(string _description, uint _duration, uint _sum) external {
-        votingFactory.createWithdrawal(msg.sender, _description, _duration, _sum);
+        votingFactory.createWithdrawal(msg.sender, _description, _duration, _sum, minVote);
     }
 
     function addRefund(string _description, uint _duration) external {
-        votingFactory.createRefund(msg.sender, _description, _duration);
+        votingFactory.createRefund(msg.sender, _description, _duration, minVote);
     }
 }
