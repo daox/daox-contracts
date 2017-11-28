@@ -7,8 +7,7 @@ contract Token is MintableToken {
     string public name;
     string public symbol;
     uint constant public decimals = 18;
-    mapping(address => bool) holded;
-    uint unholdTime = now;
+    mapping(address => uint) held;
 
 
     function Token(string _name, string _symbol) {
@@ -16,11 +15,13 @@ contract Token is MintableToken {
         symbol = _symbol;
     }
 
-    function setHolding(uint _unholdTime) onlyOwner {
-        unholdTime = _unholdTime;
+    function hold(address addr, uint duration) onlyOwner external {
+        uint holdTime = now + duration;
+        require(holded[addr] == 0 || holdTime > held[addr]);
+        held[addr] = holdTime;
     }
 
-    function burn(address _burner) onlyOwner {
+    function burn(address _burner) onlyOwner external {
         require(_burner != 0x0);
 
         uint balance = balanceOf(_burner);
@@ -43,7 +44,7 @@ contract Token is MintableToken {
     }
 
     modifier notHolded(address _address) {
-        require(!holded[_address] || now >= unholdTime);
+        require(!held[_address] == 0 || now >= held[_address]);
         _;
     }
 }

@@ -7,7 +7,7 @@ contract VotingFields {
     DAOInterface dao;
     address public creator;
     bytes32 public description;
-    VotingLib.Option[] options;
+    VotingLib.Option[10] options;
     mapping (address => bool) public voted;
     VotingLib.Option result;
     uint public votesCount;

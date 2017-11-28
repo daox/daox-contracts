@@ -24,6 +24,8 @@ contract CrowdsaleDAO is DAOFields {
     uint public weiRaised = 0;
     uint public commissionRaised = 0;
     address[] team;
+    address[] whiteListArr;
+    mapping(address => bool) whiteList;
     mapping(address => uint) teamBonuses;
     mapping(address => uint) public depositedWei;
     uint[] teamBonusesArr;
@@ -35,6 +37,7 @@ contract CrowdsaleDAO is DAOFields {
     address public commissionContract;
     address serviceContract;
     address parentAddress;
+    uint tokenHoldTime = 0;
 
     function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote,
     address _tokenAddress, address _votingFactory, address _serviceContract, address _ownerAddress, address _parentAddress)
@@ -68,8 +71,26 @@ contract CrowdsaleDAO is DAOFields {
         bonusRates = _bonusRates;
     }
 
-    function initHold(uint unholdTime) {
-        if(unholdTime > 0) token.setHolding(unholdTime);
+    function initHold(uint _tokenHoldTime) {
+        if(_tokenHoldTime > 0) tokenHoldTime = _tokenHoldTime;
+    }
+
+    function setWhiteList(address[] _addresses) {
+        whiteListArr = _addresses;
+        for(uint i = 0; i < _addresses.length; i++) {
+            whiteList[_addresses[i]] = true;
+        }
+    }
+
+    function flushWhiteList() onlyVoting external {
+        for(uint i = 0; i < whiteListArr.length; i++) {
+            delete whiteList[whiteListArr[i]];
+        }
+    }
+
+    function changeWhiteList(address _addr, bool res) onlyVoting external {
+        if(!res) delete whiteList[_addr];
+        whiteList[_addr] = true;
     }
 
     function() payable {
@@ -98,7 +119,7 @@ contract CrowdsaleDAO is DAOFields {
         require(block.number >= endBlock);
         isCrowdsaleFinished = true;
 
-        if(weiRaised >= softCap) DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team);
+        if(weiRaised >= softCap) DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, tokenHoldTime);
         else {
             refundableSoftCap = true;
             newRate = rate;
@@ -107,13 +128,17 @@ contract CrowdsaleDAO is DAOFields {
         token.finishMinting();
     }
 
-    function withdrawal(address _address, uint withdrawalSum) onlyVoting {
+    function withdrawal(address _address, uint withdrawalSum) onlyVoting external {
         assert(!_address.call.value(withdrawalSum*1 ether)());
     }
 
-    function makeRefundable() external onlyVoting {
+    function makeRefundable() external onlyVoting external {
         refundable = true;
         newRate = token.totalSupply() / this.balance;
+    }
+
+    function holdTokens(address _address, uint duration) onlyVoting external {
+        token.hold(_address, duration);
     }
 
     function refund() whenRefundable {

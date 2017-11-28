@@ -4,6 +4,7 @@ import "./VotingFactoryInterface.sol";
 import "./Proposal.sol";
 import "./Withdrawal.sol";
 import "./Refund.sol";
+import "./WhiteList.sol";
 import "../DAO/DAOFactoryInterface.sol";
 
 contract VotingFactory is VotingFactoryInterface {
@@ -15,7 +16,7 @@ contract VotingFactory is VotingFactoryInterface {
         baseVoting = _baseVoting;
     }
 
-    function createProposal(address _creator, string _description, uint _duration, bytes32[] _options) onlyDAO external returns (address) {
+    function createProposal(address _creator, string _description, uint _duration, bytes32[10] _options) onlyDAO external returns (address) {
         return new Proposal(baseVoting, msg.sender, _creator, _description, _duration, _options);
     }
 
@@ -25,6 +26,10 @@ contract VotingFactory is VotingFactoryInterface {
 
     function createRefund(address _creator, string _description, uint _duration, uint quorum) onlyDAO external returns (address) {
         return new Refund(baseVoting, msg.sender, _creator, _description, _duration, quorum);
+    }
+
+    function createChangeWhiteList(address _creator, string _description, uint _duration, uint quorum, address _addr, uint action) onlyDAO external returns (address) {
+        return new WhiteList(baseVoting, msg.sender, _creator, _description, _duration, quorum, _addr, action);
     }
 
     function setDaoFactory(address _dao) external {

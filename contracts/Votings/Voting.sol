@@ -21,6 +21,8 @@ contract Voting is VotingFields {
         options[optionID].votes++;
         voted[msg.sender] = true;
         votesCount++;
+
+        dao.holdTokens(msg.sender, (duration + created_at) - now);
     }
 
     function finish() external notFinished constant returns (bool) {

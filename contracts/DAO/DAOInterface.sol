@@ -8,4 +8,10 @@ interface DAOInterface {
     function withdrawal(address _address, uint withdrawalSum);
 
     function makeRefundable();
+
+    function flushWhiteList() external;
+
+    function changeWhiteList(address _addr, bool res) external;
+
+    function holdTokens(address _address, uint duration) external;
 }
