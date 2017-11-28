@@ -9,8 +9,6 @@ interface IDAO {
 
     function leave() external;
 
-    function removeParticipant(address _address) private;
-
     function addProposal(string _description, uint _duration, bytes32[] _options) external;
 
     function addWithdrawal(string _description, uint _duration, uint _sum) external;

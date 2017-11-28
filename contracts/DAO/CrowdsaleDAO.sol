@@ -37,6 +37,9 @@ contract CrowdsaleDAO is DAOFields {
     address public commissionContract;
     address serviceContract;
     address parentAddress;
+    bool private canInitCrowdsaleParameters = true;
+    bool private canInitBonuses = true;
+    bool private canInitHold = true;
     uint tokenHoldTime = 0;
 
     function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote,
@@ -50,7 +53,7 @@ contract CrowdsaleDAO is DAOFields {
     }
 
     //ToDo: move these parameters to the contract constructor???
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) onlyOwner {
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) canInit(canInitCrowdsaleParameters) external {
         softCap = _softCap * 1 ether;
         hardCap = _hardCap * 1 ether;
 
@@ -58,9 +61,11 @@ contract CrowdsaleDAO is DAOFields {
         endBlock = _endBlock;
 
         rate = _rate;
+
+        canInitCrowdsaleParameters = false;
     }
 
-    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) {
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) external canInit(canInitBonuses) {
         require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length);
         team = _team;
         teamBonusesArr = tokenPercents;
@@ -69,10 +74,14 @@ contract CrowdsaleDAO is DAOFields {
         }
         bonusPeriods = _bonusPeriods;
         bonusRates = _bonusRates;
+
+        canInitBonuses = false;
     }
 
-    function initHold(uint _tokenHoldTime) {
+    function initHold(uint _tokenHoldTime) canInit(canInitHold) external {
         if(_tokenHoldTime > 0) tokenHoldTime = _tokenHoldTime;
+
+        canInitHold = false;
     }
 
     function setWhiteList(address[] _addresses) {
@@ -132,7 +141,7 @@ contract CrowdsaleDAO is DAOFields {
         assert(!_address.call.value(withdrawalSum*1 ether)());
     }
 
-    function makeRefundable() external onlyVoting external {
+    function makeRefundable() external onlyVoting {
         refundable = true;
         newRate = token.totalSupply() / this.balance;
     }
@@ -160,7 +169,7 @@ contract CrowdsaleDAO is DAOFields {
     Voting related methods
     */
 
-    function addProposal(string _description, uint _duration, bytes32[] _options) {
+    function addProposal(string _description, uint _duration, bytes32[10] _options) {
         DAOLib.delegatedCreateProposal(votingFactory, _description, _duration, _options);
     }
 
@@ -218,6 +227,11 @@ contract CrowdsaleDAO is DAOFields {
 
     modifier validPurchase(uint value) {
         require(weiRaised + value < hardCap && block.number < endBlock);
+        _;
+    }
+
+    modifier canInit(bool permission) {
+        require(permission);
         _;
     }
 }

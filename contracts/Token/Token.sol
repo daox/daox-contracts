@@ -17,7 +17,7 @@ contract Token is MintableToken {
 
     function hold(address addr, uint duration) onlyOwner external {
         uint holdTime = now + duration;
-        require(holded[addr] == 0 || holdTime > held[addr]);
+        require(held[addr] == 0 || holdTime > held[addr]);
         held[addr] = holdTime;
     }
 
@@ -29,9 +29,8 @@ contract Token is MintableToken {
         totalSupply = totalSupply.sub(balance);
     }
 
-    function mint(address _to, uint256 _amount, bool hold) onlyOwner canMint public returns (bool) {
+    function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
         require(_to != 0x0);
-        if(hold) holded[_to] = true;
         super.mint(_to, _amount);
     }
 
@@ -44,7 +43,7 @@ contract Token is MintableToken {
     }
 
     modifier notHolded(address _address) {
-        require(!held[_address] == 0 || now >= held[_address]);
+        require(held[_address] == 0 || now >= held[_address]);
         _;
     }
 }

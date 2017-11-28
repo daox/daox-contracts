@@ -39,8 +39,6 @@ contract DAOFields is Owned {
         participants[_ownerAddress] = true;
 
         created_at = block.timestamp;
-
-        transferOwnership(_ownerAddress);
     }
 
     modifier onlyParticipant {

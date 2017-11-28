@@ -22,7 +22,7 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         votingFactoryContractAddress = _votingFactoryAddress;
         parentDAOAddress = _parentDAOAddress;
 
-        votingFactoryContractAddress.call(bytes4(keccak256("setDaoFactory(address)")), this);
+        require(votingFactoryContractAddress.call(bytes4(keccak256("setDaoFactory(address)")), this));
     }
 
     function createCrowdsaleDAO(string _name, string _description, uint8 _minVote, address _ownerAddress, address _tokenAddress,
@@ -31,7 +31,7 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         votingFactoryContractAddress, serviceContractAddress, _ownerAddress, parentDAOAddress);
         CrowdsaleDAO dao = CrowdsaleDAO(newDAO);
 
-        dao.initCrowdsaleParameters(_softCap, _hardCap, _rate, _startBlock, _endBlock);
+        //dao.initCrowdsaleParameters(_softCap, _hardCap, _rate, _startBlock, _endBlock);
         //dao.initBonuses(_team, tokenPercents, _bonusPeriods, _bonusRates);
         //dao.initHold(unholdTime);
 

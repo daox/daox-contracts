@@ -12,7 +12,7 @@ contract VotingFields {
     VotingLib.Option result;
     uint public votesCount;
     uint public duration; // UNIX
-    uint public constant created_at = block.timestamp; // UNIX
+    uint public created_at; // UNIX
     bool public finished = false;
     uint public quorum;
 }
