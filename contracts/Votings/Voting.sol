@@ -17,7 +17,6 @@ contract Voting is VotingFields {
     }
 
     function addVote(uint optionID) external notFinished {
-        require(dao.isParticipant(msg.sender) && optionID < options.length && !voted[msg.sender]);
         options[optionID].votes++;
         voted[msg.sender] = true;
         votesCount++;
@@ -56,6 +55,11 @@ contract Voting is VotingFields {
         }
 
         return optionDescriptions;
+    }
+
+    modifier canVote() {
+        require(dao.teamBonuses(msg.sender) == 0 && dao.isParticipant(msg.sender) && optionID < options.length && !voted[msg.sender]);
+        _;
     }
 
     modifier notFinished() {
