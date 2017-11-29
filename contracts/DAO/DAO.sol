@@ -39,7 +39,7 @@ contract DAO is IDAO, DAOFields {
         participantsCount--;
     }
 
-    function addProposal(string _description, uint _duration, bytes32[] _options) external {
+    function addProposal(string _description, uint _duration, bytes32[10] _options) external {
         votingFactory.createProposal(msg.sender, _description, _duration, _options);
     }
 
@@ -49,5 +49,9 @@ contract DAO is IDAO, DAOFields {
 
     function addRefund(string _description, uint _duration) external {
         votingFactory.createRefund(msg.sender, _description, _duration, minVote);
+    }
+
+    function getParticipantsCount() public constant returns(uint) {
+        return participantsCount;
     }
 }

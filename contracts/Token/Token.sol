@@ -17,8 +17,7 @@ contract Token is MintableToken {
 
     function hold(address addr, uint duration) onlyOwner external {
         uint holdTime = now + duration;
-        require(held[addr] == 0 || holdTime > held[addr]);
-        held[addr] = holdTime;
+        if (held[addr] == 0 || holdTime > held[addr]) held[addr] = holdTime;
     }
 
     function burn(address _burner) onlyOwner external {

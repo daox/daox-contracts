@@ -9,7 +9,7 @@ contract Voting is VotingFields {
     VotingLib.VotingType votingType;
 
     function create(address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum) external {
-        dao = DAOInterface(_dao);
+        dao = ICrowdsaleDAO(_dao);
         creator = _creator;
         description = _description;
         duration = _duration;
@@ -28,7 +28,7 @@ contract Voting is VotingFields {
     function finish() external notFinished constant returns (bool) {
         require(duration + created_at >= block.timestamp);
         finished = true;
-        if(Common.percent(votesCount, dao.participantsCount(), 2) < quorum) return false;
+        if(Common.percent(votesCount, dao.getParticipantsCount(), 2) < quorum) return false;
 
         if(votingType == VotingLib.VotingType.Proposal) finishProposal();
         else finishNotProposal();

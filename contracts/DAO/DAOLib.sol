@@ -1,6 +1,7 @@
 pragma solidity ^0.4.0;
 
 import "../Token/TokenInterface.sol";
+import "../Votings/VotingFactoryInterface.sol";
 
 library DAOLib {
     function countTokens(TokenInterface token, uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate, address _sender) constant returns (uint) {
@@ -43,15 +44,15 @@ library DAOLib {
     }
 
     //ToDo: finish proposal creating functions
-    function delegatedCreateProposal(address _votingFactory, string _description, uint _duration, bytes32[10] _options) {
-        require(_votingFactory.call(bytes4(keccak256("createProposal(address,string,uint256,bytes32[10]")), msg.sender, _description, _duration, _options));
+    function delegatedCreateProposal(address _votingFactory, string _description, uint _duration, bytes32[10] _options) returns (address) {
+        return VotingFactoryInterface(_votingFactory).createProposal(msg.sender, _description, _duration, _options);
     }
 
-    function delegatedCreateWithdrawal(address _votingFactory, string _description, uint _duration, uint _sum) {
-        require(_votingFactory.call(bytes4(keccak256("createWithdrawal(address,string,uint256,uint256)")), msg.sender, _description, _duration, _sum));
+    function delegatedCreateWithdrawal(address _votingFactory, string _description, uint _duration, uint _sum) returns (address) {
+        return VotingFactoryInterface(_votingFactory).createWithdrawal(msg.sender, _description, _duration, _sum, 51);
     }
 
-    function delegatedCreateRefund(address _votingFactory, string _description, uint _duration) {
-        require(_votingFactory.call(bytes4(keccak256("createRefund(address,string,uint256)")), msg.sender, _description, _duration));
+    function delegatedCreateRefund(address _votingFactory, string _description, uint _duration) returns (address) {
+        return VotingFactoryInterface(_votingFactory).createRefund(msg.sender, _description, _duration, 51);
     }
 }

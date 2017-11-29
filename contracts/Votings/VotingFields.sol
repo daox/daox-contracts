@@ -1,10 +1,10 @@
 pragma solidity ^0.4.0;
 
 import "./VotingLib.sol";
-import "../DAO/DAOInterface.sol";
+import "../DAO/ICrowdsaleDAO.sol";
 
 contract VotingFields {
-    DAOInterface dao;
+    ICrowdsaleDAO dao;
     address public creator;
     bytes32 public description;
     VotingLib.Option[10] options;

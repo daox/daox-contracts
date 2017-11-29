@@ -9,9 +9,5 @@ interface IDAO {
 
     function leave() external;
 
-    function addProposal(string _description, uint _duration, bytes32[] _options) external;
-
-    function addWithdrawal(string _description, uint _duration, uint _sum) external;
-
-    function addRefund(string _description, uint _duration) external;
+    function getParticipantsCount() public constant returns(uint);
 }

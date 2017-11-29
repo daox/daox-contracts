@@ -23,7 +23,7 @@ contract DAOFields is Owned {
     string public description;
     uint public minVote; // in percents
     mapping(address => bytes32) public votings;
-    uint participantsCount;
+    uint public participantsCount;
 
     function DAOFields(address _ownerAddress, address _tokenAddress, address _votingFactory, address _usersAddress,
     string _name, string _description, uint _minVote)
