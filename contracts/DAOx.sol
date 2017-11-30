@@ -15,7 +15,7 @@ contract Owned {
         _;
     }
 
-    function transferOwnership(address newOwner) onlyOwner {
+    function transferOwnership(address newOwner) onlyOwner(msg.sender) {
         owner = newOwner;
     }
 }
@@ -45,7 +45,7 @@ contract DAOx is Owned {
         token.mint(msg.sender, tokensAmount);
     }
 
-    function withdraw(uint sum) onlyOwner {
+    function withdraw(uint sum) onlyOwner(msg.sender) {
         assert(!owner.call.value(sum*1 wei)());
     }
 
