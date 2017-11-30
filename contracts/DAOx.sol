@@ -26,7 +26,8 @@ contract DAOx is Owned {
     uint weiRaised;
     DAOFactoryInterface daoFactory;
 
-    function DAOx(){
+    function DAOx()
+    Owned(msg.sender){
         token = new Token("DAOx", "DAOX");
     }
 
