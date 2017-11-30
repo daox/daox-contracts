@@ -18,4 +18,6 @@ contract ICrowdsaleDAO is IDAO {
     function holdTokens(address _address, uint duration) external;
 
     function withdrawal(address _address, uint withdrawalSum);
+
+    function teamBonuses(address _address) returns (bool);
 }

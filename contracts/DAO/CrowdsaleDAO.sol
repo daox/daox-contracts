@@ -26,8 +26,9 @@ contract CrowdsaleDAO is DAOFields {
     address[] team;
     address[] whiteListArr;
     mapping(address => bool) whiteList;
-    mapping(address => uint) teamBonuses;
+    mapping(address => uint) public teamBonuses;
     mapping(address => uint) public depositedWei;
+    mapping(address => bool) public addressesWithCommission;
     uint[] teamBonusesArr;
     uint[] bonusPeriods;
     uint[] bonusRates;
@@ -115,7 +116,11 @@ contract CrowdsaleDAO is DAOFields {
         require(_sender != 0x0);
 
         uint weiAmount = msg.value;
-        if(commission) commissionRaised = commissionRaised + weiAmount;
+        if(commission) {
+            commissionRaised = commissionRaised + weiAmount;
+            addressesWithCommission[_sender] = true;
+        }
+
         weiRaised = weiRaised + weiAmount;
         depositedWei[_sender] = depositedWei[_sender] + weiAmount;
 
@@ -135,6 +140,11 @@ contract CrowdsaleDAO is DAOFields {
         }
 
         token.finishMinting();
+    }
+
+    function getCommissionTokens() {
+        require(addressesWithCommission[msg.sender] && depositedWei[msg.sender] > 0);
+        assert(!serviceContract.call(bytes4(keccak256("remove(address)")), _participantAddress));
     }
 
     function withdrawal(address _address, uint withdrawalSum) onlyVoting external {
