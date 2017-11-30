@@ -49,7 +49,7 @@ contract DAOx is Owned {
     }
 
     modifier onlyDAO() {
-        require(dao.exists(msg.sender));
+        require(daoFactory.exists(msg.sender));
         _;
     }
 }

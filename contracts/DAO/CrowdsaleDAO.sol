@@ -145,7 +145,7 @@ contract CrowdsaleDAO is DAOFields {
     function getCommissionTokens() onlyParticipant succeededCrowdsale {
         require(addressesWithCommission[msg.sender] && depositedWei[msg.sender] > 0);
         delete addressesWithCommission[msg.sender];
-        assert(!serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint)")), _participantAddress, depositedWei[msg.sender]));
+        assert(!serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint)")), msg.sender, depositedWei[msg.sender]));
     }
 
     function withdrawal(address _address, uint withdrawalSum) onlyVoting external {

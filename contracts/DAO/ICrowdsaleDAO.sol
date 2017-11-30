@@ -1,6 +1,7 @@
 pragma solidity ^0.4.0;
 
 import "./IDAO.sol";
+import "../Token/TokenInterface.sol";
 
 contract ICrowdsaleDAO is IDAO {
     function addProposal(string _description, uint _duration, bytes32[] _options) external;
@@ -19,5 +20,7 @@ contract ICrowdsaleDAO is IDAO {
 
     function withdrawal(address _address, uint withdrawalSum);
 
-    function teamBonuses(address _address) returns (bool);
+    function teamBonuses(address _address) returns (uint);
+
+    function token() returns (TokenInterface);
 }

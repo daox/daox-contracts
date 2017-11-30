@@ -16,7 +16,7 @@ contract Voting is VotingFields {
         quorum = _quorum;
     }
 
-    function addVote(uint optionID) external notFinished {
+    function addVote(uint optionID)  external notFinished canVote(optionID) {
         uint tokensAmount = dao.token().balanceOf(msg.sender);
         options[optionID].votes = options[optionID].votes + tokensAmount;
         voted[msg.sender] = true;
@@ -58,7 +58,7 @@ contract Voting is VotingFields {
         return optionDescriptions;
     }
 
-    modifier canVote() {
+    modifier canVote(uint optionID) {
         require(dao.teamBonuses(msg.sender) == 0 && dao.isParticipant(msg.sender) && optionID < options.length && !voted[msg.sender]);
         _;
     }
