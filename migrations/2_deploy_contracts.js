@@ -8,26 +8,20 @@ const DAO = artifacts.require("./DAO/DAO.sol");
 const DAOLib = artifacts.require("./DAO/DAOLib.sol");
 const CrowdsaleDAOFactory = artifacts.require("./DAO/CrowdsaleDAOFactory.sol");
 
-module.exports = function(deployer) {
-    deployer.deploy(Common);
-    deployer.deploy(VotingLib);
-    deployer.deploy(DAOLib);
-
-    const arr = [deployer.link(Common, Users),
-    deployer.deploy(Users),
-
-
-    deployer.deploy(Token),
-
-    deployer.link(Common, VotingFactory),
-    deployer.link(VotingLib, VotingFactory),
-    deployer.deploy(VotingFactory),
-
-    deployer.deploy(DAOx),
-
-    deployer.deploy(DAO),
-
-    deployer.link(DAOLib, CrowdsaleDAOFactory)];
-
-    Promise.all(arr).then( () => deployer.deploy(CrowdsaleDAOFactory, Users.address, DAOx.address, VotingFactory.address, DAO.address));
+module.exports = function (deployer) {
+    Promise.all([
+        deployer.deploy(Common),
+        deployer.deploy(VotingLib),
+        deployer.deploy(DAOLib)
+    ]).then(() => Promise.all([
+        deployer.link(Common, [VotingFactory, Users]),
+        deployer.link(VotingLib, VotingFactory),
+        deployer.link(DAOLib, CrowdsaleDAOFactory),
+    ])).then(() => Promise.all([
+        deployer.deploy(Users),
+        deployer.deploy(Token),
+        deployer.deploy(VotingFactory),
+        deployer.deploy(DAOx),
+        deployer.deploy(DAO)
+    ])).then(() => deployer.deploy(CrowdsaleDAOFactory, Users.address, DAOx.address, VotingFactory.address, DAO.address));
 };

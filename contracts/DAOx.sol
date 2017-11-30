@@ -10,8 +10,8 @@ contract Owned {
         owner = _owner;
     }
 
-    modifier onlyOwner {
-        require(msg.sender == owner);
+    modifier onlyOwner(address _sender) {
+        require(_sender == owner);
         _;
     }
 
@@ -35,7 +35,7 @@ contract DAOx is Owned {
         weiRaised = weiRaised + msg.value;
     }
 
-    function setDaoFactory(address _dao) external {
+    function setDaoFactory(address _dao, address _creator) onlyOwner(_creator) external {
         require(address(daoFactory) == 0x0 && _dao != 0x0);
         daoFactory = DAOFactoryInterface(_dao);
     }
