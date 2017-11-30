@@ -142,9 +142,10 @@ contract CrowdsaleDAO is DAOFields {
         token.finishMinting();
     }
 
-    function getCommissionTokens() {
+    function getCommissionTokens() onlyParticipant succeededCrowdsale {
         require(addressesWithCommission[msg.sender] && depositedWei[msg.sender] > 0);
-        assert(!serviceContract.call(bytes4(keccak256("remove(address)")), _participantAddress));
+        delete addressesWithCommission[msg.sender];
+        assert(!serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint)")), _participantAddress, depositedWei[msg.sender]));
     }
 
     function withdrawal(address _address, uint withdrawalSum) onlyVoting external {
@@ -163,31 +164,31 @@ contract CrowdsaleDAO is DAOFields {
     function refund() whenRefundable {
         require(teamBonuses[msg.sender] == 0);
 
-        assert(!msg.sender.call.value(DAOLib.countRefundSum(token, rate, newRate)*1 wei)());
         token.burn(msg.sender);
+        assert(!msg.sender.call.value(DAOLib.countRefundSum(token, rate, newRate)*1 wei)());
     }
 
     function refundSoftCap() whenRefundableSoftCap {
         require(depositedWei[msg.sender] != 0);
 
-        assert(!msg.sender.call.value(depositedWei[msg.sender])());
         token.burn(msg.sender);
-        depositedWei[msg.sender] = 0;
+        delete depositedWei[msg.sender];
+        assert(!msg.sender.call.value(depositedWei[msg.sender])());
     }
 
     /*
     Voting related methods
     */
 
-    function addProposal(string _description, uint _duration, bytes32[10] _options) {
+    function addProposal(string _description, uint _duration, bytes32[10] _options) succeededCrowdsale onlyParticipant {
         DAOLib.delegatedCreateProposal(votingFactory, _description, _duration, _options);
     }
 
-    function addWithdrawal(string _description, uint _duration, uint _sum) {
+    function addWithdrawal(string _description, uint _duration, uint _sum) succeededCrowdsale {
         DAOLib.delegatedCreateWithdrawal(votingFactory, _description, _duration, _sum);
     }
 
-    function addRefund(string _description, uint _duration) {
+    function addRefund(string _description, uint _duration) succeededCrowdsale {
         DAOLib.delegatedCreateRefund(votingFactory, _description, _duration);
     }
 
@@ -242,6 +243,11 @@ contract CrowdsaleDAO is DAOFields {
 
     modifier canInit(bool permission) {
         require(permission);
+        _;
+    }
+
+    modifier succeededCrowdsale() {
+        require(block.number >= endBlock && weiRaised >= softCap);
         _;
     }
 }

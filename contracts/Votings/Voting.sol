@@ -17,9 +17,10 @@ contract Voting is VotingFields {
     }
 
     function addVote(uint optionID) external notFinished {
-        options[optionID].votes++;
+        uint tokensAmount = dao.token().balanceOf(msg.sender);
+        options[optionID].votes = options[optionID].votes + tokensAmount;
         voted[msg.sender] = true;
-        votesCount++;
+        votesCount = votesCount + tokensAmount;
 
         dao.holdTokens(msg.sender, (duration + created_at) - now);
     }
@@ -27,7 +28,7 @@ contract Voting is VotingFields {
     function finish() external notFinished constant returns (bool) {
         require(duration + created_at >= block.timestamp);
         finished = true;
-        if(Common.percent(votesCount, dao.getParticipantsCount(), 2) < quorum) return false;
+        if(Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return false;
 
         if(votingType == VotingLib.VotingType.Proposal) finishProposal();
         else finishNotProposal();

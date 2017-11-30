@@ -8,6 +8,4 @@ interface IDAO {
     function remove(address _participantAddress) external;
 
     function leave() external;
-
-    function getParticipantsCount() public constant returns(uint);
 }

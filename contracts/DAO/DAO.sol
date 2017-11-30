@@ -50,8 +50,4 @@ contract DAO is IDAO, DAOFields {
     function addRefund(string _description, uint _duration) external {
         votingFactory.createRefund(msg.sender, _description, _duration, minVote);
     }
-
-    function getParticipantsCount() public constant returns(uint) {
-        return participantsCount;
-    }
 }
