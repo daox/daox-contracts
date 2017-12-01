@@ -23,9 +23,9 @@ contract Users is UserInterface {
     function registerNewUser(string _name, string _secondName, string _email, address _userAddress) {
         require(!doesExist(_userAddress));
         User storage user = users[_userAddress];
-        user.name = sha256(_name);
-        user.secondName = sha256(_secondName);
-        user.email = sha256(_email);
+        user.name = keccak256(_name);
+        user.secondName = keccak256(_secondName);
+        user.email = keccak256(_email);
     }
 
     function doesExist(address userAddress) public constant returns(bool) {
