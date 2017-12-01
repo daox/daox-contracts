@@ -27,18 +27,19 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     }
 
     function createCrowdsaleDAO(string _name, string _description, uint8 _minVote, address _ownerAddress, address _tokenAddress,
-    uint _softCap,uint _hardCap, uint _rate,uint _startBlock, uint _endBlock) {
-        address newDAO = new CrowdsaleDAO(usersContractAddress, _name, _description, _minVote, _tokenAddress,
+    uint _softCap,uint _hardCap, uint _rate,uint _startBlock, uint _endBlock) returns(address) {
+        address dao = new CrowdsaleDAO(usersContractAddress, _name, _description, _minVote, _tokenAddress,
         votingFactoryContractAddress, serviceContractAddress, _ownerAddress, parentDAOAddress);
-        CrowdsaleDAO dao = CrowdsaleDAO(newDAO);
 
         //dao.initCrowdsaleParameters(_softCap, _hardCap, _rate, _startBlock, _endBlock);
         //dao.initBonuses(_team, tokenPercents, _bonusPeriods, _bonusRates);
         //dao.initHold(unholdTime);
 
-        DAOs[newDAO] = _name;
+        DAOs[dao] = _name;
 
-        CrowdsaleDAOCreated(newDAO, _name);
+        CrowdsaleDAOCreated(dao, _name);
+
+        return dao;
     }
 
     function exists(address _address) public constant returns (bool) {
