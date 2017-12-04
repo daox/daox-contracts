@@ -40,6 +40,8 @@ contract CrowdsaleDAO is DAOFields {
     address parentAddress;
     bool private canInitCrowdsaleParameters = true;
     uint tokenHoldTime = 0;
+    uint private lastWithdrawalTimestamp = 0;
+    uint private withdrawalPeriod = 120 * 24 * 60 * 60;
 
     function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote,
     address _tokenAddress, address _votingFactory, address _serviceContract, address _ownerAddress, address _parentAddress)
@@ -146,9 +148,20 @@ contract CrowdsaleDAO is DAOFields {
 
     function withdrawal(address _address, uint withdrawalSum) onlyVoting external {
         assert(!_address.call.value(withdrawalSum*1 ether)());
+        lastWithdrawalTimestamp = block.timestamp;
     }
 
-    function makeRefundable() external onlyVoting {
+    function makeRefundableByUser() external {
+        require(lastWithdrawalTimestamp != 0 && block.timestamp >= lastWithdrawalTimestamp + withdrawalPeriod);
+        makeRefundable();
+    }
+
+    function makeRefundableByVotingDecision() external onlyVoting {
+        makeRefundable();
+    }
+
+    function makeRefundable() private {
+        require(!refundable);
         refundable = true;
         newRate = token.totalSupply() / this.balance;
     }
