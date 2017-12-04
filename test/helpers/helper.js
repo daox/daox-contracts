@@ -1,3 +1,4 @@
+const Promise = require('bluebird');
 const CrowdsaleDAOFactory = artifacts.require("./DAO/CrowdsaleDAOFactory.sol");
 const Users = artifacts.require("./Users/Users.sol");
 const DAOx = artifacts.require("./DAOx.sol");
@@ -7,6 +8,9 @@ Voting.link(Common);
 const VotingFactory = artifacts.require("./Voting/VotingFactory.sol");
 const DAO = artifacts.require("./DAO/DAO.sol");
 const Token = artifacts.require("./Token/Token.sol");
+const DAOJson = require('../../build/contracts/DAO.json');
+const Web3 = require("web3");
+const web3 = new Web3();
 
 module.exports = {
     createCrowdasaleDAOFactory: (accounts, data = null) => {
@@ -37,5 +41,19 @@ module.exports = {
 
             return cdf;
         });
+    },
+
+    createCrowdasaleDAO: (cdf, accounts, data = null) => {
+        const [daoName, daoDescription, daoMinVote, DAOOwner, softCap, hardCap, rate, startBlock, endBlock] = data || ["Test", "Test DAO", 51, accounts[2], 100, 1000, 100, 100, 100000];
+
+        return cdf.createCrowdsaleDAO(daoName, daoDescription, daoMinVote, DAOOwner, cdf.token.address, softCap, hardCap, rate, startBlock, endBlock)
+            .then(tx => {
+                const result = web3.eth.abi.decodeParameters(["address", "string"], tx.receipt.logs[0].data);
+                cdf.dao = new web3.eth.Contract(DAOJson.abi, result[0]);
+
+                return cdf;
+            });
     }
+
+
 };

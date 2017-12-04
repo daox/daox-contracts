@@ -15,11 +15,6 @@ contract("CrowdsaleDAOFactory", accounts => {
             .then(doesExist => assert.equal(false, doesExist, "Unknown DAO exists in User contract")));
 
     it("Should create DAO", () =>
-        cdf.createCrowdsaleDAO(daoName, daoDescription, daoMinVote, DAOOwner, cdf.token.address, softCap, hardCap, rate, startBlock, endBlock)
-            .then(tx => {
-                const result = web3.eth.abi.decodeParameters(["address", "string"], tx.receipt.logs[0].data);
-
-                return cdf.exists.call(result[0]);
-            })
+        helper.createCrowdasaleDAO(cdf, accounts).then(cdf => cdf.exists.call(cdf.dao._address))
             .then(doesExist => assert.equal(true, doesExist, "Created crowdsale DAO should exist")));
 });
