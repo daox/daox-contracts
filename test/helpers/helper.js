@@ -13,7 +13,7 @@ const Web3 = require("web3");
 const web3 = new Web3();
 
 module.exports = {
-    createCrowdasaleDAOFactory: (accounts, data = null) => {
+    createCrowdsaleDAOFactory: (accounts, data = null) => {
         data = data || ["Test Token", "TTK", "Base", "Base DAO", 51, accounts[1]];
         const [tokenName, tokenSymbol, daoName, daoDescription, minVote, DAOOwner1] = data;
         let voting, cdf, votingFactory, token, users, baseDAO, daoX;
@@ -43,7 +43,7 @@ module.exports = {
         });
     },
 
-    createCrowdasaleDAO: (cdf, accounts, data = null) => {
+    createCrowdsaleDAO: (cdf, accounts, data = null) => {
         const [daoName, daoDescription, daoMinVote, DAOOwner, softCap, hardCap, rate, startBlock, endBlock] = data || ["Test", "Test DAO", 51, accounts[2], 100, 1000, 100, 100, 100000];
 
         return cdf.createCrowdsaleDAO(daoName, daoDescription, daoMinVote, DAOOwner, cdf.token.address, softCap, hardCap, rate, startBlock, endBlock)
