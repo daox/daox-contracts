@@ -26,8 +26,7 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         require(serviceContractAddress.call(bytes4(keccak256("setDaoFactory(address,address)")), this, msg.sender));
     }
 
-    function createCrowdsaleDAO(string _name, string _description, uint8 _minVote, address _ownerAddress, address _tokenAddress,
-    uint _softCap,uint _hardCap, uint _rate,uint _startBlock, uint _endBlock) returns(address) {
+    function createCrowdsaleDAO(string _name, string _description, uint8 _minVote, address _ownerAddress, address _tokenAddress) returns(address) {
         address dao = new CrowdsaleDAO(usersContractAddress, _name, _description, _minVote, _tokenAddress,
         votingFactoryContractAddress, serviceContractAddress, _ownerAddress, parentDAOAddress);
 
