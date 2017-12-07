@@ -201,6 +201,10 @@ contract CrowdsaleDAO is DAOFields {
         DAOLib.delegatedCreateRefund(votingFactory, _description, _duration);
     }
 
+    function addWhiteList(string _description, uint _duration, address _addr, uint action) succeededCrowdsale {
+        DAOLib.delegatedCreateRefund(votingFactory, _description, _duration, _addr, action);
+    }
+
     /*
     DAO methods
     */

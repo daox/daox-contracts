@@ -4,6 +4,8 @@ import "../Token/TokenInterface.sol";
 import "../Votings/VotingFactoryInterface.sol";
 
 library DAOLib {
+    event VotingCreated(address voting);
+
     function countTokens(TokenInterface token, uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate, address _sender) constant returns (uint) {
         uint tokenRate = rate;
         for(uint i = 0; i < bonusPeriods.length; i++) {
@@ -45,14 +47,26 @@ library DAOLib {
 
     //ToDo: finish proposal creating functions
     function delegatedCreateProposal(address _votingFactory, string _description, uint _duration, bytes32[10] _options) returns (address) {
-        return VotingFactoryInterface(_votingFactory).createProposal(msg.sender, _description, _duration, _options);
+        address _votingAddress = VotingFactoryInterface(_votingFactory).createProposal(msg.sender, _description, _duration, _options);
+        VotingCreated(_votingAddress);
+        return _votingAddress;
     }
 
     function delegatedCreateWithdrawal(address _votingFactory, string _description, uint _duration, uint _sum) returns (address) {
-        return VotingFactoryInterface(_votingFactory).createWithdrawal(msg.sender, _description, _duration, _sum, 51);
+        address _votingAddress = VotingFactoryInterface(_votingFactory).createWithdrawal(msg.sender, _description, _duration, _sum, 51);
+        VotingCreated(_votingAddress);
+        return _votingAddress;
     }
 
     function delegatedCreateRefund(address _votingFactory, string _description, uint _duration) returns (address) {
-        return VotingFactoryInterface(_votingFactory).createRefund(msg.sender, _description, _duration, 51);
+        address _votingAddress = VotingFactoryInterface(_votingFactory).createRefund(msg.sender, _description, _duration, 51);
+        VotingCreated(_votingAddress);
+        return _votingAddress;
+    }
+
+    function delegatedCreateWhiteList(address _votingFactory, string _description, uint _duration, address _addr, uint action) returns (address) {
+        address _votingAddress = VotingFactoryInterface(_votingFactory).createRefund(msg.sender, _description, _duration, 51, _addr, action);
+        VotingCreated(_votingAddress);
+        return _votingAddress;
     }
 }
