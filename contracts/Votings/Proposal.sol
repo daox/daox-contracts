@@ -10,7 +10,7 @@ contract Proposal is VotingFields {
 
     function Proposal(address _baseVoting, address _dao, address _creator, string _description, uint _duration, bytes32[10] _options){
         baseVoting = _baseVoting;
-        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, Common.stringToBytes32(_description), _duration, 50);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, Common.stringToBytes32(_description), _duration, 50); //ToDo: Common.stringToBytes32 doesn't work
         createOptions(_options);
     }
 
@@ -25,6 +25,12 @@ contract Proposal is VotingFields {
     function createOptions(bytes32[10] _options) private {
         for (uint i = 0; i < 10; i++) {
             options[i] = VotingLib.Option(0, _options[i]);
+        }
+    }
+
+    function getOptions() constant returns(uint[10] result) {
+        for (uint i = 0; i < 10; i++) {
+            result[i] = options[i].votes;
         }
     }
 }

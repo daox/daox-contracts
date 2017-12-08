@@ -65,7 +65,7 @@ library DAOLib {
     }
 
     function delegatedCreateWhiteList(address _votingFactory, string _description, uint _duration, address _addr, uint action) returns (address) {
-        address _votingAddress = VotingFactoryInterface(_votingFactory).createRefund(msg.sender, _description, _duration, 51, _addr, action);
+        address _votingAddress = VotingFactoryInterface(_votingFactory).createWhiteList(msg.sender, _description, _duration, 51, _addr, action);
         VotingCreated(_votingAddress);
         return _votingAddress;
     }
