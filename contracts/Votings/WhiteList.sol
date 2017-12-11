@@ -42,4 +42,10 @@ contract WhiteList is VotingFields {
         options[0] = VotingLib.Option(0, "yes");
         options[1] = VotingLib.Option(0, "no");
     }
+
+    function getOptions() external constant returns(uint[2] result) {
+        for (uint i = 0; i < 2; i++) {
+            result[i] = options[i].votes;
+        }
+    }
 }

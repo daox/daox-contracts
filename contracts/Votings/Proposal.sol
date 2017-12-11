@@ -28,7 +28,7 @@ contract Proposal is VotingFields {
         }
     }
 
-    function getOptions() constant returns(uint[10] result) {
+    function getOptions() external constant returns(uint[10] result) {
         for (uint i = 0; i < 10; i++) {
             result[i] = options[i].votes;
         }
