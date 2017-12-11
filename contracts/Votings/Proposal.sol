@@ -8,9 +8,9 @@ contract Proposal is VotingFields {
     address baseVoting;
     VotingLib.VotingType constant votingType = VotingLib.VotingType.Proposal;
 
-    function Proposal(address _baseVoting, address _dao, address _creator, string _description, uint _duration, bytes32[10] _options){
+    function Proposal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, bytes32[10] _options){
         baseVoting = _baseVoting;
-        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, Common.stringToBytes32(_description), _duration, 50); //ToDo: Common.stringToBytes32 doesn't work
+        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, 50);
         createOptions(_options);
     }
 
