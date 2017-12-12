@@ -3,6 +3,7 @@ pragma solidity ^0.4.11;
 import "../Commission.sol";
 import "./DAOLib.sol";
 import "./DAOFields.sol";
+import "../Common.sol";
 
 contract CrowdsaleDAO is DAOFields {
     /*
@@ -189,20 +190,20 @@ contract CrowdsaleDAO is DAOFields {
     Voting related methods
     */
 
-    function addProposal(string _description, uint _duration, bytes32[10] _options) succeededCrowdsale onlyParticipant {
-        DAOLib.delegatedCreateProposal(votingFactory, _description, _duration, _options);
+    function addProposal(string _description, uint _duration, bytes32[] _options) succeededCrowdsale onlyParticipant {
+        DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options);
     }
 
     function addWithdrawal(string _description, uint _duration, uint _sum) succeededCrowdsale {
-        DAOLib.delegatedCreateWithdrawal(votingFactory, _description, _duration, _sum);
+        DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum);
     }
 
     function addRefund(string _description, uint _duration) succeededCrowdsale {
-        DAOLib.delegatedCreateRefund(votingFactory, _description, _duration);
+        DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration);
     }
 
     function addWhiteList(string _description, uint _duration, address _addr, uint action) succeededCrowdsale {
-        DAOLib.delegatedCreateWhiteList(votingFactory, _description, _duration, _addr, action);
+        DAOLib.delegatedCreateWhiteList(votingFactory, Common.stringToBytes32(_description), _duration, _addr, action);
     }
 
     /*
@@ -269,3 +270,4 @@ contract CrowdsaleDAO is DAOFields {
         _;
     }
 }
+

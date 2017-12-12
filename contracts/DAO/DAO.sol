@@ -39,15 +39,15 @@ contract DAO is IDAO, DAOFields {
         participantsCount--;
     }
 
-    function addProposal(string _description, uint _duration, bytes32[10] _options) external {
+    function addProposal(bytes32 _description, uint _duration, bytes32[] _options) external {
         votingFactory.createProposal(msg.sender, _description, _duration, _options);
     }
 
-    function addWithdrawal(string _description, uint _duration, uint _sum) external {
+    function addWithdrawal(bytes32 _description, uint _duration, uint _sum) external {
         votingFactory.createWithdrawal(msg.sender, _description, _duration, _sum, minVote);
     }
 
-    function addRefund(string _description, uint _duration) external {
+    function addRefund(bytes32 _description, uint _duration) external {
         votingFactory.createRefund(msg.sender, _description, _duration, minVote);
     }
 }

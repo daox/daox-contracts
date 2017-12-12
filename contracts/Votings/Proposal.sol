@@ -8,7 +8,7 @@ contract Proposal is VotingFields {
     address baseVoting;
     VotingLib.VotingType constant votingType = VotingLib.VotingType.Proposal;
 
-    function Proposal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, bytes32[10] _options){
+    function Proposal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, bytes32[] _options){
         baseVoting = _baseVoting;
         VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, 50);
         createOptions(_options);
@@ -22,13 +22,13 @@ contract Proposal is VotingFields {
         VotingLib.delegatecallFinish(baseVoting);
     }
 
-    function createOptions(bytes32[10] _options) private {
-        for (uint i = 0; i < 10; i++) {
+    function createOptions(bytes32[] _options) private {
+        for (uint i = 0; i < _options.length; i++) {
             options[i] = VotingLib.Option(0, _options[i]);
         }
     }
 
-    function getOptions() external constant returns(uint[10] result) {
+    function getOptions() external constant returns(uint[] result) {
         for (uint i = 0; i < 10; i++) {
             result[i] = options[i].votes;
         }

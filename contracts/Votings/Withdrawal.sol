@@ -9,9 +9,9 @@ contract Withdrawal is VotingFields {
     uint public withdrawalSum;
     VotingLib.VotingType constant votingType = VotingLib.VotingType.Withdrawal;
 
-    function Withdrawal(address _baseVoting, address _dao, address _creator, string _description, uint _duration, uint _sum, uint _quorum){
+    function Withdrawal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _sum, uint _quorum){
         baseVoting = _baseVoting;
-        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, Common.stringToBytes32(_description), _duration, _quorum);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
         withdrawalSum = _sum;
         createOptions();
     }

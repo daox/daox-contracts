@@ -8,9 +8,9 @@ contract Refund is VotingFields {
     address baseVoting;
     VotingLib.VotingType constant votingType = VotingLib.VotingType.Refund;
 
-    function Refund(address _baseVoting, address _dao, address _creator, string _description, uint _duration, uint _quorum){
+    function Refund(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum){
         baseVoting = _baseVoting;
-        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, Common.stringToBytes32(_description), _duration, _quorum);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
         createOptions();
     }
 
