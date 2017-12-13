@@ -14,7 +14,7 @@ module.exports = function (deployer) {
         deployer.deploy(VotingLib),
         deployer.deploy(DAOLib)
     ]).then(() => Promise.all([
-        deployer.link(Common, [VotingFactory, Users]),
+        deployer.link(Common, [VotingFactory, Users, CrowdsaleDAOFactory]),
         deployer.link(VotingLib, VotingFactory),
         deployer.link(DAOLib, CrowdsaleDAOFactory),
     ])).then(() => Promise.all([
