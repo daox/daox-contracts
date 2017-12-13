@@ -1,11 +1,11 @@
 pragma solidity ^0.4.11;
 
-import "../Commission.sol";
 import "./DAOLib.sol";
-import "./DAOFields.sol";
+import "./CrowdsaleDAOFields.sol";
 import "../Common.sol";
+import "./Owned.sol";
 
-contract CrowdsaleDAO is DAOFields {
+contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
     Emits when someone send ether to the contract
     and successfully buy tokens
@@ -16,59 +16,31 @@ contract CrowdsaleDAO is DAOFields {
         uint tokensAmount
     );
 
-    uint public rate;
-    uint public softCap;
-    uint public hardCap;
-    uint public startBlock;
-    uint public endBlock;
-    bool public isCrowdsaleFinished = false;
-    uint public weiRaised = 0;
-    uint public commissionRaised = 0;
-    address[] team;
+    address proxy;
     address[] whiteListArr;
     mapping(address => bool) whiteList;
     mapping(address => uint) public teamBonuses;
-    mapping(address => uint) public depositedWei;
-    mapping(address => bool) public addressesWithCommission;
-    uint[] teamBonusesArr;
     uint[] bonusPeriods;
     uint[] bonusRates;
-    bool public refundableSoftCap = false;
     bool public refundable = false;
-    uint newRate = 0;
-    address public commissionContract;
-    address serviceContract;
-    address parentAddress;
-    bool private canInitCrowdsaleParameters = true;
-    uint tokenHoldTime = 0;
     uint private lastWithdrawalTimestamp = 0;
-    uint private withdrawalPeriod = 120 * 24 * 60 * 60;
+    uint constant private withdrawalPeriod = 120 * 24 * 60 * 60;
 
-    function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote,
+    function CrowdsaleDAO(address _usersAddress, string _name, string _description, uint8 _minVote, address _proxy,
     address _tokenAddress, address _votingFactory, address _serviceContract, address _ownerAddress, address _parentAddress)
-    DAOFields(_ownerAddress, _tokenAddress, _votingFactory, _usersAddress, _name, _description, _minVote)
+    Owned(_ownerAddress)
     {
-        require(_serviceContract != 0x0);
-        serviceContract = _serviceContract;
-        commissionContract = new Commission(this);
-        parentAddress = _parentAddress;
+        (proxy, name, description) = (_proxy, _name, _description);
+        DAOLib.delegatedCreate(proxy, _usersAddress, _minVote, _tokenAddress, _votingFactory, _serviceContract, _ownerAddress, _parentAddress);
     }
 
     //ToDo: move these parameters to the contract constructor???
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) canInit(canInitCrowdsaleParameters) external {
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) onlyOwner canInit(canInitCrowdsaleParameters) external {
         require(block.number < _startBlock && _softCap < _hardCap && _softCap != 0 && _rate != 0);
-        softCap = _softCap * 1 ether;
-        hardCap = _hardCap * 1 ether;
-
-        startBlock = _startBlock;
-        endBlock = _endBlock;
-
-        rate = _rate;
-
-        canInitCrowdsaleParameters = false;
+        DAOLib.delegatedInitCrowdsaleParameters(proxy, _softCap, _hardCap, _rate, _startBlock, _endBlock);
     }
 
-    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) crowdsaleNotStarted external {
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner crowdsaleNotStarted external {
         require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length);
         team = _team;
         teamBonusesArr = tokenPercents;
@@ -79,12 +51,12 @@ contract CrowdsaleDAO is DAOFields {
         bonusRates = _bonusRates;
     }
 
-    function initHold(uint _tokenHoldTime) crowdsaleNotStarted external {
+    function initHold(uint _tokenHoldTime) onlyOwner crowdsaleNotStarted external {
         require(_tokenHoldTime != 0);
         if(_tokenHoldTime > 0) tokenHoldTime = _tokenHoldTime;
     }
 
-    function setWhiteList(address[] _addresses) {
+    function setWhiteList(address[] _addresses) onlyOwner {
         whiteListArr = _addresses;
         for(uint i = 0; i < _addresses.length; i++) {
             whiteList[_addresses[i]] = true;
@@ -104,7 +76,6 @@ contract CrowdsaleDAO is DAOFields {
 
     function() payable {
         handlePayment(msg.sender, false);
-        //forwardFunds();
     }
 
     function handleCommissionPayment(address _sender) onlyCommission payable {
@@ -114,31 +85,16 @@ contract CrowdsaleDAO is DAOFields {
     function handlePayment(address _sender, bool commission) CrowdsaleStarted validPurchase(msg.value) private {
         require(_sender != 0x0);
 
-        uint weiAmount = msg.value;
-        if(commission) {
-            commissionRaised = commissionRaised + weiAmount;
-            addressesWithCommission[_sender] = true;
-        }
-
-        weiRaised = weiRaised + weiAmount;
-        depositedWei[_sender] = depositedWei[_sender] + weiAmount;
-
+        DAOLib.delegatedHandlePayment(proxy, _sender, commission);
         if(!isParticipant(_sender)) addParticipant(_sender);
+        uint weiAmount = msg.value;
 
         TokenPurchase(_sender, weiAmount, DAOLib.countTokens(token, weiAmount, bonusPeriods, bonusRates, rate, _sender));
     }
 
     function finish() onlyOwner {
         require(block.number >= endBlock);
-        isCrowdsaleFinished = true;
-
-        if(weiRaised >= softCap) DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, tokenHoldTime);
-        else {
-            refundableSoftCap = true;
-            newRate = rate;
-        }
-
-        token.finishMinting();
+        DAOLib.delegatedFinish(proxy);
     }
 
     function getCommissionTokens() onlyParticipant succeededCrowdsale {
@@ -267,6 +223,26 @@ contract CrowdsaleDAO is DAOFields {
 
     modifier succeededCrowdsale() {
         require(block.number >= endBlock && weiRaised >= softCap);
+        _;
+    }
+
+    modifier onlyParticipant {
+        require(participants[msg.sender] == true);
+        _;
+    }
+
+    modifier onlyVoting() {
+        require(votings[msg.sender] != 0x0);
+        _;
+    }
+
+    modifier isUser(address _userAddress) {
+        require(users.doesExist(_userAddress));
+        _;
+    }
+
+    modifier isNotParticipant(address _userAddress) {
+        require(participants[_userAddress]);
         _;
     }
 }

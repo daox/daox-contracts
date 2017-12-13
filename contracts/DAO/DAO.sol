@@ -1,17 +1,14 @@
 pragma solidity ^0.4.0;
 
 import "./IDAO.sol";
-import "./DAOFields.sol";
+import "../Votings/VotingFactoryInterface.sol";
 
-contract DAO is IDAO, DAOFields {
-
-    function DAO(address _ownerAddress, address _tokenAddress, address _votingFactory, address _usersAddress,
-    string _name, string _description, uint _minVote)
-    DAOFields(_ownerAddress, _tokenAddress, _votingFactory, _usersAddress,
-    _name, _description, _minVote)
-    {
-
-    }
+contract DAO is IDAO {
+    mapping (address => bool) public participants;
+    uint public participantsCount;
+    address public owner;
+    VotingFactoryInterface public votingFactory;
+    uint public minVote;
 
     function isParticipant(address _participantAddress) external constant returns (bool) {
         return participants[_participantAddress];
