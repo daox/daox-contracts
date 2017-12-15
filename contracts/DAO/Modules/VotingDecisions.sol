@@ -2,17 +2,10 @@ pragma solidity ^0.4.0;
 
 import "../DAOLib.sol";
 import "../../Token/TokenInterface.sol";
+import "../CrowdsaleDAOFields.sol";
+import "./OwnedFields.sol";
 
-contract VotingDecisions {
-
-    uint newRate = 0;
-    address[] whiteListArr;
-    TokenInterface public token;
-    bool public refundable = false;
-    mapping(address => bool) whiteList;
-    uint private lastWithdrawalTimestamp = 0;
-    mapping(address => bool) public votings;
-    uint constant private withdrawalPeriod = 120 * 24 * 60 * 60;
+contract VotingDecisions is OwnedFields, CrowdsaleDAOFields {
 
     function withdrawal(address _address, uint withdrawalSum) onlyVoting external {
         assert(!_address.call.value(withdrawalSum*1 ether)());

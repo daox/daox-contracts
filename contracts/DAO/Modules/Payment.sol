@@ -2,22 +2,10 @@ pragma solidity ^0.4.0;
 
 import "../DAOLib.sol";
 import "../../Token/TokenInterface.sol";
+import "../CrowdsaleDAOFields.sol";
+import "./OwnedFields.sol";
 
-contract Payment {
-    uint public rate;
-    uint newRate = 0;
-    uint public softCap;
-    bool crowdsaleFinished;
-    address serviceContract;
-    uint public weiRaised = 0;
-    TokenInterface public token;
-    bool public refundable = false;
-    bool public refundableSoftCap = false;
-    mapping(address => uint) public teamBonuses;
-    mapping(address => uint) public depositedWei;
-    mapping (address => bool) public participants;
-    mapping(address => bool) public addressesWithCommission;
-
+contract Payment is OwnedFields, CrowdsaleDAOFields {
     function getCommissionTokens() onlyParticipant succeededCrowdsale {
         require(addressesWithCommission[msg.sender] && depositedWei[msg.sender] > 0);
         delete addressesWithCommission[msg.sender];

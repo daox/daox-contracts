@@ -21,7 +21,7 @@ contract CrowdsaleDAOFields {
     address serviceContract;
     uint[] teamBonusesArr;
     address[] team;
-    uint tokenHoldTime = 0;
+    uint public tokenHoldTime = 0;
     TokenInterface public token;
     VotingFactoryInterface public votingFactory;
     UserInterface public users;
@@ -33,5 +33,12 @@ contract CrowdsaleDAOFields {
     uint public minVote; // in percents
     mapping(address => bool) public votings;
     uint public participantsCount = 1;
-    address parentAddress;
+    bool public refundable = false;
+    uint internal lastWithdrawalTimestamp = 0;
+    uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;
+    address[] whiteListArr;
+    mapping(address => bool) whiteList;
+    mapping(address => uint) public teamBonuses;
+    uint[] bonusPeriods;
+    uint[] bonusRates;
 }
