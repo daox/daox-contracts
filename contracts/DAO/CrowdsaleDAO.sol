@@ -39,6 +39,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     function() payable {
         DAOProxy.delegatedHandlePayment(crowdsaleModule, msg.sender, false);
     }
+
     function handleCommissionPayment(address _sender) payable {
         DAOProxy.delegatedHandlePayment(crowdsaleModule, _sender, true);
     }
