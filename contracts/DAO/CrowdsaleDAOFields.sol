@@ -15,7 +15,7 @@ contract CrowdsaleDAOFields {
     uint public weiRaised = 0;
     mapping(address => uint) public depositedWei;
     mapping(address => bool) public addressesWithCommission;
-    bool isCrowdsaleFinished;
+    bool crowdsaleFinished;
     bool public refundableSoftCap = false;
     uint newRate = 0;
     address serviceContract;
@@ -31,7 +31,7 @@ contract CrowdsaleDAOFields {
     uint256 public created_at; // UNIX time
     string public description;
     uint public minVote; // in percents
-    mapping(address => bytes32) public votings;
+    mapping(address => bool) public votings;
     uint public participantsCount = 1;
     address parentAddress;
 }

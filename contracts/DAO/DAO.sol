@@ -22,20 +22,6 @@ contract DAO is IDAO {
         return participants[_participantAddress];
     }
 
-    function remove(address _participantAddress) external {
-        removeParticipant(_participantAddress);
-    }
-
-    function leave() external {
-        removeParticipant(msg.sender);
-    }
-
-    function removeParticipant(address _address) private {
-        require(participants[_address]);
-        participants[_address] = false;
-        participantsCount--;
-    }
-
     function addProposal(bytes32 _description, uint _duration, bytes32[] _options) external {
         votingFactory.createProposal(msg.sender, _description, _duration, _options);
     }

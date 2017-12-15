@@ -33,10 +33,6 @@ library DAOLib {
         }
     }
 
-    function delegateIsParticipant(address _parentAddress, address _participantAddress) constant returns (bool) {
-        require(_parentAddress.delegatecall(bytes4(keccak256("isParticipant(address)")), _participantAddress));
-    }
-
     function delegateAddParticipant(address _parentAddress, address _participantAddress) {
         require(_parentAddress.delegatecall(bytes4(keccak256("addParticipant(address)")), _participantAddress));
     }
@@ -75,9 +71,9 @@ library DAOLib {
     }
 
     function delegatedCreate(address _p, address _usersAddress, uint8 _minVote, address _tokenAddress,
-    address _votingFactory, address _serviceContract, address _ownerAddress, address _parentAddress) {
-        require(_p.delegatecall(bytes4(keccak256("create(address,uint8,address,address,address,address,address)")),
-        _usersAddress, _minVote, _tokenAddress, _votingFactory, _serviceContract, _ownerAddress, _parentAddress));
+    address _votingFactory, address _serviceContract, address _parentAddress) {
+        require(_p.delegatecall(bytes4(keccak256("create(address,uint8,address,address,address,address)")),
+        _usersAddress, _minVote, _tokenAddress, _votingFactory, _serviceContract, _parentAddress));
     }
 
     function delegatedHandlePayment(address _p, address sender, bool commission) {

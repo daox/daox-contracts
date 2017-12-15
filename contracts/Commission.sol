@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 interface IDAOPayable {
-    function handlePayment(address _sender) payable;
+    function handleCommissionPayment(address _sender) payable;
 }
 
 contract Commission {
@@ -12,6 +12,6 @@ contract Commission {
     }
 
     function() payable {
-        dao.handlePayment.value(msg.value)(msg.sender);
+        dao.handleCommissionPayment.value(msg.value)(msg.sender);
     }
 }
