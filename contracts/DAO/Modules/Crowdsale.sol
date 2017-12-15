@@ -1,29 +1,11 @@
 pragma solidity ^0.4.0;
 
-import "../Owned.sol";
 import "../DAOLib.sol";
+import "../CrowdsaleDAOFields.sol";
+import "../../Commission.sol";
+import "./OwnedFields.sol";
 
-contract Crowdsale is Owned {
-    uint softCap;
-    uint hardCap;
-    uint startBlock;
-    uint endBlock;
-    uint rate;
-    bool canInitCrowdsaleParameters;
-    address commissionContract;
-    bool refundableSoftCap;
-    bool crowdsaleFinished;
-    uint weiRaised;
-    uint commissionRaised;
-    mapping(address => bool) public addressesWithCommission;
-    mapping(address => uint) public depositedWei;
-    TokenInterface public token;
-    address serviceContract;
-    uint[] teamBonusesArr;
-    address[] team;
-    uint tokenHoldTime = 0;
-    uint newRate = 0;
-
+contract Crowdsale is OwnedFields, CrowdsaleDAOFields {
     function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) onlyOwner canInit(canInitCrowdsaleParameters) {
         require(block.number < _startBlock && _softCap < _hardCap && _softCap != 0 && _rate != 0);
 

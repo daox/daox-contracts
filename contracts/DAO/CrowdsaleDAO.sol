@@ -7,19 +7,10 @@ import "./Owned.sol";
 import "./DAOProxy.sol";
 
 contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
-    address[] whiteListArr;
-    mapping(address => bool) whiteList;
-    mapping(address => uint) public teamBonuses;
-    uint[] bonusPeriods;
-    uint[] bonusRates;
-    bool public refundable = false;
-    uint private lastWithdrawalTimestamp = 0;
-    uint constant private withdrawalPeriod = 120 * 24 * 60 * 60;
-
-    address stateModule;
-    address paymentModule;
-    address votingDecisionModule;
-    address crowdsaleModule;
+    address public stateModule;
+    address public paymentModule;
+    address public votingDecisionModule;
+    address public crowdsaleModule;
 
     function CrowdsaleDAO(string _name, string _description, address _ownerAddress)
     Owned(_ownerAddress)
@@ -45,6 +36,9 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _rate, _startBlock, _endBlock);
     }
 
+    function() payable {
+        DAOProxy.delegatedHandlePayment(crowdsaleModule, msg.sender, false);
+    }
     function handleCommissionPayment(address _sender) payable {
         DAOProxy.delegatedHandlePayment(crowdsaleModule, _sender, true);
     }
@@ -83,10 +77,6 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Payment module related functions
     */
-
-    function() payable {
-        DAOProxy.delegatedHandlePayment(crowdsaleModule, msg.sender, false);
-    }
 
     function getCommissionTokens() {
         DAOProxy.delegatedGetCommissionTokens(paymentModule);
