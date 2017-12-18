@@ -2,6 +2,7 @@ pragma solidity ^0.4.0;
 
 import "./CrowdsaleDAO.sol";
 import "./DAOFactoryInterface.sol";
+import "./DAODeployer.sol";
 
 contract CrowdsaleDAOFactory is DAOFactoryInterface {
     event CrowdsaleDAOCreated(
@@ -26,7 +27,7 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     }
 
     function createCrowdsaleDAO(string _name, string _description, address _ownerAddress) returns(address) {
-        address dao = new CrowdsaleDAO(_name, _description, _ownerAddress);
+        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, _ownerAddress);
 
         DAOs[dao] = _name;
 

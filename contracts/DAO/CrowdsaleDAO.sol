@@ -32,7 +32,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Crowdsale module related functions
     */
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) onlyOwner external {
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) onlyOwner(msg.sender) external {
         DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _rate, _startBlock, _endBlock);
     }
 
@@ -137,7 +137,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         return participants[_participantAddress];
     }
 
-    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner crowdsaleNotStarted external {
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) crowdsaleNotStarted external {
         require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length);
         team = _team;
         teamBonusesArr = tokenPercents;
@@ -148,7 +148,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         bonusRates = _bonusRates;
     }
 
-    function setWhiteList(address[] _addresses) onlyOwner {
+    function setWhiteList(address[] _addresses) onlyOwner(msg.sender) {
         whiteListArr = _addresses;
         for(uint i = 0; i < _addresses.length; i++) {
             whiteList[_addresses[i]] = true;
