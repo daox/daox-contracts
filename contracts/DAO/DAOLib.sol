@@ -4,7 +4,7 @@ import "../Token/TokenInterface.sol";
 import "../Votings/VotingFactoryInterface.sol";
 
 library DAOLib {
-    event VotingCreated(address voting);
+    event VotingCreated(address voting, string votingType);
 
     function countTokens(TokenInterface token, uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate, address _sender) constant returns (uint) {
         uint tokenRate = rate;
@@ -44,25 +44,25 @@ library DAOLib {
     //ToDo: finish proposal creating functions
     function delegatedCreateProposal(address _votingFactory, bytes32 _description, uint _duration, bytes32[] _options) returns (address) {
         address _votingAddress = VotingFactoryInterface(_votingFactory).createProposal(msg.sender, _description, _duration, _options);
-        VotingCreated(_votingAddress);
+        VotingCreated(_votingAddress, "proposal");
         return _votingAddress;
     }
 
     function delegatedCreateWithdrawal(address _votingFactory, bytes32 _description, uint _duration, uint _sum) returns (address) {
         address _votingAddress = VotingFactoryInterface(_votingFactory).createWithdrawal(msg.sender, _description, _duration, _sum, 51);
-        VotingCreated(_votingAddress);
+        VotingCreated(_votingAddress, "withdrawal");
         return _votingAddress;
     }
 
     function delegatedCreateRefund(address _votingFactory, bytes32 _description, uint _duration) returns (address) {
         address _votingAddress = VotingFactoryInterface(_votingFactory).createRefund(msg.sender, _description, _duration, 51);
-        VotingCreated(_votingAddress);
+        VotingCreated(_votingAddress, "refund");
         return _votingAddress;
     }
 
     function delegatedCreateWhiteList(address _votingFactory, bytes32 _description, uint _duration, address _addr, uint action) returns (address) {
         address _votingAddress = VotingFactoryInterface(_votingFactory).createWhiteList(msg.sender, _description, _duration, 51, _addr, action);
-        VotingCreated(_votingAddress);
+        VotingCreated(_votingAddress, "whiteList");
         return _votingAddress;
     }
 
