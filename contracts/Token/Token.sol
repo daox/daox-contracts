@@ -4,6 +4,8 @@ import '../../node_modules/zeppelin-solidity/contracts/token/BasicToken.sol';
 import '../../node_modules/zeppelin-solidity/contracts/token/MintableToken.sol';
 
 contract Token is MintableToken {
+    event TokenCreation(address _address);
+
     string public name;
     string public symbol;
     uint constant public decimals = 18;
@@ -13,6 +15,7 @@ contract Token is MintableToken {
     function Token(string _name, string _symbol) {
         name = _name;
         symbol = _symbol;
+        TokenCreation(this);
     }
 
     function hold(address addr, uint duration) onlyOwner external {

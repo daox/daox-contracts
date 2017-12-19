@@ -1,6 +1,6 @@
 pragma solidity ^0.4.0;
 
-import "./DAO/CrowdsaleDAO.sol";
+import "./CrowdsaleDAO.sol";
 
 library DAODeployer {
     function deployCrowdsaleDAO(string _name,  string _description, address _ownerAddress) returns(address) {
