@@ -10,12 +10,12 @@ contract CrowdsaleDAOFields {
     uint public hardCap;
     uint public startBlock;
     uint public endBlock;
-    bool internal canInitCrowdsaleParameters = true;
+    bool public canInitCrowdsaleParameters = true;
     uint public commissionRaised = 0;
     uint public weiRaised = 0;
     mapping(address => uint) public depositedWei;
     mapping(address => bool) public addressesWithCommission;
-    bool crowdsaleFinished;
+    bool public crowdsaleFinished;
     bool public refundableSoftCap = false;
     uint newRate = 0;
     address serviceContract;
@@ -24,7 +24,6 @@ contract CrowdsaleDAOFields {
     uint public tokenHoldTime = 0;
     TokenInterface public token;
     VotingFactoryInterface public votingFactory;
-    UserInterface public users;
     address public commissionContract;
     mapping (address => bool) public participants;
     string public name;

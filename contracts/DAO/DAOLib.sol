@@ -4,7 +4,7 @@ import "../Token/TokenInterface.sol";
 import "../Votings/VotingFactoryInterface.sol";
 
 library DAOLib {
-    event VotingCreated(address voting, string votingType);
+    event VotingCreated(address voting, string votingType, address dao, bytes32 description, uint duration, address sender);
 
     function countTokens(TokenInterface token, uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate, address _sender) constant returns (uint) {
         uint tokenRate = rate;
@@ -42,27 +42,27 @@ library DAOLib {
     }
 
     //ToDo: finish proposal creating functions
-    function delegatedCreateProposal(address _votingFactory, bytes32 _description, uint _duration, bytes32[] _options) returns (address) {
+    function delegatedCreateProposal(address _votingFactory, bytes32 _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
         address _votingAddress = VotingFactoryInterface(_votingFactory).createProposal(msg.sender, _description, _duration, _options);
-        VotingCreated(_votingAddress, "proposal");
+        VotingCreated(_votingAddress, "proposal", _dao, _description, _duration, msg.sender);
         return _votingAddress;
     }
 
-    function delegatedCreateWithdrawal(address _votingFactory, bytes32 _description, uint _duration, uint _sum) returns (address) {
+    function delegatedCreateWithdrawal(address _votingFactory, bytes32 _description, uint _duration, uint _sum, address _dao) returns (address) {
         address _votingAddress = VotingFactoryInterface(_votingFactory).createWithdrawal(msg.sender, _description, _duration, _sum, 51);
-        VotingCreated(_votingAddress, "withdrawal");
+        VotingCreated(_votingAddress, "withdrawal", _dao, _description, _duration, msg.sender);
         return _votingAddress;
     }
 
-    function delegatedCreateRefund(address _votingFactory, bytes32 _description, uint _duration) returns (address) {
+    function delegatedCreateRefund(address _votingFactory, bytes32 _description, uint _duration, address _dao) returns (address) {
         address _votingAddress = VotingFactoryInterface(_votingFactory).createRefund(msg.sender, _description, _duration, 51);
-        VotingCreated(_votingAddress, "refund");
+        VotingCreated(_votingAddress, "refund", _dao, _description, _duration, msg.sender);
         return _votingAddress;
     }
 
-    function delegatedCreateWhiteList(address _votingFactory, bytes32 _description, uint _duration, address _addr, uint action) returns (address) {
+    function delegatedCreateWhiteList(address _votingFactory, bytes32 _description, uint _duration, address _addr, uint action, address _dao) returns (address) {
         address _votingAddress = VotingFactoryInterface(_votingFactory).createWhiteList(msg.sender, _description, _duration, 51, _addr, action);
-        VotingCreated(_votingAddress, "whiteList");
+        VotingCreated(_votingAddress, "whiteList", _dao, _description, _duration, msg.sender);
         return _votingAddress;
     }
 
@@ -71,9 +71,9 @@ library DAOLib {
     }
 
     function delegatedCreate(address _p, address _usersAddress, uint8 _minVote, address _tokenAddress,
-    address _votingFactory, address _serviceContract, address _parentAddress) {
+        address _votingFactory, address _serviceContract, address _parentAddress) {
         require(_p.delegatecall(bytes4(keccak256("create(address,uint8,address,address,address,address)")),
-        _usersAddress, _minVote, _tokenAddress, _votingFactory, _serviceContract, _parentAddress));
+            _usersAddress, _minVote, _tokenAddress, _votingFactory, _serviceContract, _parentAddress));
     }
 
     function delegatedHandlePayment(address _p, address sender, bool commission) {

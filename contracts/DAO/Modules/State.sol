@@ -6,10 +6,9 @@ import "../../Commission.sol";
 import "./OwnedFields.sol";
 
 contract State is OwnedFields, CrowdsaleDAOFields {
-    function initState(uint8 _minVote, address _usersAddress, address _tokenAddress, address _votingFactory, address _serviceContract) onlyOwner {
-        require(_usersAddress != 0x0 && _tokenAddress != 0x0 && _votingFactory != 0x0 && _serviceContract != 0x0);
+    function initState(uint8 _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) onlyOwner {
+        require(_tokenAddress != 0x0 && _votingFactory != 0x0 && _serviceContract != 0x0);
 
-        users = UserInterface(_usersAddress);
         token = TokenInterface(_tokenAddress);
         votingFactory = VotingFactoryInterface(_votingFactory);
         minVote = _minVote;

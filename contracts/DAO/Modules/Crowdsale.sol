@@ -3,12 +3,15 @@ pragma solidity ^0.4.0;
 import "../DAOLib.sol";
 import "../CrowdsaleDAOFields.sol";
 import "../../Commission.sol";
-import "./OwnedFields.sol";
+import "../Owned.sol";
 
-contract Crowdsale is OwnedFields, CrowdsaleDAOFields {
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) onlyOwner canInit(canInitCrowdsaleParameters) {
-        require(block.number < _startBlock && _softCap < _hardCap && _softCap != 0 && _rate != 0);
+contract Crowdsale is Owned, CrowdsaleDAOFields {
+    function Crowdsale()
+    Owned(msg.sender) {}
 
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate,uint _startBlock, uint _endBlock) canInit {
+        require(_softCap != 0 && _hardCap != 0 && _rate != 0 && _startBlock != 0 && _endBlock != 0);
+        require(_softCap < _hardCap);
         softCap = _softCap * 1 ether;
         hardCap = _hardCap * 1 ether;
 
@@ -20,7 +23,7 @@ contract Crowdsale is OwnedFields, CrowdsaleDAOFields {
         canInitCrowdsaleParameters = false;
     }
 
-    function finish() onlyOwner {
+    function finish() {
         require(block.number >= endBlock);
 
         crowdsaleFinished = true;
@@ -47,8 +50,8 @@ contract Crowdsale is OwnedFields, CrowdsaleDAOFields {
         depositedWei[_sender] = depositedWei[_sender] + weiAmount;
     }
 
-    modifier canInit(bool permission) {
-        require(permission);
+    modifier canInit() {
+        require(softCap == 0);
         _;
     }
 
