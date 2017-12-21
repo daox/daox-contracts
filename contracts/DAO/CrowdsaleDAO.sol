@@ -21,8 +21,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         State module related functions
     */
-    function initState(uint8 _minVote, address _usersAddress, address _tokenAddress, address _votingFactory, address _serviceContract) external {
-        DAOProxy.delegatedInitState(stateModule, _minVote, _usersAddress, _tokenAddress, _votingFactory, _serviceContract);
+    function initState(uint8 _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) external {
+        DAOProxy.delegatedInitState(stateModule, _minVote, _tokenAddress, _votingFactory, _serviceContract);
     }
 
     function initHold(uint _tokenHoldTime) external {
@@ -96,19 +96,19 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         Create proposal functions
     */
     function addProposal(string _description, uint _duration, bytes32[] _options) succeededCrowdsale onlyParticipant {
-        DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options);
+        DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this);
     }
 
     function addWithdrawal(string _description, uint _duration, uint _sum) succeededCrowdsale {
-        DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum);
+        DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, this);
     }
 
     function addRefund(string _description, uint _duration) succeededCrowdsale {
-        DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration);
+        DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this);
     }
 
     function addWhiteList(string _description, uint _duration, address _addr, uint action) succeededCrowdsale {
-        DAOLib.delegatedCreateWhiteList(votingFactory, Common.stringToBytes32(_description), _duration, _addr, action);
+        DAOLib.delegatedCreateWhiteList(votingFactory, Common.stringToBytes32(_description), _duration, _addr, action, this);
     }
 
     /*

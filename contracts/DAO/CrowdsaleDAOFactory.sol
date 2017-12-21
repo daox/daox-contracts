@@ -11,13 +11,11 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     );
 
     mapping(address => string) DAOs;
-    address public usersContractAddress;
     address public serviceContractAddress;
     address public votingFactoryContractAddress;
 
-    function CrowdsaleDAOFactory(address _usersContractAddress, address _serviceContractAddress, address _votingFactoryAddress) {
-        require(_usersContractAddress != 0x0 && _serviceContractAddress != 0x0 && _votingFactoryAddress != 0x0);
-        usersContractAddress = _usersContractAddress;
+    function CrowdsaleDAOFactory(address _serviceContractAddress, address _votingFactoryAddress) {
+        require(_serviceContractAddress != 0x0 && _votingFactoryAddress != 0x0);
         serviceContractAddress = _serviceContractAddress;
         votingFactoryContractAddress = _votingFactoryAddress;
 
@@ -25,8 +23,8 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         require(serviceContractAddress.call(bytes4(keccak256("setDaoFactory(address,address)")), this, msg.sender));
     }
 
-    function createCrowdsaleDAO(string _name, string _description, address _ownerAddress) returns(address) {
-        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, _ownerAddress);
+    function createCrowdsaleDAO(string _name, string _description) returns(address) {
+        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, msg.sender);
 
         DAOs[dao] = _name;
 
