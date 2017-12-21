@@ -5,13 +5,11 @@ import "../CrowdsaleDAOFields.sol";
 import "../../Commission.sol";
 import "../Owned.sol";
 
-contract Crowdsale is Owned, CrowdsaleDAOFields {
-    function Crowdsale()
-    Owned(msg.sender) {}
+contract Crowdsale is CrowdsaleDAOFields {
 
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate,uint _startBlock, uint _endBlock) canInit {
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) canInit {
         require(_softCap != 0 && _hardCap != 0 && _rate != 0 && _startBlock != 0 && _endBlock != 0);
-        require(_softCap < _hardCap);
+        require(_softCap < _hardCap && _startBlock > block.number);
         softCap = _softCap * 1 ether;
         hardCap = _hardCap * 1 ether;
 
@@ -51,7 +49,7 @@ contract Crowdsale is Owned, CrowdsaleDAOFields {
     }
 
     modifier canInit() {
-        require(softCap == 0);
+        require(canInitCrowdsaleParameters);
         _;
     }
 
