@@ -14,7 +14,6 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     address public usersContractAddress;
     address public serviceContractAddress;
     address public votingFactoryContractAddress;
-    address public proxyCrowdsaleDao;
 
     function CrowdsaleDAOFactory(address _usersContractAddress, address _serviceContractAddress, address _votingFactoryAddress) {
         require(_usersContractAddress != 0x0 && _serviceContractAddress != 0x0 && _votingFactoryAddress != 0x0);
