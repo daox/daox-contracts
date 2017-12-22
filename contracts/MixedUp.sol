@@ -1,4 +1,4 @@
-pragma solidity ^0.4.19;
+pragma solidity ^0.4.18;
 
 interface IDAOPayable {
     function handleCommissionPayment(address _sender) payable;
