@@ -12,8 +12,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     address public votingDecisionModule;
     address public crowdsaleModule;
 
-    function CrowdsaleDAO(string _name, string _description, address _ownerAddress)
-    Owned(_ownerAddress)
+    function CrowdsaleDAO(string _name, string _description)
+    Owned(msg.sender)
     {
         (name, description) = (_name, _description);
     }

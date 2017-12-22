@@ -3,8 +3,13 @@ pragma solidity ^0.4.0;
 import "./CrowdsaleDAO.sol";
 
 library DAODeployer {
-    function deployCrowdsaleDAO(string _name,  string _description, address _ownerAddress) returns(address) {
-        CrowdsaleDAO dao = new CrowdsaleDAO(_name, _description, _ownerAddress);
+    function deployCrowdsaleDAO(string _name,  string _description, address _ownerAddress, address[4] modules) returns(address) {
+        CrowdsaleDAO dao = new CrowdsaleDAO(_name, _description);
+        dao.setStateModule(modules[0]).se;
+        dao.setPaymentModule(modules[1]);
+        dao.setVotingDecisionModule(modules[2]);
+        dao.setCrowdsaleModule(modules[3]);
+        dao.transferOwnership(_ownerAddress);
 
         return address(dao);
     }
