@@ -11,6 +11,7 @@ contract CrowdsaleDAOFields {
     uint public startBlock;
     uint public endBlock;
     bool public canInitCrowdsaleParameters = true;
+    bool public canInitStateParameters = true;
     uint public commissionRaised = 0;
     uint public weiRaised = 0;
     mapping(address => uint) public depositedWei;

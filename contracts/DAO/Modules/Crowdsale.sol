@@ -35,7 +35,7 @@ contract Crowdsale is CrowdsaleDAOFields {
         token.finishMinting();
     }
 
-    function handlePayment(address _sender, bool commission) CrowdsaleStarted validPurchase(msg.value) external {
+    function handlePayment(address _sender, bool commission) payable CrowdsaleStarted validPurchase(msg.value) external {
         require(_sender != 0x0);
 
         uint weiAmount = msg.value;
@@ -46,6 +46,8 @@ contract Crowdsale is CrowdsaleDAOFields {
 
         weiRaised = weiRaised + weiAmount;
         depositedWei[_sender] = depositedWei[_sender] + weiAmount;
+
+        //ToDo: mint tokens to benefeciar
     }
 
     modifier canInit() {
