@@ -6,7 +6,7 @@ import "../../Commission.sol";
 import "./OwnedFields.sol";
 
 contract State is CrowdsaleDAOFields {
-    function initState(uint8 _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) canInit {
+    function initState(uint _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) external canInit {
         require(_tokenAddress != 0x0 && _votingFactory != 0x0 && _serviceContract != 0x0);
 
         token = TokenInterface(_tokenAddress);

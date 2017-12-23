@@ -28,7 +28,7 @@ contract CrowdsaleDAOFields {
     address public commissionContract;
     mapping (address => bool) public participants;
     string public name;
-    uint256 public created_at; // UNIX time
+    uint256 public created_at = now; // UNIX time
     string public description;
     uint public minVote; // in percents
     mapping(address => bool) public votings;

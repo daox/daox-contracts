@@ -1,7 +1,7 @@
 pragma solidity ^0.4.0;
 
 library DAOProxy {
-    function delegatedInitState(address stateModule, uint256 _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) {
+    function delegatedInitState(address stateModule, uint _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) {
         require(stateModule.delegatecall(bytes4(keccak256("initState(uint256,address,address,address)")), _minVote, _tokenAddress, _votingFactory, _serviceContract));
     }
 
