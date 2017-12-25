@@ -47,7 +47,8 @@ contract Crowdsale is CrowdsaleDAOFields {
         weiRaised = weiRaised + weiAmount;
         depositedWei[_sender] = depositedWei[_sender] + weiAmount;
 
-        //ToDo: mint tokens to benefeciar
+        uint tokensAmount = DAOLib.countTokens(weiAmount, bonusPeriods, bonusRates, rate);
+        token.mint(_sender, tokensAmount);
     }
 
     modifier canInit() {

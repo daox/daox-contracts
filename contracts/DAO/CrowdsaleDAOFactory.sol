@@ -26,7 +26,7 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     }
 
     function createCrowdsaleDAO(string _name, string _description) returns(address) {
-        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, msg.sender, modules);
+        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, modules);
         DAOs[dao] = _name;
         CrowdsaleDAOCreated(dao, _name);
 
