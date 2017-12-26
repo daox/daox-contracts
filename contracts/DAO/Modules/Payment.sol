@@ -15,17 +15,17 @@ contract Payment is CrowdsaleDAOFields {
         require(teamBonuses[msg.sender] == 0);
 
         token.burn(msg.sender);
-        assert(!msg.sender.call.value(DAOLib.countRefundSum(token, rate, newRate)*1 wei)());
+        assert(msg.sender.send(DAOLib.countRefundSum(token, rate, newRate)*1 wei)());
     }
 
     function refundSoftCap() whenRefundableSoftCap {
         require(depositedWei[msg.sender] != 0);
 
         token.burn(msg.sender);
+        uint weiAmount = depositedWei[msg.sender];
         delete depositedWei[msg.sender];
-        assert(!msg.sender.call.value(depositedWei[msg.sender])());
+        assert(msg.sender.send(weiAmount));
     }
-
 
     modifier whenRefundable() {
         require(refundable);

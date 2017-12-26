@@ -2,23 +2,7 @@ pragma solidity ^0.4.11;
 
 import "./Token/Token.sol";
 import "./DAO/DAOFactoryInterface.sol";
-
-contract Owned {
-    address owner;
-
-    function Owned(address _owner) {
-        owner = _owner;
-    }
-
-    modifier onlyOwner(address _sender) {
-        require(_sender == owner);
-        _;
-    }
-
-    function transferOwnership(address newOwner) onlyOwner(msg.sender) {
-        owner = newOwner;
-    }
-}
+import "./DAO/Owned.sol";
 
 contract DAOx is Owned {
     Token public token;
@@ -35,7 +19,7 @@ contract DAOx is Owned {
         weiRaised = weiRaised + msg.value;
     }
 
-    function setDaoFactory(address _dao, address _creator) onlyOwner(_creator) external {
+    function setDaoFactory(address _dao) onlyOwner(msg.sender) external {
         require(address(daoFactory) == 0x0 && _dao != 0x0);
         daoFactory = DAOFactoryInterface(_dao);
     }

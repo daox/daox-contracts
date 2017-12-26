@@ -8,6 +8,8 @@ import "./OwnedFields.sol";
 contract State is CrowdsaleDAOFields {
     address public owner;
 
+    event State(address _comission);
+
     function initState(uint _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) external onlyOwner(msg.sender) canInit {
         require(_tokenAddress != 0x0 && _votingFactory != 0x0 && _serviceContract != 0x0);
 
@@ -21,6 +23,8 @@ contract State is CrowdsaleDAOFields {
         commissionContract = new Commission(this);
 
         canInitStateParameters = false;
+
+        State(commissionContract);
     }
 
     function initHold(uint _tokenHoldTime) onlyOwner(msg.sender) crowdsaleNotStarted external {

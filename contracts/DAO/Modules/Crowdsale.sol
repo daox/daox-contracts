@@ -22,8 +22,8 @@ contract Crowdsale is CrowdsaleDAOFields {
         canInitCrowdsaleParameters = false;
     }
 
-    function finish() onlyOwner(msg.sender) {
-        require(block.number >= endBlock);
+    function finish() {
+        require(block.number >= endBlock && !crowdsaleFinished);
 
         crowdsaleFinished = true;
 

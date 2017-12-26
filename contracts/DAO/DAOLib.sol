@@ -24,7 +24,7 @@ library DAOLib {
 
     function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint tokenHoldTime) {
         uint commission = (commissionRaised/100)*4;
-        assert(!serviceContract.call.value(commission*1 wei)());
+        assert(serviceContract.send(commission));
         for(uint i = 0; i < team.length; i++) {
             token.mint(team[i], (token.totalSupply()/100)*teamBonuses[i]);
             token.hold(team[i], tokenHoldTime);

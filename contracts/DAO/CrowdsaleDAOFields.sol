@@ -19,7 +19,7 @@ contract CrowdsaleDAOFields {
     bool public crowdsaleFinished;
     bool public refundableSoftCap = false;
     uint newRate = 0;
-    address serviceContract;
+    address public serviceContract;
     uint[] teamBonusesArr;
     address[] public team;
     uint public tokenHoldTime = 0;
