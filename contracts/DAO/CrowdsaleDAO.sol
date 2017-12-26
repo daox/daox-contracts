@@ -21,18 +21,18 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         State module related functions
     */
-    function initState(uint _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) onlyOwner(msg.sender) external {
+    function initState(uint _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) external {
         DAOProxy.delegatedInitState(stateModule, _minVote, _tokenAddress, _votingFactory, _serviceContract);
     }
 
-    function initHold(uint _tokenHoldTime) onlyOwner(msg.sender) external {
+    function initHold(uint _tokenHoldTime) external {
         DAOProxy.delegatedHoldState(stateModule, _tokenHoldTime);
     }
 
     /*
         Crowdsale module related functions
     */
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) onlyOwner(msg.sender) external {
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) external {
         DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _rate, _startBlock, _endBlock);
     }
 
@@ -44,7 +44,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedHandlePayment(crowdsaleModule, _sender, true);
     }
 
-    function finish() onlyOwner(msg.sender) {
+    function finish() {
         DAOProxy.delegatedFinish(crowdsaleModule);
     }
 

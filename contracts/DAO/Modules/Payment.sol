@@ -3,9 +3,8 @@ pragma solidity ^0.4.0;
 import "../DAOLib.sol";
 import "../../Token/TokenInterface.sol";
 import "../CrowdsaleDAOFields.sol";
-import "./OwnedFields.sol";
 
-contract Payment is OwnedFields, CrowdsaleDAOFields {
+contract Payment is CrowdsaleDAOFields {
     function getCommissionTokens() onlyParticipant succeededCrowdsale {
         require(addressesWithCommission[msg.sender] && depositedWei[msg.sender] > 0);
         delete addressesWithCommission[msg.sender];

@@ -6,8 +6,9 @@ import "../../Commission.sol";
 import "../Owned.sol";
 
 contract Crowdsale is CrowdsaleDAOFields {
+    address public owner;
 
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) canInit {
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) onlyOwner(msg.sender) canInit {
         require(_softCap != 0 && _hardCap != 0 && _rate != 0 && _startBlock != 0 && _endBlock != 0);
         require(_softCap < _hardCap && _startBlock > block.number);
         softCap = _softCap * 1 ether;
@@ -21,7 +22,7 @@ contract Crowdsale is CrowdsaleDAOFields {
         canInitCrowdsaleParameters = false;
     }
 
-    function finish() {
+    function finish() onlyOwner(msg.sender) {
         require(block.number >= endBlock);
 
         crowdsaleFinished = true;
@@ -68,6 +69,11 @@ contract Crowdsale is CrowdsaleDAOFields {
 
     modifier validPurchase(uint value) {
         require(weiRaised + value < hardCap && block.number < endBlock);
+        _;
+    }
+
+    modifier onlyOwner(address _sender) {
+        require(_sender == owner);
         _;
     }
 }

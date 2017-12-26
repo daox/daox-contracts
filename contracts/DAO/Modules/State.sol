@@ -6,7 +6,9 @@ import "../../Commission.sol";
 import "./OwnedFields.sol";
 
 contract State is CrowdsaleDAOFields {
-    function initState(uint _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) external canInit {
+    address public owner;
+
+    function initState(uint _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) external onlyOwner(msg.sender) canInit {
         require(_tokenAddress != 0x0 && _votingFactory != 0x0 && _serviceContract != 0x0);
 
         token = TokenInterface(_tokenAddress);
@@ -21,7 +23,7 @@ contract State is CrowdsaleDAOFields {
         canInitStateParameters = false;
     }
 
-    function initHold(uint _tokenHoldTime) crowdsaleNotStarted external {
+    function initHold(uint _tokenHoldTime) onlyOwner(msg.sender) crowdsaleNotStarted external {
         require(_tokenHoldTime != 0);
         if(_tokenHoldTime > 0) tokenHoldTime = _tokenHoldTime;
     }
@@ -33,6 +35,11 @@ contract State is CrowdsaleDAOFields {
 
     modifier crowdsaleNotStarted() {
         require(startBlock == 0 || block.number < startBlock);
+        _;
+    }
+
+    modifier onlyOwner(address _sender) {
+        require(_sender == owner);
         _;
     }
 }

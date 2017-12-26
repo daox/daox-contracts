@@ -3,9 +3,8 @@ pragma solidity ^0.4.0;
 import "../DAOLib.sol";
 import "../../Token/TokenInterface.sol";
 import "../CrowdsaleDAOFields.sol";
-import "./OwnedFields.sol";
 
-contract VotingDecisions is OwnedFields, CrowdsaleDAOFields {
+contract VotingDecisions is CrowdsaleDAOFields {
 
     function withdrawal(address _address, uint withdrawalSum) onlyVoting external {
         assert(!_address.call.value(withdrawalSum*1 ether)());
