@@ -15,7 +15,7 @@ contract Payment is CrowdsaleDAOFields {
         require(teamBonuses[msg.sender] == 0);
 
         token.burn(msg.sender);
-        assert(msg.sender.send(DAOLib.countRefundSum(token, rate, newRate)*1 wei)());
+        msg.sender.transfer(DAOLib.countRefundSum(token, rate, newRate)*1 wei);
     }
 
     function refundSoftCap() whenRefundableSoftCap {
@@ -24,7 +24,7 @@ contract Payment is CrowdsaleDAOFields {
         token.burn(msg.sender);
         uint weiAmount = depositedWei[msg.sender];
         delete depositedWei[msg.sender];
-        assert(msg.sender.send(weiAmount));
+        msg.sender.transfer(weiAmount);
     }
 
     modifier whenRefundable() {

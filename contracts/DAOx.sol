@@ -19,7 +19,7 @@ contract DAOx is Owned {
         weiRaised = weiRaised + msg.value;
     }
 
-    function setDaoFactory(address _dao) onlyOwner(msg.sender) external {
+    function setDaoFactory(address _dao, address _creator) onlyOwner(_creator) external {
         require(address(daoFactory) == 0x0 && _dao != 0x0);
         daoFactory = DAOFactoryInterface(_dao);
     }

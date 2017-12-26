@@ -31,11 +31,6 @@ contract Token is MintableToken {
         totalSupply = totalSupply.sub(balance);
     }
 
-    function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
-        require(_to != 0x0);
-        super.mint(_to, _amount);
-    }
-
     function transfer(address to, uint256 value) notHolded(msg.sender) public returns (bool) {
         super.transfer(to, value);
     }

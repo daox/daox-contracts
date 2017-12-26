@@ -41,7 +41,7 @@ library DAOLib {
     function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint tokenHoldTime) {
         uint commission = (commissionRaised/100)*4;
         Finish(commission, serviceContract);
-        assert(serviceContract.send(commission));
+        serviceContract.transfer(commission);
         //Finish(commission, serviceContract);
         // for(uint i = 0; i < team.length; i++) {
         //     token.mint(team[i], (token.totalSupply()/100)*teamBonuses[i]);
@@ -307,7 +307,7 @@ contract Payment is CrowdsaleDAOFields {
         token.burn(msg.sender);
         uint weiAmount = depositedWei[msg.sender];
         delete depositedWei[msg.sender];
-        msg.sender.send(weiAmount);
+        msg.sender.transfer(weiAmount);
     }
 
     modifier whenRefundable() {
@@ -376,13 +376,13 @@ interface DAOFactoryInterface {
     function exists(address _address) constant returns (bool);
 }
 library DAODeployer {
-    function deployCrowdsaleDAO(string _name,  string _description, address _ownerAddress, address[4] modules) returns(address) {
+    function deployCrowdsaleDAO(string _name,  string _description, address[4] modules) returns(address) {
         CrowdsaleDAO dao = new CrowdsaleDAO(_name, _description);
         dao.setStateModule(modules[0]);
         dao.setPaymentModule(modules[1]);
         dao.setVotingDecisionModule(modules[2]);
         dao.setCrowdsaleModule(modules[3]);
-        dao.transferOwnership(_ownerAddress);
+        dao.transferOwnership(msg.sender);
 
         return address(dao);
     }
@@ -1258,8 +1258,8 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         require(serviceContractAddress.call(bytes4(keccak256("setDaoFactory(address,address)")), this, msg.sender));
     }
 
-    function createCrowdsaleDAO(string _name, string _description, address _owner) returns(address) {
-        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, _owner, modules);
+    function createCrowdsaleDAO(string _name, string _description) returns(address) {
+        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, modules);
         DAOs[dao] = _name;
         CrowdsaleDAOCreated(dao, _name);
 
