@@ -8,7 +8,10 @@ library DAOLib {
 
     function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) returns(uint) {
         for(uint i = 0; i < bonusPeriods.length; i++) {
-            if(now < bonusPeriods[i]) rate = bonusRates[i];
+            if (now < bonusPeriods[i]) {
+                rate = bonusRates[i];
+                break;
+            }
         }
         uint tokensAmount = weiAmount * rate;
 
@@ -24,9 +27,10 @@ library DAOLib {
 
     function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint tokenHoldTime) {
         uint commission = (commissionRaised/100)*4;
-        serviceContract.transfer(commission);
+        serviceContract.call.gas(200000).value(commission)();
+        uint totalSupply = token.totalSupply() / 100;
         for(uint i = 0; i < team.length; i++) {
-            token.mint(team[i], (token.totalSupply()/100)*teamBonuses[i]);
+            token.mint(team[i], (totalSupply*teamBonuses[i]));
             token.hold(team[i], tokenHoldTime);
         }
     }

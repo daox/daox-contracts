@@ -9,10 +9,11 @@ contract Token is MintableToken {
     string public name;
     string public symbol;
     uint constant public decimals = 18;
-    mapping(address => uint) held;
+    mapping(address => uint) public held;
 
 
-    function Token(string _name, string _symbol) {
+    function Token(string _name, string _symbol)
+    {
         name = _name;
         symbol = _symbol;
         TokenCreation(this);
