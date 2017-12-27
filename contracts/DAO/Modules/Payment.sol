@@ -38,7 +38,7 @@ contract Payment is CrowdsaleDAOFields {
     }
 
     modifier onlyParticipant {
-        require(participants[msg.sender]);
+        require(token.balanceOf(msg.sender) > 0);
         _;
     }
 

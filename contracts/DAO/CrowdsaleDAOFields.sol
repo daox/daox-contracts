@@ -26,13 +26,11 @@ contract CrowdsaleDAOFields {
     TokenInterface public token;
     VotingFactoryInterface public votingFactory;
     address public commissionContract;
-    mapping (address => bool) public participants;
     string public name;
-    uint256 public created_at = now; // UNIX time
+    uint public created_at = now; // UNIX time
     string public description;
     uint public minVote; // in percents
     mapping(address => bool) public votings;
-    uint public participantsCount = 1;
     bool public refundable = false;
     uint internal lastWithdrawalTimestamp = 0;
     uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;

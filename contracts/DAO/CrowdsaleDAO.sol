@@ -134,18 +134,16 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         Self functions
     */
     function isParticipant(address _participantAddress) external constant returns (bool) {
-        return participants[_participantAddress];
+        return token.balanceOf(msg.sender) > 0;
     }
 
-    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) crowdsaleNotStarted external {
-        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length);
-        team = _team;
-        teamBonusesArr = tokenPercents;
+    function initBonuses(address[] _team, uint[] _tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) crowdsaleNotStarted external {
+        require(_team.length == _tokenPercents.length && _bonusPeriods.length == _bonusRates.length);
+
+        (team, teamBonusesArr, bonusPeriods, bonusRates) = (_team, _tokenPercents, _bonusPeriods, _bonusRates);
         for(uint i = 0; i < _team.length; i++) {
-            teamBonuses[_team[i]] = tokenPercents[i];
+            teamBonuses[_team[i]] = _tokenPercents[i];
         }
-        bonusPeriods = _bonusPeriods;
-        bonusRates = _bonusRates;
     }
 
     function setWhiteList(address[] _addresses) onlyOwner(msg.sender) {
@@ -165,7 +163,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     }
 
     modifier onlyParticipant {
-        require(participants[msg.sender] == true);
+        require(token.balanceOf(msg.sender) > 0);
         _;
     }
 

@@ -16,7 +16,6 @@ contract State is CrowdsaleDAOFields {
         token = TokenInterface(_tokenAddress);
         votingFactory = VotingFactoryInterface(_votingFactory);
         minVote = _minVote;
-        participants[msg.sender] = true;
         created_at = block.timestamp;
 
         serviceContract = _serviceContract;

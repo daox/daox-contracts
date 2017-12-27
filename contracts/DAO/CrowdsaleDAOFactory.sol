@@ -1,6 +1,5 @@
 pragma solidity ^0.4.0;
 
-import "./CrowdsaleDAO.sol";
 import "./DAOFactoryInterface.sol";
 import "./DAODeployer.sol";
 
@@ -25,15 +24,13 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         require(serviceContractAddress.call(bytes4(keccak256("setDaoFactory(address,address)")), this, msg.sender));
     }
 
-    function createCrowdsaleDAO(string _name, string _description) returns(address) {
+    function createCrowdsaleDAO(string _name, string _description) {
         address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, modules);
         DAOs[dao] = _name;
         CrowdsaleDAOCreated(dao, _name);
-
-        return dao;
     }
 
-    function exists(address _address) public constant returns (bool) {
+    function exists(address _address) constant returns (bool) {
         return keccak256(DAOs[_address]) != keccak256("");
     }
 }
