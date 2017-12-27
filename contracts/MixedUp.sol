@@ -22,7 +22,10 @@ library DAOLib {
 
     function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) returns(uint) {
         for(uint i = 0; i < bonusPeriods.length; i++) {
-            if(now < bonusPeriods[i]) rate = bonusRates[i];
+            if (now < bonusPeriods[i]) {
+                rate = bonusRates[i];
+                break;
+            }
         }
         uint tokensAmount = weiAmount * rate;
 
@@ -36,17 +39,14 @@ library DAOLib {
         return weiSpent*multiplier / newRateToOld;
     }
 
-    event Finish(uint comission, address service);
-
     function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint tokenHoldTime) {
         uint commission = (commissionRaised/100)*4;
-        Finish(commission, serviceContract);
-        serviceContract.transfer(commission);
-        //Finish(commission, serviceContract);
-        // for(uint i = 0; i < team.length; i++) {
-        //     token.mint(team[i], (token.totalSupply()/100)*teamBonuses[i]);
-        //     token.hold(team[i], tokenHoldTime);
-        // }
+        serviceContract.call.gas(200000).value(commission)();
+        uint totalSupply = token.totalSupply() / 100;
+        for(uint i = 0; i < team.length; i++) {
+            token.mint(team[i], (totalSupply*teamBonuses[i]));
+            token.hold(team[i], tokenHoldTime);
+        }
     }
 
     function delegateAddParticipant(address _parentAddress, address _participantAddress) {
@@ -192,8 +192,8 @@ contract State is CrowdsaleDAOFields {
     }
 
     function initHold(uint _tokenHoldTime) onlyOwner(msg.sender) crowdsaleNotStarted external {
-        require(_tokenHoldTime != 0);
-        if(_tokenHoldTime > 0) tokenHoldTime = _tokenHoldTime;
+        require(_tokenHoldTime > 0);
+        tokenHoldTime = _tokenHoldTime;
     }
 
     modifier canInit() {
@@ -387,6 +387,7 @@ library DAODeployer {
         return address(dao);
     }
 }
+
 library DAOProxy {
     function delegatedInitState(address stateModule, uint _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) {
         require(stateModule.delegatecall(bytes4(keccak256("initState(uint256,address,address,address)")), _minVote, _tokenAddress, _votingFactory, _serviceContract));
@@ -444,6 +445,7 @@ library DAOProxy {
         require(crowdsaleModule.delegatecall(bytes4(keccak256("handlePayment(address,bool)")), _sender, _commission));
     }
 }
+
 library Common {
     function stringToBytes32(string memory source) returns (bytes32 result) {
         assembly {
@@ -1159,15 +1161,19 @@ contract MintableToken is StandardToken, Ownable {
 }
 
 contract Token is MintableToken {
+    event TokenCreation(address _address);
+
     string public name;
     string public symbol;
     uint constant public decimals = 18;
-    mapping(address => uint) held;
+    mapping(address => uint) public held;
 
 
-    function Token(string _name, string _symbol) {
+    function Token(string _name, string _symbol)
+    {
         name = _name;
         symbol = _symbol;
+        TokenCreation(this);
     }
 
     function hold(address addr, uint duration) onlyOwner external {
@@ -1181,11 +1187,6 @@ contract Token is MintableToken {
         uint balance = balanceOf(_burner);
         balances[_burner] = balances[_burner].sub(balance);
         totalSupply = totalSupply.sub(balance);
-    }
-
-    function mint(address _to, uint256 _amount) onlyOwner canMint public returns (bool) {
-        require(_to != 0x0);
-        super.mint(_to, _amount);
     }
 
     function transfer(address to, uint256 value) notHolded(msg.sender) public returns (bool) {
