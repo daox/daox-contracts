@@ -8,7 +8,7 @@ contract Payment is CrowdsaleDAOFields {
     function getCommissionTokens() onlyParticipant succeededCrowdsale {
         require(addressesWithCommission[msg.sender] && depositedWei[msg.sender] > 0);
         delete addressesWithCommission[msg.sender];
-        assert(!serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint)")), msg.sender, depositedWei[msg.sender]));
+        assert(serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint256)")), msg.sender, depositedWei[msg.sender]));
     }
 
     function refund() whenRefundable {

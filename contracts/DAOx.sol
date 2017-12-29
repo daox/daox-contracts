@@ -26,7 +26,7 @@ contract DAOx is Owned {
 
     function getCommissionTokens(address _address, uint weiSent) onlyDAO external {
         uint tokensAmount = weiSent * tokenRate;
-        token.mint(msg.sender, tokensAmount);
+        token.mint(_address, tokensAmount);
     }
 
     function withdraw(uint sum) onlyOwner(msg.sender) {

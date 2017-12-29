@@ -288,7 +288,7 @@ contract Payment is CrowdsaleDAOFields {
     function getCommissionTokens() onlyParticipant succeededCrowdsale {
         require(addressesWithCommission[msg.sender] && depositedWei[msg.sender] > 0);
         delete addressesWithCommission[msg.sender];
-        assert(!serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint)")), msg.sender, depositedWei[msg.sender]));
+        assert(serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint256)")), msg.sender, depositedWei[msg.sender]));
     }
 
     function refund() whenRefundable {
@@ -370,8 +370,9 @@ contract VotingDecisions is CrowdsaleDAOFields {
     }
 }
 interface DAOFactoryInterface {
-    function exists(address _address) external constant returns (bool);
+    function exists(address _address) constant returns (bool);
 }
+
 library DAODeployer {
     function deployCrowdsaleDAO(string _name,  string _description, address[4] modules) returns(address) {
         CrowdsaleDAO dao = new CrowdsaleDAO(_name, _description);
@@ -566,36 +567,41 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Setters for module addresses
     */
-    function setStateModule(address _stateModule) external canSetModule(stateModule) notEmptyAddress(_stateModule) {
+    function setStateModule(address _stateModule) external /*canSetModule(stateModule)*/ notEmptyAddress(_stateModule) {
         stateModule = _stateModule;
     }
 
-    function setPaymentModule(address _paymentModule) external canSetModule(paymentModule) notEmptyAddress(_paymentModule) {
+    function setPaymentModule(address _paymentModule) external /*canSetModule(paymentModule)*/ notEmptyAddress(_paymentModule) {
         paymentModule = _paymentModule;
     }
 
-    function setVotingDecisionModule(address _votingDecisionModule) external canSetModule(votingDecisionModule) notEmptyAddress(_votingDecisionModule) {
+    function setVotingDecisionModule(address _votingDecisionModule) external /*canSetModule(votingDecisionModule)*/ notEmptyAddress(_votingDecisionModule) {
         votingDecisionModule = _votingDecisionModule;
     }
 
-    function setCrowdsaleModule(address _crowdsaleModule) external canSetModule(crowdsaleModule) notEmptyAddress(_crowdsaleModule) {
+    function setCrowdsaleModule(address _crowdsaleModule) external /*canSetModule(crowdsaleModule)*/ notEmptyAddress(_crowdsaleModule) {
         crowdsaleModule = _crowdsaleModule;
     }
 
     /*
         Self functions
     */
+
+    //ToDo: change to token.balanceOf()
     function isParticipant(address _participantAddress) external constant returns (bool) {
-        return token.balanceOf(msg.sender) > 0;
+        //        return participants[_participantAddress];
+        return true;
     }
 
-    function initBonuses(address[] _team, uint[] _tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) crowdsaleNotStarted external {
-        require(_team.length == _tokenPercents.length && _bonusPeriods.length == _bonusRates.length);
-
-        (team, teamBonusesArr, bonusPeriods, bonusRates) = (_team, _tokenPercents, _bonusPeriods, _bonusRates);
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) crowdsaleNotStarted external {
+        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length);
+        team = _team;
+        teamBonusesArr = tokenPercents;
         for(uint i = 0; i < _team.length; i++) {
-            teamBonuses[_team[i]] = _tokenPercents[i];
+            teamBonuses[_team[i]] = tokenPercents[i];
         }
+        bonusPeriods = _bonusPeriods;
+        bonusRates = _bonusRates;
     }
 
     function setWhiteList(address[] _addresses) onlyOwner(msg.sender) {
@@ -614,8 +620,10 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         _;
     }
 
+    //ToDo: change to token.balanceOf()
     modifier onlyParticipant {
-        require(token.balanceOf(msg.sender) > 0);
+        //require(participants[msg.sender] == true);
+        require(true);
         _;
     }
 
@@ -931,6 +939,7 @@ contract WhiteList is VotingFields {
         }
     }
 }
+
 contract VotingFactory is VotingFactoryInterface {
     address baseVoting;
     DAOFactoryInterface daoFactory;
@@ -1222,7 +1231,7 @@ contract DAOx is Owned {
 
     function getCommissionTokens(address _address, uint weiSent) onlyDAO external {
         uint tokensAmount = weiSent * tokenRate;
-        token.mint(msg.sender, tokensAmount);
+        token.mint(_address, tokensAmount);
     }
 
     function withdraw(uint sum) onlyOwner(msg.sender) {
@@ -1256,15 +1265,13 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         require(serviceContractAddress.call(bytes4(keccak256("setDaoFactory(address,address)")), this, msg.sender));
     }
 
-    function createCrowdsaleDAO(string _name, string _description) returns(address) {
+    function createCrowdsaleDAO(string _name, string _description) {
         address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, modules);
         DAOs[dao] = _name;
         CrowdsaleDAOCreated(dao, _name);
-
-        return dao;
     }
 
-    function exists(address _address) external constant returns (bool) {
+    function exists(address _address) constant returns (bool) {
         return keccak256(DAOs[_address]) != keccak256("");
     }
 }

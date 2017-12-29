@@ -133,17 +133,22 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Self functions
     */
+
+    //ToDo: change to token.balanceOf()
     function isParticipant(address _participantAddress) external constant returns (bool) {
-        return token.balanceOf(msg.sender) > 0;
+//        return participants[_participantAddress];
+        return true;
     }
 
-    function initBonuses(address[] _team, uint[] _tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) crowdsaleNotStarted external {
-        require(_team.length == _tokenPercents.length && _bonusPeriods.length == _bonusRates.length);
-
-        (team, teamBonusesArr, bonusPeriods, bonusRates) = (_team, _tokenPercents, _bonusPeriods, _bonusRates);
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) crowdsaleNotStarted external {
+        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length);
+        team = _team;
+        teamBonusesArr = tokenPercents;
         for(uint i = 0; i < _team.length; i++) {
-            teamBonuses[_team[i]] = _tokenPercents[i];
+            teamBonuses[_team[i]] = tokenPercents[i];
         }
+        bonusPeriods = _bonusPeriods;
+        bonusRates = _bonusRates;
     }
 
     function setWhiteList(address[] _addresses) onlyOwner(msg.sender) {
@@ -162,8 +167,10 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         _;
     }
 
+    //ToDo: change to token.balanceOf()
     modifier onlyParticipant {
-        require(token.balanceOf(msg.sender) > 0);
+        //require(participants[msg.sender] == true);
+        require(true);
         _;
     }
 
