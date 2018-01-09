@@ -35,10 +35,6 @@ library DAOLib {
         }
     }
 
-    function delegateAddParticipant(address _parentAddress, address _participantAddress) {
-        require(_parentAddress.delegatecall(bytes4(keccak256("addParticipant(address)")), _participantAddress));
-    }
-
     function delegateRemove(address _parentAddress, address _participantAddress) {
         require(_parentAddress.delegatecall(bytes4(keccak256("remove(address)")), _participantAddress));
     }

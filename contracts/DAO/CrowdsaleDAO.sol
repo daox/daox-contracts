@@ -95,7 +95,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Create proposal functions
     */
-    function addProposal(string _description, uint _duration, bytes32[] _options) succeededCrowdsale onlyParticipant {
+    function addProposal(string _description, uint _duration, bytes32[] _options) succeededCrowdsale {
         DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this);
     }
 
@@ -134,10 +134,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         Self functions
     */
 
-    //ToDo: change to token.balanceOf()
     function isParticipant(address _participantAddress) external constant returns (bool) {
-//        return participants[_participantAddress];
-        return true;
+        return token.balanceOf(_participantAddress) > 0;
     }
 
     function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) crowdsaleNotStarted external {
@@ -164,13 +162,6 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     modifier succeededCrowdsale() {
         require(block.number >= endBlock && weiRaised >= softCap);
-        _;
-    }
-
-    //ToDo: change to token.balanceOf()
-    modifier onlyParticipant {
-        //require(participants[msg.sender] == true);
-        require(true);
         _;
     }
 

@@ -6,6 +6,7 @@ import "./Withdrawal.sol";
 import "./Refund.sol";
 import "./WhiteList.sol";
 import "../DAO/DAOFactoryInterface.sol";
+import "../DAO/IDAO.sol";
 
 contract VotingFactory is VotingFactoryInterface {
     address baseVoting;
@@ -15,23 +16,19 @@ contract VotingFactory is VotingFactoryInterface {
         baseVoting = _baseVoting;
     }
 
-    function createProposal(address _creator, bytes32 _description, uint _duration, bytes32[] _options) onlyDAO external returns (address) {
-        require(_options.length <= 10);
-
+    function createProposal(address _creator, bytes32 _description, uint _duration, bytes32[] _options) onlyDAO onlyParticipant(_creator) external returns (address) {
         return new Proposal(baseVoting, msg.sender, _creator, _description, _duration, _options);
     }
 
-    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum) onlyDAO external returns (address) {
-        require(_sum > 0);
-
+    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum) onlyDAO onlyWhiteList(_creator) external returns (address) {
         return new Withdrawal(baseVoting, msg.sender, _creator, _description, _duration, _sum, quorum);
     }
 
-    function createRefund(address _creator, bytes32 _description, uint _duration, uint quorum) onlyDAO external returns (address) {
+    function createRefund(address _creator, bytes32 _description, uint _duration, uint quorum) onlyDAO onlyParticipant(_creator) external returns (address) {
         return new Refund(baseVoting, msg.sender, _creator, _description, _duration, quorum);
     }
 
-    function createWhiteList(address _creator, bytes32 _description, uint _duration, uint quorum, address _addr, uint action) onlyDAO external returns (address) {
+    function createWhiteList(address _creator, bytes32 _description, uint _duration, uint quorum, address _addr, uint action) onlyDAO onlyParticipant(_creator) external returns (address) {
         return new WhiteList(baseVoting, msg.sender, _creator, _description, _duration, quorum, _addr, action);
     }
 
@@ -42,6 +39,16 @@ contract VotingFactory is VotingFactoryInterface {
 
     modifier onlyDAO() {
         require(daoFactory.exists(msg.sender));
+        _;
+    }
+
+    modifier onlyParticipant(address creator) {
+        require(IDAO(msg.sender).isParticipant(creator));
+        _;
+    }
+
+    modifier onlyWhiteList(address creator) {
+        require(IDAO(msg.sender).whiteList(creator));
         _;
     }
 }
