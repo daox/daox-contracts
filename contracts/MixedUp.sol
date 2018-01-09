@@ -6,6 +6,7 @@ interface TokenInterface {
     function burn(address burner);
     function hold(address addr, uint duration) external;
 }
+
 interface VotingFactoryInterface {
     function createProposal(address _creator, bytes32 _description, uint _duration, bytes32[] _options) external returns (address);
 
@@ -17,6 +18,7 @@ interface VotingFactoryInterface {
 
     function setDaoFactory(address _dao) external;
 }
+
 library DAOLib {
     event VotingCreated(address voting, string votingType, address dao, bytes32 description, uint duration, address sender);
 
@@ -49,10 +51,6 @@ library DAOLib {
         }
     }
 
-    function delegateAddParticipant(address _parentAddress, address _participantAddress) {
-        require(_parentAddress.delegatecall(bytes4(keccak256("addParticipant(address)")), _participantAddress));
-    }
-
     function delegateRemove(address _parentAddress, address _participantAddress) {
         require(_parentAddress.delegatecall(bytes4(keccak256("remove(address)")), _participantAddress));
     }
@@ -82,8 +80,8 @@ library DAOLib {
         return _votingAddress;
     }
 
-    function delegatedInitCrowdsaleParameters(address _p, uint softCap, uint hardCap, uint rate, uint startBlock, uint endBlock) {
-        require(_p.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), softCap, hardCap, rate, startBlock, endBlock));
+    function delegatedInitCrowdsaleParameters(address _p, uint softCap, uint hardCap, uint rate, uint startTime, uint endTime) {
+        require(_p.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), softCap, hardCap, rate, startTime, endTime));
     }
 
     function delegatedCreate(address _p, address _usersAddress, uint8 _minVote, address _tokenAddress,
@@ -100,12 +98,13 @@ library DAOLib {
         require(_p.delegatecall(bytes4(keccak256("finish()"))));
     }
 }
+
 contract CrowdsaleDAOFields {
     uint public rate;
     uint public softCap;
     uint public hardCap;
-    uint public startBlock;
-    uint public endBlock;
+    uint public startTime;
+    uint public endTime;
     bool public canInitCrowdsaleParameters = true;
     bool public canInitStateParameters = true;
     uint public commissionRaised = 0;
@@ -136,6 +135,7 @@ contract CrowdsaleDAOFields {
     uint[] bonusPeriods;
     uint[] bonusRates;
 }
+
 contract Owned {
     address owner;
 
@@ -167,6 +167,7 @@ contract Commission {
         dao.handleCommissionPayment.value(msg.value)(msg.sender);
     }
 }
+
 contract State is CrowdsaleDAOFields {
     address public owner;
 
@@ -199,7 +200,7 @@ contract State is CrowdsaleDAOFields {
     }
 
     modifier crowdsaleNotStarted() {
-        require(startBlock == 0 || block.number < startBlock);
+        require(startTime == 0 || block.timestamp < startTime);
         _;
     }
 
@@ -208,27 +209,26 @@ contract State is CrowdsaleDAOFields {
         _;
     }
 }
+
 contract Crowdsale is CrowdsaleDAOFields {
     address public owner;
 
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) onlyOwner(msg.sender) canInit {
-        require(_softCap != 0 && _hardCap != 0 && _rate != 0 && _startBlock != 0 && _endBlock != 0);
-        require(_softCap < _hardCap && _startBlock > block.number);
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startTime, uint _endTime) onlyOwner(msg.sender) canInit {
+        require(_softCap != 0 && _hardCap != 0 && _rate != 0 && _startTime != 0 && _endTime != 0);
+        require(_softCap < _hardCap && _startTime > block.timestamp);
         softCap = _softCap * 1 ether;
         hardCap = _hardCap * 1 ether;
 
-        startBlock = _startBlock;
-        endBlock = _endBlock;
+        startTime = _startTime;
+        endTime = _endTime;
 
         rate = _rate;
 
         canInitCrowdsaleParameters = false;
     }
 
-    event Finish(address _owner, address _sender, uint _comission);
-
     function finish() {
-        require(block.number >= endBlock);
+        require(block.timestamp >= endTime && !crowdsaleFinished);
 
         crowdsaleFinished = true;
 
@@ -239,8 +239,6 @@ contract Crowdsale is CrowdsaleDAOFields {
         }
 
         token.finishMinting();
-
-        //Finish(owner, msg.sender, serviceContract);
     }
 
     function handlePayment(address _sender, bool commission) payable CrowdsaleStarted validPurchase(msg.value) external {
@@ -270,12 +268,12 @@ contract Crowdsale is CrowdsaleDAOFields {
     }
 
     modifier CrowdsaleStarted() {
-        require(block.number >= startBlock);
+        require(block.timestamp >= startTime);
         _;
     }
 
     modifier validPurchase(uint value) {
-        require(weiRaised + value < hardCap && block.number < endBlock);
+        require(weiRaised + value < hardCap && block.timestamp < endTime);
         _;
     }
 
@@ -284,6 +282,7 @@ contract Crowdsale is CrowdsaleDAOFields {
         _;
     }
 }
+
 contract Payment is CrowdsaleDAOFields {
     function getCommissionTokens() onlyParticipant succeededCrowdsale {
         require(addressesWithCommission[msg.sender] && depositedWei[msg.sender] > 0);
@@ -431,8 +430,8 @@ library DAOProxy {
         require(votingDecisionModule.delegatecall(bytes4(keccak256("changeWhiteList(address,bool)")), _addr, res));
     }
 
-    function delegatedInitCrowdsaleParameters(address crowdsaleModule, uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) {
-        require(crowdsaleModule.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), _softCap, _hardCap, _rate, _startBlock, _endBlock));
+    function delegatedInitCrowdsaleParameters(address crowdsaleModule, uint _softCap, uint _hardCap, uint _rate, uint _startTime, uint _endTime) {
+        require(crowdsaleModule.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), _softCap, _hardCap, _rate, _startTime, _endTime));
     }
 
     function delegatedFinish(address crowdsaleModule) {
@@ -485,8 +484,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Crowdsale module related functions
     */
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) external {
-        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _rate, _startBlock, _endBlock);
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startTime, uint _endTime) external {
+        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _rate, _startTime, _endTime);
     }
 
     function() payable {
@@ -548,7 +547,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Create proposal functions
     */
-    function addProposal(string _description, uint _duration, bytes32[] _options) succeededCrowdsale onlyParticipant {
+    function addProposal(string _description, uint _duration, bytes32[] _options) succeededCrowdsale {
         DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this);
     }
 
@@ -567,19 +566,19 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Setters for module addresses
     */
-    function setStateModule(address _stateModule) external /*canSetModule(stateModule)*/ notEmptyAddress(_stateModule) {
+    function setStateModule(address _stateModule) external canSetModule(stateModule) notEmptyAddress(_stateModule) {
         stateModule = _stateModule;
     }
 
-    function setPaymentModule(address _paymentModule) external /*canSetModule(paymentModule)*/ notEmptyAddress(_paymentModule) {
+    function setPaymentModule(address _paymentModule) external canSetModule(paymentModule) notEmptyAddress(_paymentModule) {
         paymentModule = _paymentModule;
     }
 
-    function setVotingDecisionModule(address _votingDecisionModule) external /*canSetModule(votingDecisionModule)*/ notEmptyAddress(_votingDecisionModule) {
+    function setVotingDecisionModule(address _votingDecisionModule) external canSetModule(votingDecisionModule) notEmptyAddress(_votingDecisionModule) {
         votingDecisionModule = _votingDecisionModule;
     }
 
-    function setCrowdsaleModule(address _crowdsaleModule) external /*canSetModule(crowdsaleModule)*/ notEmptyAddress(_crowdsaleModule) {
+    function setCrowdsaleModule(address _crowdsaleModule) external canSetModule(crowdsaleModule) notEmptyAddress(_crowdsaleModule) {
         crowdsaleModule = _crowdsaleModule;
     }
 
@@ -587,10 +586,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         Self functions
     */
 
-    //ToDo: change to token.balanceOf()
     function isParticipant(address _participantAddress) external constant returns (bool) {
-        //        return participants[_participantAddress];
-        return true;
+        return token.balanceOf(_participantAddress) > 0;
     }
 
     function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) crowdsaleNotStarted external {
@@ -616,19 +613,12 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     */
 
     modifier succeededCrowdsale() {
-        require(block.number >= endBlock && weiRaised >= softCap);
-        _;
-    }
-
-    //ToDo: change to token.balanceOf()
-    modifier onlyParticipant {
-        //require(participants[msg.sender] == true);
-        require(true);
+        require(block.timestamp >= endTime && weiRaised >= softCap);
         _;
     }
 
     modifier crowdsaleNotStarted() {
-        require(startBlock == 0 || block.number < startBlock);
+        require(startTime == 0 || block.timestamp < startTime);
         _;
     }
 

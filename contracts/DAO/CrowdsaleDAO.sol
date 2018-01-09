@@ -32,8 +32,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Crowdsale module related functions
     */
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) external {
-        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _rate, _startBlock, _endBlock);
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startTime, uint _endTime) external {
+        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _rate, _startTime, _endTime);
     }
 
     function() payable {
@@ -161,12 +161,12 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     */
 
     modifier succeededCrowdsale() {
-        require(block.number >= endBlock && weiRaised >= softCap);
+        require(block.timestamp >= endTime && weiRaised >= softCap);
         _;
     }
 
     modifier crowdsaleNotStarted() {
-        require(startBlock == 0 || block.number < startBlock);
+        require(startTime == 0 || block.timestamp < startTime);
         _;
     }
 

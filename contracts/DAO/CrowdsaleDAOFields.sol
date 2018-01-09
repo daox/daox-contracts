@@ -8,8 +8,8 @@ contract CrowdsaleDAOFields {
     uint public rate;
     uint public softCap;
     uint public hardCap;
-    uint public startBlock;
-    uint public endBlock;
+    uint public startTime;
+    uint public endTime;
     bool public canInitCrowdsaleParameters = true;
     bool public canInitStateParameters = true;
     uint public commissionRaised = 0;

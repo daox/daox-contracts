@@ -64,8 +64,8 @@ library DAOLib {
         return _votingAddress;
     }
 
-    function delegatedInitCrowdsaleParameters(address _p, uint softCap, uint hardCap, uint rate, uint startBlock, uint endBlock) {
-        require(_p.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), softCap, hardCap, rate, startBlock, endBlock));
+    function delegatedInitCrowdsaleParameters(address _p, uint softCap, uint hardCap, uint rate, uint startTime, uint endTime) {
+        require(_p.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), softCap, hardCap, rate, startTime, endTime));
     }
 
     function delegatedCreate(address _p, address _usersAddress, uint8 _minVote, address _tokenAddress,
