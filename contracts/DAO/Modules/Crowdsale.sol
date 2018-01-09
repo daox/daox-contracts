@@ -8,14 +8,14 @@ import "../Owned.sol";
 contract Crowdsale is CrowdsaleDAOFields {
     address public owner;
 
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startBlock, uint _endBlock) onlyOwner(msg.sender) canInit {
-        require(_softCap != 0 && _hardCap != 0 && _rate != 0 && _startBlock != 0 && _endBlock != 0);
-        require(_softCap < _hardCap && _startBlock > block.number);
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startTime, uint _endTime) onlyOwner(msg.sender) canInit {
+        require(_softCap != 0 && _hardCap != 0 && _rate != 0 && _startTime != 0 && _endTime != 0);
+        require(_softCap < _hardCap && _startTime > block.timestamp);
         softCap = _softCap * 1 ether;
         hardCap = _hardCap * 1 ether;
 
-        startBlock = _startBlock;
-        endBlock = _endBlock;
+        startTime = _startTime;
+        endTime = _endTime;
 
         rate = _rate;
 
@@ -23,7 +23,7 @@ contract Crowdsale is CrowdsaleDAOFields {
     }
 
     function finish() {
-        require(block.number >= endBlock && !crowdsaleFinished);
+        require(block.timestamp >= endTime && !crowdsaleFinished);
 
         crowdsaleFinished = true;
 
@@ -63,12 +63,12 @@ contract Crowdsale is CrowdsaleDAOFields {
     }
 
     modifier CrowdsaleStarted() {
-        require(block.number >= startBlock);
+        require(block.timestamp >= startTime);
         _;
     }
 
     modifier validPurchase(uint value) {
-        require(weiRaised + value < hardCap && block.number < endBlock);
+        require(weiRaised + value < hardCap && block.timestamp < endTime);
         _;
     }
 

@@ -37,7 +37,7 @@ contract State is CrowdsaleDAOFields {
     }
 
     modifier crowdsaleNotStarted() {
-        require(startBlock == 0 || block.number < startBlock);
+        require(startTime == 0 || block.timestamp < startTime);
         _;
     }
 
