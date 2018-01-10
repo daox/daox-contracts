@@ -15,7 +15,7 @@ contract CrowdsaleDAOFields {
     uint public commissionRaised = 0;
     uint public weiRaised = 0;
     mapping(address => uint) public depositedWei;
-    mapping(address => bool) public addressesWithCommission;
+    mapping(address => uint) public depositedWithCommission;
     bool public crowdsaleFinished;
     bool public refundableSoftCap = false;
     uint newRate = 0;

@@ -42,11 +42,11 @@ contract Crowdsale is CrowdsaleDAOFields {
         uint weiAmount = msg.value;
         if(commission) {
             commissionRaised = commissionRaised + weiAmount;
-            addressesWithCommission[_sender] = true;
+            depositedWithCommission[_sender] += weiAmount;
         }
 
-        weiRaised = weiRaised + weiAmount;
-        depositedWei[_sender] = depositedWei[_sender] + weiAmount;
+        weiRaised += weiAmount;
+        depositedWei[_sender] += weiAmount;
 
         uint tokensAmount = DAOLib.countTokens(weiAmount, bonusPeriods, bonusRates, rate);
         token.mint(_sender, tokensAmount);

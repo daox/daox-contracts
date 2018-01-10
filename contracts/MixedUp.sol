@@ -110,7 +110,7 @@ contract CrowdsaleDAOFields {
     uint public commissionRaised = 0;
     uint public weiRaised = 0;
     mapping(address => uint) public depositedWei;
-    mapping(address => bool) public addressesWithCommission;
+    mapping(address => uint) public depositedWithCommission;
     bool public crowdsaleFinished;
     bool public refundableSoftCap = false;
     uint newRate = 0;
@@ -247,11 +247,11 @@ contract Crowdsale is CrowdsaleDAOFields {
         uint weiAmount = msg.value;
         if(commission) {
             commissionRaised = commissionRaised + weiAmount;
-            addressesWithCommission[_sender] = true;
+            depositedWithCommission[_sender] += weiAmount;
         }
 
-        weiRaised = weiRaised + weiAmount;
-        depositedWei[_sender] = depositedWei[_sender] + weiAmount;
+        weiRaised += weiAmount;
+        depositedWei[_sender] += weiAmount;
 
         uint tokensAmount = DAOLib.countTokens(weiAmount, bonusPeriods, bonusRates, rate);
         token.mint(_sender, tokensAmount);
@@ -285,9 +285,10 @@ contract Crowdsale is CrowdsaleDAOFields {
 
 contract Payment is CrowdsaleDAOFields {
     function getCommissionTokens() onlyParticipant succeededCrowdsale {
-        require(addressesWithCommission[msg.sender] && depositedWei[msg.sender] > 0);
-        delete addressesWithCommission[msg.sender];
-        assert(serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint256)")), msg.sender, depositedWei[msg.sender]));
+        require(depositedWithCommission[msg.sender] > 0);
+        uint depositedWithCommissionAmount = depositedWithCommission[msg.sender];
+        delete depositedWithCommission[msg.sender];
+        assert(serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint256)")), msg.sender, depositedWithCommissionAmount));
     }
 
     function refund() whenRefundable {

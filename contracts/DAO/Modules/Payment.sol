@@ -6,9 +6,10 @@ import "../CrowdsaleDAOFields.sol";
 
 contract Payment is CrowdsaleDAOFields {
     function getCommissionTokens() onlyParticipant succeededCrowdsale {
-        require(addressesWithCommission[msg.sender] && depositedWei[msg.sender] > 0);
-        delete addressesWithCommission[msg.sender];
-        assert(serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint256)")), msg.sender, depositedWei[msg.sender]));
+        require(depositedWithCommission[msg.sender] > 0);
+        uint depositedWithCommissionAmount = depositedWithCommission[msg.sender];
+        delete depositedWithCommission[msg.sender];
+        assert(serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint256)")), msg.sender, depositedWithCommissionAmount));
     }
 
     function refund() whenRefundable {
