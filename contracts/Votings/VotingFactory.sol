@@ -51,4 +51,9 @@ contract VotingFactory is VotingFactoryInterface {
         require(IDAO(msg.sender).whiteList(creator));
         _;
     }
+
+    modifier succeededCrowdsale() {
+        require(block.timestamp >= IDAO(msg.sender).endTime() && IDAO(msg.sender).weiRaised() >= IDAO(msg.sender).softCap());
+        _;
+    }
 }

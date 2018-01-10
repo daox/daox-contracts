@@ -95,19 +95,19 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Create proposal functions
     */
-    function addProposal(string _description, uint _duration, bytes32[] _options) succeededCrowdsale {
+    function addProposal(string _description, uint _duration, bytes32[] _options) {
         DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this);
     }
 
-    function addWithdrawal(string _description, uint _duration, uint _sum) succeededCrowdsale {
+    function addWithdrawal(string _description, uint _duration, uint _sum) {
         DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, this);
     }
 
-    function addRefund(string _description, uint _duration) succeededCrowdsale {
+    function addRefund(string _description, uint _duration) {
         DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this);
     }
 
-    function addWhiteList(string _description, uint _duration, address _addr, uint action) succeededCrowdsale {
+    function addWhiteList(string _description, uint _duration, address _addr, uint action) {
         DAOLib.delegatedCreateWhiteList(votingFactory, Common.stringToBytes32(_description), _duration, _addr, action, this);
     }
 
@@ -138,8 +138,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         return token.balanceOf(_participantAddress) > 0;
     }
 
-    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) crowdsaleNotStarted external {
-        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length);
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) external {
+        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length && canInitBonuses && block.timestamp < startTime);
         team = _team;
         teamBonusesArr = tokenPercents;
         for(uint i = 0; i < _team.length; i++) {
@@ -147,23 +147,25 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         }
         bonusPeriods = _bonusPeriods;
         bonusRates = _bonusRates;
+
+        canInitBonuses = false;
     }
 
     function setWhiteList(address[] _addresses) onlyOwner(msg.sender) {
+        require(canSetWhiteList);
+
         whiteListArr = _addresses;
         for(uint i = 0; i < _addresses.length; i++) {
             whiteList[_addresses[i]] = true;
         }
+
+        canSetWhiteList = false;
     }
 
     /*
     Modifiers
     */
 
-    modifier succeededCrowdsale() {
-        require(block.timestamp >= endTime && weiRaised >= softCap);
-        _;
-    }
 
     modifier crowdsaleNotStarted() {
         require(startTime == 0 || block.timestamp < startTime);

@@ -12,6 +12,8 @@ contract CrowdsaleDAOFields {
     uint public endTime;
     bool public canInitCrowdsaleParameters = true;
     bool public canInitStateParameters = true;
+    bool public canInitBonuses = true;
+    bool public canSetWhiteList = true;
     uint public commissionRaised = 0;
     uint public weiRaised = 0;
     mapping(address => uint) public depositedWei;
@@ -20,7 +22,7 @@ contract CrowdsaleDAOFields {
     bool public refundableSoftCap = false;
     uint newRate = 0;
     address public serviceContract;
-    uint[] teamBonusesArr;
+    uint[] public teamBonusesArr;
     address[] public team;
     uint public tokenHoldTime = 0;
     TokenInterface public token;
@@ -34,9 +36,9 @@ contract CrowdsaleDAOFields {
     bool public refundable = false;
     uint internal lastWithdrawalTimestamp = 0;
     uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;
-    address[] whiteListArr;
-    mapping(address => bool) whiteList;
+    address[] public whiteListArr;
+    mapping(address => bool) public whiteList;
     mapping(address => uint) public teamBonuses;
-    uint[] bonusPeriods;
-    uint[] bonusRates;
+    uint[] public bonusPeriods;
+    uint[] public bonusRates;
 }
