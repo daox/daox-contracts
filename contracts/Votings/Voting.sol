@@ -64,7 +64,7 @@ contract Voting is VotingFields {
     }
 
     modifier notFinished() {
-        require(!finished);
+        require(!finished && block.timestamp - duration < created_at);
         _;
     }
 }
