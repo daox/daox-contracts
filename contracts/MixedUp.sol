@@ -750,15 +750,15 @@ contract Voting is VotingFields {
 
     function addVote(uint optionID)  external notFinished canVote(optionID) {
         uint tokensAmount = dao.token().balanceOf(msg.sender);
-        options[optionID].votes = options[optionID].votes + tokensAmount;
+        options[optionID].votes += tokensAmount;
         voted[msg.sender] = true;
-        votesCount = votesCount + tokensAmount;
+        votesCount += tokensAmount;
 
         dao.holdTokens(msg.sender, (duration + created_at) - now);
     }
 
     function finish() external notFinished constant returns (bool) {
-        require(duration + created_at >= block.timestamp);
+        require(block.timestamp - duration >= created_at);
         finished = true;
         if(Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return false;
 
