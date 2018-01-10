@@ -25,7 +25,14 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     }
 
     function createCrowdsaleDAO(string _name, string _description) {
-        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, modules);
+        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description);
+
+        dao.call(bytes4(keccak256("setStateModule(address)")), modules[0]);
+        dao.call(bytes4(keccak256("setPaymentModule(address)")), modules[1]);
+        dao.call(bytes4(keccak256("setVotingDecisionModule(address)")), modules[2]);
+        dao.call(bytes4(keccak256("setCrowdsaleModule(address)")), modules[3]);
+        DAODeployer.transferOwnership(dao, msg.sender);
+
         DAOs[dao] = _name;
         CrowdsaleDAOCreated(dao, _name);
     }

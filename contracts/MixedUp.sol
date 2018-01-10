@@ -107,6 +107,8 @@ contract CrowdsaleDAOFields {
     uint public endTime;
     bool public canInitCrowdsaleParameters = true;
     bool public canInitStateParameters = true;
+    bool public canInitBonuses = true;
+    bool public canSetWhiteList = true;
     uint public commissionRaised = 0;
     uint public weiRaised = 0;
     mapping(address => uint) public depositedWei;
@@ -115,7 +117,7 @@ contract CrowdsaleDAOFields {
     bool public refundableSoftCap = false;
     uint newRate = 0;
     address public serviceContract;
-    uint[] teamBonusesArr;
+    uint[] public teamBonusesArr;
     address[] public team;
     uint public tokenHoldTime = 0;
     TokenInterface public token;
@@ -129,11 +131,11 @@ contract CrowdsaleDAOFields {
     bool public refundable = false;
     uint internal lastWithdrawalTimestamp = 0;
     uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;
-    address[] whiteListArr;
-    mapping(address => bool) whiteList;
+    address[] public whiteListArr;
+    mapping(address => bool) public whiteList;
     mapping(address => uint) public teamBonuses;
-    uint[] bonusPeriods;
-    uint[] bonusRates;
+    uint[] public bonusPeriods;
+    uint[] public bonusRates;
 }
 
 contract Owned {
@@ -374,15 +376,12 @@ interface DAOFactoryInterface {
 }
 
 library DAODeployer {
-    function deployCrowdsaleDAO(string _name,  string _description, address[4] modules) returns(address) {
-        CrowdsaleDAO dao = new CrowdsaleDAO(_name, _description);
-        dao.setStateModule(modules[0]);
-        dao.setPaymentModule(modules[1]);
-        dao.setVotingDecisionModule(modules[2]);
-        dao.setCrowdsaleModule(modules[3]);
-        dao.transferOwnership(msg.sender);
+    function deployCrowdsaleDAO(string _name,  string _description) returns(CrowdsaleDAO dao) {
+        dao = new CrowdsaleDAO(_name, _description);
+    }
 
-        return address(dao);
+    function transferOwnership(address _dao, address _newOwner) {
+        CrowdsaleDAO(_dao).transferOwnership(_newOwner);
     }
 }
 
@@ -548,19 +547,19 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Create proposal functions
     */
-    function addProposal(string _description, uint _duration, bytes32[] _options) succeededCrowdsale {
+    function addProposal(string _description, uint _duration, bytes32[] _options) {
         DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this);
     }
 
-    function addWithdrawal(string _description, uint _duration, uint _sum) succeededCrowdsale {
+    function addWithdrawal(string _description, uint _duration, uint _sum) {
         DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, this);
     }
 
-    function addRefund(string _description, uint _duration) succeededCrowdsale {
+    function addRefund(string _description, uint _duration) {
         DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this);
     }
 
-    function addWhiteList(string _description, uint _duration, address _addr, uint action) succeededCrowdsale {
+    function addWhiteList(string _description, uint _duration, address _addr, uint action) {
         DAOLib.delegatedCreateWhiteList(votingFactory, Common.stringToBytes32(_description), _duration, _addr, action, this);
     }
 
@@ -591,8 +590,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         return token.balanceOf(_participantAddress) > 0;
     }
 
-    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) crowdsaleNotStarted external {
-        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length);
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) external {
+        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length && canInitBonuses && block.timestamp < startTime);
         team = _team;
         teamBonusesArr = tokenPercents;
         for(uint i = 0; i < _team.length; i++) {
@@ -600,23 +599,25 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         }
         bonusPeriods = _bonusPeriods;
         bonusRates = _bonusRates;
+
+        canInitBonuses = false;
     }
 
     function setWhiteList(address[] _addresses) onlyOwner(msg.sender) {
+        require(canSetWhiteList);
+
         whiteListArr = _addresses;
         for(uint i = 0; i < _addresses.length; i++) {
             whiteList[_addresses[i]] = true;
         }
+
+        canSetWhiteList = false;
     }
 
     /*
     Modifiers
     */
 
-    modifier succeededCrowdsale() {
-        require(block.timestamp >= endTime && weiRaised >= softCap);
-        _;
-    }
 
     modifier crowdsaleNotStarted() {
         require(startTime == 0 || block.timestamp < startTime);
@@ -692,14 +693,14 @@ library VotingLib {
         require(_v.delegatecall(bytes4(keccak256("finish()"))));
     }
 }
-interface IDAO {
+contract IDAO {
     function isParticipant(address _participantAddress) external constant returns (bool);
 
-    function addParticipant(address _participantAddress) external returns (bool);
+    function whiteList(address _address) constant returns (bool);
 
-    function remove(address _participantAddress) external;
-
-    function leave() external;
+    uint public endTime;
+    uint public weiRaised;
+    uint public softCap;
 }
 contract ICrowdsaleDAO is IDAO {
     function addProposal(string _description, uint _duration, bytes32[] _options) external;
@@ -726,12 +727,12 @@ contract VotingFields {
     ICrowdsaleDAO dao;
     address public creator;
     bytes32 public description;
-    VotingLib.Option[10] options;
+    VotingLib.Option[10] public options;
     mapping (address => bool) public voted;
-    VotingLib.Option result;
+    VotingLib.Option public result;
     uint public votesCount;
     uint public duration; // UNIX
-    uint public created_at; // UNIX
+    uint public created_at = now;
     bool public finished = false;
     uint public quorum;
 }
@@ -939,23 +940,19 @@ contract VotingFactory is VotingFactoryInterface {
         baseVoting = _baseVoting;
     }
 
-    function createProposal(address _creator, bytes32 _description, uint _duration, bytes32[] _options) onlyDAO external returns (address) {
-        require(_options.length <= 10);
-
+    function createProposal(address _creator, bytes32 _description, uint _duration, bytes32[] _options) onlyDAO onlyParticipant(_creator) external returns (address) {
         return new Proposal(baseVoting, msg.sender, _creator, _description, _duration, _options);
     }
 
-    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum) onlyDAO external returns (address) {
-        require(_sum > 0);
-
+    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum) onlyDAO onlyWhiteList(_creator) external returns (address) {
         return new Withdrawal(baseVoting, msg.sender, _creator, _description, _duration, _sum, quorum);
     }
 
-    function createRefund(address _creator, bytes32 _description, uint _duration, uint quorum) onlyDAO external returns (address) {
+    function createRefund(address _creator, bytes32 _description, uint _duration, uint quorum) onlyDAO onlyParticipant(_creator) external returns (address) {
         return new Refund(baseVoting, msg.sender, _creator, _description, _duration, quorum);
     }
 
-    function createWhiteList(address _creator, bytes32 _description, uint _duration, uint quorum, address _addr, uint action) onlyDAO external returns (address) {
+    function createWhiteList(address _creator, bytes32 _description, uint _duration, uint quorum, address _addr, uint action) onlyDAO onlyParticipant(_creator) external returns (address) {
         return new WhiteList(baseVoting, msg.sender, _creator, _description, _duration, quorum, _addr, action);
     }
 
@@ -966,6 +963,21 @@ contract VotingFactory is VotingFactoryInterface {
 
     modifier onlyDAO() {
         require(daoFactory.exists(msg.sender));
+        _;
+    }
+
+    modifier onlyParticipant(address creator) {
+        require(IDAO(msg.sender).isParticipant(creator));
+        _;
+    }
+
+    modifier onlyWhiteList(address creator) {
+        require(IDAO(msg.sender).whiteList(creator));
+        _;
+    }
+
+    modifier succeededCrowdsale() {
+        require(block.timestamp >= IDAO(msg.sender).endTime() && IDAO(msg.sender).weiRaised() >= IDAO(msg.sender).softCap());
         _;
     }
 }
@@ -1257,7 +1269,14 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     }
 
     function createCrowdsaleDAO(string _name, string _description) {
-        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, modules);
+        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description);
+
+        dao.call(bytes4(keccak256("setStateModule(address)")), modules[0]);
+        dao.call(bytes4(keccak256("setPaymentModule(address)")), modules[1]);
+        dao.call(bytes4(keccak256("setVotingDecisionModule(address)")), modules[2]);
+        dao.call(bytes4(keccak256("setCrowdsaleModule(address)")), modules[3]);
+        DAODeployer.transferOwnership(dao, msg.sender);
+
         DAOs[dao] = _name;
         CrowdsaleDAOCreated(dao, _name);
     }
