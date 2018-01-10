@@ -18,9 +18,9 @@ contract Voting is VotingFields {
 
     function addVote(uint optionID)  external notFinished canVote(optionID) {
         uint tokensAmount = dao.token().balanceOf(msg.sender);
-        options[optionID].votes = options[optionID].votes + tokensAmount;
+        options[optionID].votes += tokensAmount;
         voted[msg.sender] = true;
-        votesCount = votesCount + tokensAmount;
+        votesCount += tokensAmount;
 
         dao.holdTokens(msg.sender, (duration + created_at) - now);
     }
