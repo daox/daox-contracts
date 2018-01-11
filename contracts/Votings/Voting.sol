@@ -26,7 +26,7 @@ contract Voting is VotingFields {
     }
 
     function finish() external notFinished constant returns (bool) {
-        require(duration + created_at >= block.timestamp);
+        require(block.timestamp - duration >= created_at);
         finished = true;
         if(Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return false;
 
@@ -64,7 +64,7 @@ contract Voting is VotingFields {
     }
 
     modifier notFinished() {
-        require(!finished);
+        require(!finished && block.timestamp - duration < created_at);
         _;
     }
 }
