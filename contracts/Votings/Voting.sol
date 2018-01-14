@@ -6,8 +6,6 @@ import "../Common.sol";
 
 contract Voting is VotingFields {
 
-    VotingLib.VotingType votingType;
-
     function create(address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum) external {
         dao = ICrowdsaleDAO(_dao);
         creator = _creator;
@@ -16,7 +14,8 @@ contract Voting is VotingFields {
         quorum = _quorum;
     }
 
-    function addVote(uint optionID)  external notFinished canVote(optionID) {
+    function addVote(uint optionID) external notFinished canVote(optionID) {
+        require(block.timestamp - duration < created_at);
         uint tokensAmount = dao.token().balanceOf(msg.sender);
         options[optionID].votes += tokensAmount;
         voted[msg.sender] = true;
@@ -25,15 +24,13 @@ contract Voting is VotingFields {
         dao.holdTokens(msg.sender, (duration + created_at) - now);
     }
 
-    function finish() external notFinished constant returns (bool) {
+    function finish() external notFinished {
         require(block.timestamp - duration >= created_at);
         finished = true;
-        if(Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return false;
+        if (Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return;
 
-        if(votingType == VotingLib.VotingType.Proposal) finishProposal();
+        if (keccak256(votingType) == keccak256("Proposal")) finishProposal();
         else finishNotProposal();
-
-        return true;
     }
 
     function finishProposal() private {
@@ -64,7 +61,7 @@ contract Voting is VotingFields {
     }
 
     modifier notFinished() {
-        require(!finished && block.timestamp - duration < created_at);
+        require(!finished);
         _;
     }
 }

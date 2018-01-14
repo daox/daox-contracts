@@ -7,11 +7,11 @@ import "../Common.sol";
 contract Withdrawal is VotingFields {
     address baseVoting;
     uint public withdrawalSum;
-    VotingLib.VotingType constant votingType = VotingLib.VotingType.Withdrawal;
 
     function Withdrawal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _sum, uint _quorum){
         require(_sum > 0);
         baseVoting = _baseVoting;
+        votingType = "Withdrawal";
         VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
         withdrawalSum = _sum;
         createOptions();

@@ -10,11 +10,11 @@ contract WhiteList is VotingFields {
     address baseVoting;
     Action action;
     address addr = 0x0;
-    VotingLib.VotingType constant votingType = VotingLib.VotingType.WhiteList;
 
     function WhiteList(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum, address _addr, uint _action){
         require(_addr != 0x0 || Action(_action) == Action.Flush);
         baseVoting = _baseVoting;
+        votingType = "WhiteList";
         VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
         addr = _addr;
         action = Action(_action);

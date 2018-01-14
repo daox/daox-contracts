@@ -6,10 +6,10 @@ import "../Common.sol";
 
 contract Refund is VotingFields {
     address baseVoting;
-    VotingLib.VotingType constant votingType = VotingLib.VotingType.Refund;
 
     function Refund(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum){
         baseVoting = _baseVoting;
+        votingType = "Refund";
         VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
         createOptions();
     }
