@@ -96,37 +96,37 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         Create proposal functions
     */
     function addProposal(string _description, uint _duration, bytes32[] _options) {
-        DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this);
+        votings[DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this)] = true;
     }
 
     function addWithdrawal(string _description, uint _duration, uint _sum) {
-        DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, this);
+        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, this)] = true;
     }
 
     function addRefund(string _description, uint _duration) {
-        DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this);
+        votings[DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this)] = true;
     }
 
     function addWhiteList(string _description, uint _duration, address _addr, uint action) {
-        DAOLib.delegatedCreateWhiteList(votingFactory, Common.stringToBytes32(_description), _duration, _addr, action, this);
+        votings[DAOLib.delegatedCreateWhiteList(votingFactory, Common.stringToBytes32(_description), _duration, _addr, action, this)] = true;
     }
 
     /*
         Setters for module addresses
     */
-    function setStateModule(address _stateModule) external canSetModule(stateModule) notEmptyAddress(_stateModule) {
+    function setStateModule(address _stateModule) external canSetModule(stateModule) {
         stateModule = _stateModule;
     }
 
-    function setPaymentModule(address _paymentModule) external canSetModule(paymentModule) notEmptyAddress(_paymentModule) {
+    function setPaymentModule(address _paymentModule) external canSetModule(paymentModule) {
         paymentModule = _paymentModule;
     }
 
-    function setVotingDecisionModule(address _votingDecisionModule) external canSetModule(votingDecisionModule) notEmptyAddress(_votingDecisionModule) {
+    function setVotingDecisionModule(address _votingDecisionModule) external canSetModule(votingDecisionModule) {
         votingDecisionModule = _votingDecisionModule;
     }
 
-    function setCrowdsaleModule(address _crowdsaleModule) external canSetModule(crowdsaleModule) notEmptyAddress(_crowdsaleModule) {
+    function setCrowdsaleModule(address _crowdsaleModule) external canSetModule(crowdsaleModule) {
         crowdsaleModule = _crowdsaleModule;
     }
 
@@ -174,11 +174,6 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     modifier canSetModule(address module) {
         require(votings[msg.sender] || (module == 0x0 && msg.sender == owner));
-        _;
-    }
-
-    modifier notEmptyAddress(address _address) {
-        require(_address != 0x0);
         _;
     }
 }

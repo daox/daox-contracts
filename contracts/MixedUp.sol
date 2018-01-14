@@ -548,19 +548,19 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         Create proposal functions
     */
     function addProposal(string _description, uint _duration, bytes32[] _options) {
-        DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this);
+        votings[DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this)] = true;
     }
 
     function addWithdrawal(string _description, uint _duration, uint _sum) {
-        DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, this);
+        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, this)] = true;
     }
 
     function addRefund(string _description, uint _duration) {
-        DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this);
+        votings[DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this)] = true;
     }
 
     function addWhiteList(string _description, uint _duration, address _addr, uint action) {
-        DAOLib.delegatedCreateWhiteList(votingFactory, Common.stringToBytes32(_description), _duration, _addr, action, this);
+        votings[DAOLib.delegatedCreateWhiteList(votingFactory, Common.stringToBytes32(_description), _duration, _addr, action, this)] = true;
     }
 
     /*
@@ -735,10 +735,9 @@ contract VotingFields {
     uint public created_at = now;
     bool public finished = false;
     uint public quorum;
+    string public votingType;
 }
 contract Voting is VotingFields {
-
-    VotingLib.VotingType votingType;
 
     function create(address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum) external {
         dao = ICrowdsaleDAO(_dao);
@@ -748,7 +747,8 @@ contract Voting is VotingFields {
         quorum = _quorum;
     }
 
-    function addVote(uint optionID)  external notFinished canVote(optionID) {
+    function addVote(uint optionID) external notFinished canVote(optionID) {
+        require(block.timestamp - duration < created_at);
         uint tokensAmount = dao.token().balanceOf(msg.sender);
         options[optionID].votes += tokensAmount;
         voted[msg.sender] = true;
@@ -757,15 +757,14 @@ contract Voting is VotingFields {
         dao.holdTokens(msg.sender, (duration + created_at) - now);
     }
 
-    function finish() external notFinished constant returns (bool) {
+    function finish() external notFinished {
         require(block.timestamp - duration >= created_at);
         finished = true;
-        if(Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return false;
+        //ToDo: fix bug with dao.token().totalSupply()
+        if (Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return;
 
-        if(votingType == VotingLib.VotingType.Proposal) finishProposal();
+        if (keccak256(votingType) == keccak256("Proposal")) finishProposal();
         else finishNotProposal();
-
-        return true;
     }
 
     function finishProposal() private {
@@ -796,16 +795,17 @@ contract Voting is VotingFields {
     }
 
     modifier notFinished() {
-        require(!finished && block.timestamp - duration < created_at);
+        require(!finished);
         _;
     }
 }
 contract Proposal is VotingFields {
     address baseVoting;
-    VotingLib.VotingType constant votingType = VotingLib.VotingType.Proposal;
 
     function Proposal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, bytes32[] _options){
+        require(_options.length <= 10);
         baseVoting = _baseVoting;
+        votingType = "Proposal";
         VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, 50);
         createOptions(_options);
     }
@@ -833,10 +833,11 @@ contract Proposal is VotingFields {
 contract Withdrawal is VotingFields {
     address baseVoting;
     uint public withdrawalSum;
-    VotingLib.VotingType constant votingType = VotingLib.VotingType.Withdrawal;
 
     function Withdrawal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _sum, uint _quorum){
+        require(_sum > 0);
         baseVoting = _baseVoting;
+        votingType = "Withdrawal";
         VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
         withdrawalSum = _sum;
         createOptions();
@@ -864,10 +865,10 @@ contract Withdrawal is VotingFields {
 }
 contract Refund is VotingFields {
     address baseVoting;
-    VotingLib.VotingType constant votingType = VotingLib.VotingType.Refund;
 
     function Refund(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum){
         baseVoting = _baseVoting;
+        votingType = "Refund";
         VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
         createOptions();
     }
@@ -892,11 +893,11 @@ contract WhiteList is VotingFields {
     address baseVoting;
     Action action;
     address addr = 0x0;
-    VotingLib.VotingType constant votingType = VotingLib.VotingType.WhiteList;
 
     function WhiteList(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum, address _addr, uint _action){
         require(_addr != 0x0 || Action(_action) == Action.Flush);
         baseVoting = _baseVoting;
+        votingType = "WhiteList";
         VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
         addr = _addr;
         action = Action(_action);

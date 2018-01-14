@@ -15,4 +15,5 @@ contract VotingFields {
     uint public created_at = now;
     bool public finished = false;
     uint public quorum;
+    string public votingType;
 }
