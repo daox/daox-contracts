@@ -6,7 +6,7 @@ import "../Common.sol";
 
 contract Voting is VotingFields {
 
-    function create(address _dao, bytes32 _description, uint _duration, uint _quorum) external {
+    function create(address _dao, bytes32 _description, uint _duration, uint _quorum) succeededCrowdsale(ICrowdsaleDAO(_dao)) external {
         dao = ICrowdsaleDAO(_dao);
         description = _description;
         duration = _duration;
@@ -61,6 +61,11 @@ contract Voting is VotingFields {
 
     modifier notFinished() {
         require(!finished);
+        _;
+    }
+
+    modifier succeededCrowdsale(ICrowdsaleDAO dao) {
+        require(block.timestamp >= dao.endTime() && dao.weiRaised() >= dao.softCap());
         _;
     }
 }

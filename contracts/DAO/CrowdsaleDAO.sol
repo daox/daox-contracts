@@ -139,7 +139,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     }
 
     function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) external {
-        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length && canInitBonuses && block.timestamp < startTime);
+        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length && canInitBonuses && (block.timestamp < startTime || canInitCrowdsaleParameters));
         team = _team;
         teamBonusesArr = tokenPercents;
         for(uint i = 0; i < _team.length; i++) {

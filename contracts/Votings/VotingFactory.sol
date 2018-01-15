@@ -20,7 +20,7 @@ contract VotingFactory is VotingFactoryInterface {
         return new Proposal(baseVoting, msg.sender, _description, _duration, _options);
     }
 
-    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum, address withdrawalWallet) onlyDAO onlyWhiteList(withdrawalWallet) external returns (address) {
+    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum, address withdrawalWallet) onlyParticipant(_creator) onlyDAO onlyWhiteList(withdrawalWallet) external returns (address) {
         return new Withdrawal(baseVoting, msg.sender, _description, _duration, _sum, quorum, withdrawalWallet);
     }
 
@@ -49,11 +49,6 @@ contract VotingFactory is VotingFactoryInterface {
 
     modifier onlyWhiteList(address creator) {
         require(IDAO(msg.sender).whiteList(creator));
-        _;
-    }
-
-    modifier succeededCrowdsale() {
-        require(block.timestamp >= IDAO(msg.sender).endTime() && IDAO(msg.sender).weiRaised() >= IDAO(msg.sender).softCap());
         _;
     }
 }

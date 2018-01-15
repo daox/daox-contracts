@@ -2,6 +2,7 @@ pragma solidity ^0.4.0;
 
 import "./DAOFactoryInterface.sol";
 import "./DAODeployer.sol";
+import "../Common.sol";
 
 contract CrowdsaleDAOFactory is DAOFactoryInterface {
     event CrowdsaleDAOCreated(
@@ -24,8 +25,8 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         require(serviceContractAddress.call(bytes4(keccak256("setDaoFactory(address,address)")), this, msg.sender));
     }
 
-    function createCrowdsaleDAO(string _name, bytes32 _description) {
-        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description);
+    function createCrowdsaleDAO(string _name, string _description) {
+        address dao = DAODeployer.deployCrowdsaleDAO(_name, Common.stringToBytes32(_description));
 
         require(dao.call(bytes4(keccak256("setStateModule(address)")), modules[0]));
         require(dao.call(bytes4(keccak256("setPaymentModule(address)")), modules[1]));
