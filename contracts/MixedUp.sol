@@ -566,19 +566,19 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Setters for module addresses
     */
-    function setStateModule(address _stateModule) external canSetModule(stateModule) notEmptyAddress(_stateModule) {
+    function setStateModule(address _stateModule) external canSetModule(stateModule) {
         stateModule = _stateModule;
     }
 
-    function setPaymentModule(address _paymentModule) external canSetModule(paymentModule) notEmptyAddress(_paymentModule) {
+    function setPaymentModule(address _paymentModule) external canSetModule(paymentModule) {
         paymentModule = _paymentModule;
     }
 
-    function setVotingDecisionModule(address _votingDecisionModule) external canSetModule(votingDecisionModule) notEmptyAddress(_votingDecisionModule) {
+    function setVotingDecisionModule(address _votingDecisionModule) external canSetModule(votingDecisionModule) {
         votingDecisionModule = _votingDecisionModule;
     }
 
-    function setCrowdsaleModule(address _crowdsaleModule) external canSetModule(crowdsaleModule) notEmptyAddress(_crowdsaleModule) {
+    function setCrowdsaleModule(address _crowdsaleModule) external canSetModule(crowdsaleModule) {
         crowdsaleModule = _crowdsaleModule;
     }
 
@@ -626,11 +626,6 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     modifier canSetModule(address module) {
         require(votings[msg.sender] || (module == 0x0 && msg.sender == owner));
-        _;
-    }
-
-    modifier notEmptyAddress(address _address) {
-        require(_address != 0x0);
         _;
     }
 }
