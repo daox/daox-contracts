@@ -10,7 +10,7 @@ interface TokenInterface {
 interface VotingFactoryInterface {
     function createProposal(address _creator, bytes32 _description, uint _duration, bytes32[] _options) external returns (address);
 
-    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum) external returns (address);
+    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum, address withdrawalWallet) external returns (address);
 
     function createRefund(address _creator, bytes32 _description, uint _duration, uint quorum) external returns (address);
 
@@ -62,8 +62,8 @@ library DAOLib {
         return _votingAddress;
     }
 
-    function delegatedCreateWithdrawal(address _votingFactory, bytes32 _description, uint _duration, uint _sum, address _dao) returns (address) {
-        address _votingAddress = VotingFactoryInterface(_votingFactory).createWithdrawal(msg.sender, _description, _duration, _sum, 51);
+    function delegatedCreateWithdrawal(address _votingFactory, bytes32 _description, uint _duration, uint _sum, address withdrawalWallet, address _dao) returns (address) {
+        address _votingAddress = VotingFactoryInterface(_votingFactory).createWithdrawal(msg.sender, _description, _duration, _sum, 51, withdrawalWallet);
         VotingCreated(_votingAddress, "withdrawal", _dao, _description, _duration, msg.sender);
         return _votingAddress;
     }
@@ -551,8 +551,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         votings[DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this)] = true;
     }
 
-    function addWithdrawal(string _description, uint _duration, uint _sum) {
-        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, this)] = true;
+    function addWithdrawal(string _description, uint _duration, uint _sum, address withdrawalWallet) {
+        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, withdrawalWallet, this)] = true;
     }
 
     function addRefund(string _description, uint _duration) {
@@ -833,13 +833,15 @@ contract Proposal is VotingFields {
 contract Withdrawal is VotingFields {
     address baseVoting;
     uint public withdrawalSum;
+    address public withdrawalWallet;
 
-    function Withdrawal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _sum, uint _quorum){
+    function Withdrawal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _sum, uint _quorum, address _withdrawalWallet){
         require(_sum > 0);
         baseVoting = _baseVoting;
         votingType = "Withdrawal";
         VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
         withdrawalSum = _sum;
+        withdrawalWallet = _withdrawalWallet;
         createOptions();
     }
 
@@ -849,7 +851,7 @@ contract Withdrawal is VotingFields {
 
     function finish() {
         VotingLib.delegatecallFinish(baseVoting);
-        if(result.description == "yes") dao.withdrawal(creator, withdrawalSum);
+        if(result.description == "yes") dao.withdrawal(withdrawalWallet, withdrawalSum);
     }
 
     function createOptions() private {
@@ -945,8 +947,8 @@ contract VotingFactory is VotingFactoryInterface {
         return new Proposal(baseVoting, msg.sender, _creator, _description, _duration, _options);
     }
 
-    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum) onlyDAO onlyWhiteList(_creator) external returns (address) {
-        return new Withdrawal(baseVoting, msg.sender, _creator, _description, _duration, _sum, quorum);
+    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum, address withdrawalWallet) onlyDAO onlyWhiteList(withdrawalWallet) external returns (address) {
+        return new Withdrawal(baseVoting, msg.sender, _creator, _description, _duration, _sum, quorum, withdrawalWallet);
     }
 
     function createRefund(address _creator, bytes32 _description, uint _duration, uint quorum) onlyDAO onlyParticipant(_creator) external returns (address) {
