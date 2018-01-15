@@ -10,7 +10,7 @@ contract ICrowdsaleDAO is IDAO {
 
     function addRefund(string _description, uint _duration) external;
 
-    function makeRefundable();
+    function makeRefundableByVotingDecision();
 
     function flushWhiteList() external;
 

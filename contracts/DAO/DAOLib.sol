@@ -18,10 +18,10 @@ library DAOLib {
         return tokensAmount;
     }
 
-    function countRefundSum(TokenInterface token, uint rate, uint newRate) constant returns (uint) {
+    function countRefundSum(uint tokenAmount, uint rate, uint newRate) constant returns (uint) {
         uint multiplier = 1000;
         uint newRateToOld = newRate*multiplier / rate;
-        uint weiSpent = token.balanceOf(msg.sender) / rate;
+        uint weiSpent = tokenAmount / rate;
         return weiSpent*multiplier / newRateToOld;
     }
 

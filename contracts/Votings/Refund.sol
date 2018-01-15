@@ -20,7 +20,7 @@ contract Refund is VotingFields {
 
     function finish() {
         VotingLib.delegatecallFinish(baseVoting);
-        if(result.description == "yes") dao.makeRefundable();
+        if(result.description == "yes") dao.makeRefundableByVotingDecision();
     }
 
     function createOptions() private {

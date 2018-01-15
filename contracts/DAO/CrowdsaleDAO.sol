@@ -68,7 +68,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     }
 
     function makeRefundableByVotingDecision() external {
-        DAOProxy.delegatedMakeRefundableByUser(votingDecisionModule);
+        DAOProxy.delegatedMakeRefundableByVotingDecision(votingDecisionModule);
     }
 
     function holdTokens(address _address, uint duration) external {
