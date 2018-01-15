@@ -30,7 +30,7 @@ contract DAOx is Owned {
     }
 
     function withdraw(uint sum) onlyOwner(msg.sender) {
-        assert(!owner.call.value(sum*1 wei)());
+        assert(owner.call.value(sum*1 wei)());
     }
 
     modifier onlyDAO() {

@@ -760,7 +760,6 @@ contract Voting is VotingFields {
     function finish() external notFinished {
         require(block.timestamp - duration >= created_at);
         finished = true;
-        //ToDo: fix bug with dao.token().totalSupply()
         if (Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return;
 
         if (keccak256(votingType) == keccak256("Proposal")) finishProposal();
@@ -1241,7 +1240,7 @@ contract DAOx is Owned {
     }
 
     function withdraw(uint sum) onlyOwner(msg.sender) {
-        assert(!owner.call.value(sum*1 wei)());
+        assert(owner.call.value(sum*1 wei)());
     }
 
     modifier onlyDAO() {
