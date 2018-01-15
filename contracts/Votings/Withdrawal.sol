@@ -7,13 +7,15 @@ import "../Common.sol";
 contract Withdrawal is VotingFields {
     address baseVoting;
     uint public withdrawalSum;
+    address public withdrawalWallet;
 
-    function Withdrawal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _sum, uint _quorum){
+    function Withdrawal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _sum, uint _quorum, address _withdrawalWallet){
         require(_sum > 0);
         baseVoting = _baseVoting;
         votingType = "Withdrawal";
         VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
         withdrawalSum = _sum;
+        withdrawalWallet = _withdrawalWallet;
         createOptions();
     }
 
@@ -23,7 +25,7 @@ contract Withdrawal is VotingFields {
 
     function finish() {
         VotingLib.delegatecallFinish(baseVoting);
-        if(result.description == "yes") dao.withdrawal(creator, withdrawalSum);
+        if(result.description == "yes") dao.withdrawal(withdrawalWallet, withdrawalSum);
     }
 
     function createOptions() private {
