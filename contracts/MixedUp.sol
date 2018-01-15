@@ -681,8 +681,8 @@ library VotingLib {
         bytes32 description;
     }
 
-    function delegatecallCreate(address _v, address dao, address _creator, bytes32 _description, uint _duration, uint quorum) {
-        require(_v.delegatecall(bytes4(keccak256("create(address,address,bytes32,uint256,uint256)")), dao, _creator, _description, _duration, quorum));
+    function delegatecallCreate(address _v, address dao, bytes32 _description, uint _duration, uint quorum) {
+        require(_v.delegatecall(bytes4(keccak256("create(address,bytes32,uint256,uint256)")), dao, _description, _duration, quorum));
     }
 
     function delegatecallAddVote(address _v, uint optionID) {
@@ -725,7 +725,6 @@ contract ICrowdsaleDAO is IDAO {
 }
 contract VotingFields {
     ICrowdsaleDAO dao;
-    address public creator;
     bytes32 public description;
     VotingLib.Option[10] public options;
     mapping (address => bool) public voted;
@@ -739,9 +738,8 @@ contract VotingFields {
 }
 contract Voting is VotingFields {
 
-    function create(address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum) external {
+    function create(address _dao, bytes32 _description, uint _duration, uint _quorum) external {
         dao = ICrowdsaleDAO(_dao);
-        creator = _creator;
         description = _description;
         duration = _duration;
         quorum = _quorum;
@@ -760,7 +758,6 @@ contract Voting is VotingFields {
     function finish() external notFinished {
         require(block.timestamp - duration >= created_at);
         finished = true;
-        //ToDo: fix bug with dao.token().totalSupply()
         if (Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return;
 
         if (keccak256(votingType) == keccak256("Proposal")) finishProposal();
@@ -802,11 +799,11 @@ contract Voting is VotingFields {
 contract Proposal is VotingFields {
     address baseVoting;
 
-    function Proposal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, bytes32[] _options){
+    function Proposal(address _baseVoting, address _dao, bytes32 _description, uint _duration, bytes32[] _options){
         require(_options.length <= 10);
         baseVoting = _baseVoting;
         votingType = "Proposal";
-        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, 50);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 50);
         createOptions(_options);
     }
 
@@ -835,11 +832,11 @@ contract Withdrawal is VotingFields {
     uint public withdrawalSum;
     address public withdrawalWallet;
 
-    function Withdrawal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _sum, uint _quorum, address _withdrawalWallet){
+    function Withdrawal(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _sum, uint _quorum, address _withdrawalWallet){
         require(_sum > 0);
         baseVoting = _baseVoting;
         votingType = "Withdrawal";
-        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, _quorum);
         withdrawalSum = _sum;
         withdrawalWallet = _withdrawalWallet;
         createOptions();
@@ -868,10 +865,10 @@ contract Withdrawal is VotingFields {
 contract Refund is VotingFields {
     address baseVoting;
 
-    function Refund(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum){
+    function Refund(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _quorum){
         baseVoting = _baseVoting;
         votingType = "Refund";
-        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, _quorum);
         createOptions();
     }
 
@@ -896,11 +893,11 @@ contract WhiteList is VotingFields {
     Action action;
     address addr = 0x0;
 
-    function WhiteList(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum, address _addr, uint _action){
+    function WhiteList(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _quorum, address _addr, uint _action){
         require(_addr != 0x0 || Action(_action) == Action.Flush);
         baseVoting = _baseVoting;
         votingType = "WhiteList";
-        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, _quorum);
         addr = _addr;
         action = Action(_action);
     }
@@ -944,19 +941,19 @@ contract VotingFactory is VotingFactoryInterface {
     }
 
     function createProposal(address _creator, bytes32 _description, uint _duration, bytes32[] _options) onlyDAO onlyParticipant(_creator) external returns (address) {
-        return new Proposal(baseVoting, msg.sender, _creator, _description, _duration, _options);
+        return new Proposal(baseVoting, msg.sender, _description, _duration, _options);
     }
 
     function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum, address withdrawalWallet) onlyDAO onlyWhiteList(withdrawalWallet) external returns (address) {
-        return new Withdrawal(baseVoting, msg.sender, _creator, _description, _duration, _sum, quorum, withdrawalWallet);
+        return new Withdrawal(baseVoting, msg.sender, _description, _duration, _sum, quorum, withdrawalWallet);
     }
 
     function createRefund(address _creator, bytes32 _description, uint _duration, uint quorum) onlyDAO onlyParticipant(_creator) external returns (address) {
-        return new Refund(baseVoting, msg.sender, _creator, _description, _duration, quorum);
+        return new Refund(baseVoting, msg.sender, _description, _duration, quorum);
     }
 
     function createWhiteList(address _creator, bytes32 _description, uint _duration, uint quorum, address _addr, uint action) onlyDAO onlyParticipant(_creator) external returns (address) {
-        return new WhiteList(baseVoting, msg.sender, _creator, _description, _duration, quorum, _addr, action);
+        return new WhiteList(baseVoting, msg.sender, _description, _duration, quorum, _addr, action);
     }
 
     function setDaoFactory(address _dao) external {

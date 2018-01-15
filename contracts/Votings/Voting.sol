@@ -6,9 +6,8 @@ import "../Common.sol";
 
 contract Voting is VotingFields {
 
-    function create(address _dao, address _creator, bytes32 _description, uint _duration, uint _quorum) external {
+    function create(address _dao, bytes32 _description, uint _duration, uint _quorum) external {
         dao = ICrowdsaleDAO(_dao);
-        creator = _creator;
         description = _description;
         duration = _duration;
         quorum = _quorum;
@@ -29,7 +28,7 @@ contract Voting is VotingFields {
         finished = true;
         if (Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return;
 
-        if (keccak256(votingType) == keccak256("Proposal")) finishProposal();
+        if (keccak256(votingType) == keccak256(bytes32("Proposal"))) finishProposal();
         else finishNotProposal();
     }
 

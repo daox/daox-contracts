@@ -9,11 +9,11 @@ contract Withdrawal is VotingFields {
     uint public withdrawalSum;
     address public withdrawalWallet;
 
-    function Withdrawal(address _baseVoting, address _dao, address _creator, bytes32 _description, uint _duration, uint _sum, uint _quorum, address _withdrawalWallet){
+    function Withdrawal(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _sum, uint _quorum, address _withdrawalWallet){
         require(_sum > 0);
         baseVoting = _baseVoting;
         votingType = "Withdrawal";
-        VotingLib.delegatecallCreate(baseVoting, _dao, _creator, _description, _duration, _quorum);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, _quorum);
         withdrawalSum = _sum;
         withdrawalWallet = _withdrawalWallet;
         createOptions();

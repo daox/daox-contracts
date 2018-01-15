@@ -17,19 +17,19 @@ contract VotingFactory is VotingFactoryInterface {
     }
 
     function createProposal(address _creator, bytes32 _description, uint _duration, bytes32[] _options) onlyDAO onlyParticipant(_creator) external returns (address) {
-        return new Proposal(baseVoting, msg.sender, _creator, _description, _duration, _options);
+        return new Proposal(baseVoting, msg.sender, _description, _duration, _options);
     }
 
     function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum, address withdrawalWallet) onlyDAO onlyWhiteList(withdrawalWallet) external returns (address) {
-        return new Withdrawal(baseVoting, msg.sender, _creator, _description, _duration, _sum, quorum, withdrawalWallet);
+        return new Withdrawal(baseVoting, msg.sender, _description, _duration, _sum, quorum, withdrawalWallet);
     }
 
     function createRefund(address _creator, bytes32 _description, uint _duration, uint quorum) onlyDAO onlyParticipant(_creator) external returns (address) {
-        return new Refund(baseVoting, msg.sender, _creator, _description, _duration, quorum);
+        return new Refund(baseVoting, msg.sender, _description, _duration, quorum);
     }
 
     function createWhiteList(address _creator, bytes32 _description, uint _duration, uint quorum, address _addr, uint action) onlyDAO onlyParticipant(_creator) external returns (address) {
-        return new WhiteList(baseVoting, msg.sender, _creator, _description, _duration, quorum, _addr, action);
+        return new WhiteList(baseVoting, msg.sender, _description, _duration, quorum, _addr, action);
     }
 
     function setDaoFactory(address _dao) external {

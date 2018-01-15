@@ -30,7 +30,7 @@ contract CrowdsaleDAOFields {
     address public commissionContract;
     string public name;
     uint public created_at = now; // UNIX time
-    string public description;
+    bytes32 public description;
     uint public minVote; // in percents
     mapping(address => bool) public votings;
     bool public refundable = false;

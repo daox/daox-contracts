@@ -24,13 +24,13 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         require(serviceContractAddress.call(bytes4(keccak256("setDaoFactory(address,address)")), this, msg.sender));
     }
 
-    function createCrowdsaleDAO(string _name, string _description) {
+    function createCrowdsaleDAO(string _name, bytes32 _description) {
         address dao = DAODeployer.deployCrowdsaleDAO(_name, _description);
 
-        dao.call(bytes4(keccak256("setStateModule(address)")), modules[0]);
-        dao.call(bytes4(keccak256("setPaymentModule(address)")), modules[1]);
-        dao.call(bytes4(keccak256("setVotingDecisionModule(address)")), modules[2]);
-        dao.call(bytes4(keccak256("setCrowdsaleModule(address)")), modules[3]);
+        require(dao.call(bytes4(keccak256("setStateModule(address)")), modules[0]));
+        require(dao.call(bytes4(keccak256("setPaymentModule(address)")), modules[1]));
+        require(dao.call(bytes4(keccak256("setVotingDecisionModule(address)")), modules[2]));
+        require(dao.call(bytes4(keccak256("setCrowdsaleModule(address)")), modules[3]));
         DAODeployer.transferOwnership(dao, msg.sender);
 
         DAOs[dao] = _name;
