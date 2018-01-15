@@ -464,7 +464,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     address public votingDecisionModule;
     address public crowdsaleModule;
 
-    function CrowdsaleDAO(string _name, string _description)
+    function CrowdsaleDAO(string _name, bytes32 _description)
     Owned(msg.sender)
     {
         (name, description) = (_name, _description);
@@ -520,7 +520,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     }
 
     function makeRefundableByVotingDecision() external {
-        DAOProxy.delegatedMakeRefundableByUser(votingDecisionModule);
+        DAOProxy.delegatedMakeRefundableByVotingDecision(votingDecisionModule);
     }
 
     function holdTokens(address _address, uint duration) external {
@@ -591,7 +591,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     }
 
     function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) external {
-        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length && canInitBonuses && block.timestamp < startTime);
+        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length && canInitBonuses && (block.timestamp < startTime || canInitCrowdsaleParameters));
         team = _team;
         teamBonusesArr = tokenPercents;
         for(uint i = 0; i < _team.length; i++) {
@@ -733,7 +733,7 @@ contract VotingFields {
 }
 contract Voting is VotingFields {
 
-    function create(address _dao, bytes32 _description, uint _duration, uint _quorum) external {
+    function create(address _dao, bytes32 _description, uint _duration, uint _quorum) succeededCrowdsale(ICrowdsaleDAO(_dao)) external {
         dao = ICrowdsaleDAO(_dao);
         description = _description;
         duration = _duration;
@@ -755,7 +755,7 @@ contract Voting is VotingFields {
         finished = true;
         if (Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return;
 
-        if (keccak256(votingType) == keccak256("Proposal")) finishProposal();
+        if (keccak256(votingType) == keccak256(bytes32("Proposal"))) finishProposal();
         else finishNotProposal();
     }
 
@@ -788,6 +788,11 @@ contract Voting is VotingFields {
 
     modifier notFinished() {
         require(!finished);
+        _;
+    }
+
+    modifier succeededCrowdsale(ICrowdsaleDAO dao) {
+        require(block.timestamp >= dao.endTime() && dao.weiRaised() >= dao.softCap());
         _;
     }
 }
@@ -828,7 +833,7 @@ contract Withdrawal is VotingFields {
     address public withdrawalWallet;
 
     function Withdrawal(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _sum, uint _quorum, address _withdrawalWallet){
-        require(_sum > 0);
+        require(_sum > 0 && sum * 1 ether <= _dao.balance);
         baseVoting = _baseVoting;
         votingType = "Withdrawal";
         VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, _quorum);
@@ -939,7 +944,7 @@ contract VotingFactory is VotingFactoryInterface {
         return new Proposal(baseVoting, msg.sender, _description, _duration, _options);
     }
 
-    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum, address withdrawalWallet) onlyDAO onlyWhiteList(withdrawalWallet) external returns (address) {
+    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum, address withdrawalWallet) onlyParticipant(_creator) onlyDAO onlyWhiteList(withdrawalWallet) external returns (address) {
         return new Withdrawal(baseVoting, msg.sender, _description, _duration, _sum, quorum, withdrawalWallet);
     }
 
@@ -968,11 +973,6 @@ contract VotingFactory is VotingFactoryInterface {
 
     modifier onlyWhiteList(address creator) {
         require(IDAO(msg.sender).whiteList(creator));
-        _;
-    }
-
-    modifier succeededCrowdsale() {
-        require(block.timestamp >= IDAO(msg.sender).endTime() && IDAO(msg.sender).weiRaised() >= IDAO(msg.sender).softCap());
         _;
     }
 }
@@ -1264,12 +1264,12 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     }
 
     function createCrowdsaleDAO(string _name, string _description) {
-        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description);
+        address dao = DAODeployer.deployCrowdsaleDAO(_name, Common.stringToBytes32(_description));
 
-        dao.call(bytes4(keccak256("setStateModule(address)")), modules[0]);
-        dao.call(bytes4(keccak256("setPaymentModule(address)")), modules[1]);
-        dao.call(bytes4(keccak256("setVotingDecisionModule(address)")), modules[2]);
-        dao.call(bytes4(keccak256("setCrowdsaleModule(address)")), modules[3]);
+        require(dao.call(bytes4(keccak256("setStateModule(address)")), modules[0]));
+        require(dao.call(bytes4(keccak256("setPaymentModule(address)")), modules[1]));
+        require(dao.call(bytes4(keccak256("setVotingDecisionModule(address)")), modules[2]));
+        require(dao.call(bytes4(keccak256("setCrowdsaleModule(address)")), modules[3]));
         DAODeployer.transferOwnership(dao, msg.sender);
 
         DAOs[dao] = _name;
