@@ -125,7 +125,7 @@ contract CrowdsaleDAOFields {
     address public commissionContract;
     string public name;
     uint public created_at = now; // UNIX time
-    string public description;
+    bytes32 public description;
     uint public minVote; // in percents
     mapping(address => bool) public votings;
     bool public refundable = false;
@@ -376,7 +376,7 @@ interface DAOFactoryInterface {
 }
 
 library DAODeployer {
-    function deployCrowdsaleDAO(string _name,  string _description) returns(CrowdsaleDAO dao) {
+    function deployCrowdsaleDAO(string _name,  bytes32 _description) returns(CrowdsaleDAO dao) {
         dao = new CrowdsaleDAO(_name, _description);
     }
 
@@ -729,7 +729,7 @@ contract VotingFields {
     uint public created_at = now;
     bool public finished = false;
     uint public quorum;
-    string public votingType;
+    bytes32 public votingType;
 }
 contract Voting is VotingFields {
 
@@ -833,7 +833,7 @@ contract Withdrawal is VotingFields {
     address public withdrawalWallet;
 
     function Withdrawal(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _sum, uint _quorum, address _withdrawalWallet){
-        require(_sum > 0 && sum * 1 ether <= _dao.balance);
+        require(_sum > 0 && _sum * 1 ether <= _dao.balance);
         baseVoting = _baseVoting;
         votingType = "Withdrawal";
         VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, _quorum);
