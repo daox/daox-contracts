@@ -37,8 +37,21 @@ contract VotingDecisions is CrowdsaleDAOFields {
     }
 
     function changeWhiteList(address _addr, bool res) onlyVoting external {
-        if(!res) delete whiteList[_addr];
-        whiteList[_addr] = true;
+        if (res) {
+            whiteList[_addr] = true;
+            whiteListArr.push(_addr);
+
+            return;
+        }
+
+        delete whiteList[_addr];
+
+        uint[] memory whiteListArrCopy = whiteListArr;
+        whiteListArr = new uint[](0);
+
+        for (uint i = 0; i < whiteListArrCopy.length; i++) {
+            if (whiteListArrCopy[i] != val) whiteListArr.push(list[i]);
+        }
     }
 
     modifier onlyVoting() {

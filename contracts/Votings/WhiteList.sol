@@ -18,24 +18,23 @@ contract WhiteList is VotingFields {
         VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, _quorum);
         addr = _addr;
         action = Action(_action);
+        createOptions();
     }
 
     function addVote(uint optionID) {
         VotingLib.delegatecallAddVote(baseVoting, optionID);
     }
 
-    function finish() constant returns (bool) {
+    function finish() {
         VotingLib.delegatecallFinish(baseVoting);
         bool res = (result.description == "yes");
-        if(!res) return false;
+        if(!res) return;
         if(action == Action.Flush) {
             dao.flushWhiteList();
-            return true;
+            return;
         }
         if(action == Action.Remove) res = !res;
         dao.changeWhiteList(addr, res);
-
-        return true;
     }
 
     function createOptions() private {

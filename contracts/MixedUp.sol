@@ -291,8 +291,9 @@ contract Payment is CrowdsaleDAOFields {
     function refund() whenRefundable {
         require(teamBonuses[msg.sender] == 0);
 
+        uint tokensAmount = token.balanceOf(msg.sender);
         token.burn(msg.sender);
-        msg.sender.transfer(DAOLib.countRefundSum(token, rate, newRate)*1 wei);
+        msg.sender.transfer(DAOLib.countRefundSum(tokensAmount, rate, newRate)*1 wei);
     }
 
     function refundSoftCap() whenRefundableSoftCap {
@@ -327,7 +328,7 @@ contract Payment is CrowdsaleDAOFields {
 contract VotingDecisions is CrowdsaleDAOFields {
 
     function withdrawal(address _address, uint withdrawalSum) onlyVoting external {
-        assert(!_address.call.value(withdrawalSum*1 ether)());
+        assert(_address.call.value(withdrawalSum * 1 ether)());
         lastWithdrawalTimestamp = block.timestamp;
     }
 
@@ -357,8 +358,21 @@ contract VotingDecisions is CrowdsaleDAOFields {
     }
 
     function changeWhiteList(address _addr, bool res) onlyVoting external {
-        if(!res) delete whiteList[_addr];
-        whiteList[_addr] = true;
+        if (res) {
+            whiteList[_addr] = true;
+            whiteListArr.push(_addr);
+
+            return;
+        }
+
+        delete whiteList[_addr];
+
+        uint[] memory list = whiteListArr;
+        whiteListArr = new uint[](0);
+
+        for (uint i = 0; i < list.length; i++) {
+            if (list[i] != val) whiteListArr.push(list[i]);
+        }
     }
 
     modifier onlyVoting() {
@@ -889,24 +903,23 @@ contract WhiteList is VotingFields {
         VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, _quorum);
         addr = _addr;
         action = Action(_action);
+        createOptions();
     }
 
     function addVote(uint optionID) {
         VotingLib.delegatecallAddVote(baseVoting, optionID);
     }
 
-    function finish() constant returns (bool) {
+    function finish() {
         VotingLib.delegatecallFinish(baseVoting);
         bool res = (result.description == "yes");
-        if(!res) return false;
+        if(!res) return;
         if(action == Action.Flush) {
             dao.flushWhiteList();
-            return true;
+            return;
         }
         if(action == Action.Remove) res = !res;
         dao.changeWhiteList(addr, res);
-
-        return true;
     }
 
     function createOptions() private {
