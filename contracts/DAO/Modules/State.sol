@@ -26,11 +26,6 @@ contract State is CrowdsaleDAOFields {
         State(commissionContract);
     }
 
-    function initHold(uint _tokenHoldTime) onlyOwner(msg.sender) crowdsaleNotStarted external {
-        require(_tokenHoldTime > 0);
-        tokenHoldTime = _tokenHoldTime;
-    }
-
     modifier canInit() {
         require(canInitStateParameters);
         _;

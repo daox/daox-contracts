@@ -138,9 +138,10 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         return token.balanceOf(_participantAddress) > 0;
     }
 
-    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) external {
-        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length && canInitBonuses && (block.timestamp < startTime || canInitCrowdsaleParameters));
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates, uint[] _teamHold) onlyOwner(msg.sender) external {
+        require(_team.length == tokenPercents.length && _team.length == _teamHold.length && _bonusPeriods.length == _bonusRates.length && canInitBonuses && (block.timestamp < startTime || canInitCrowdsaleParameters));
         team = _team;
+        teamHold = _teamHold;
         teamBonusesArr = tokenPercents;
         for(uint i = 0; i < _team.length; i++) {
             teamBonuses[_team[i]] = tokenPercents[i];
@@ -165,12 +166,6 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
     Modifiers
     */
-
-
-    modifier crowdsaleNotStarted() {
-        require(startTime == 0 || block.timestamp < startTime);
-        _;
-    }
 
     modifier canSetModule(address module) {
         require(votings[msg.sender] || (module == 0x0 && msg.sender == owner));

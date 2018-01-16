@@ -25,13 +25,13 @@ library DAOLib {
         return weiSpent*multiplier / newRateToOld;
     }
 
-    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint tokenHoldTime) {
+    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) {
         uint commission = (commissionRaised/100)*4;
         serviceContract.call.gas(200000).value(commission)();
         uint totalSupply = token.totalSupply() / 100;
         for(uint i = 0; i < team.length; i++) {
             token.mint(team[i], (totalSupply*teamBonuses[i]));
-            token.hold(team[i], tokenHoldTime);
+            token.hold(team[i], teamHold[i]);
         }
     }
 

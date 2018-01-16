@@ -34,20 +34,20 @@ library DAOLib {
         return tokensAmount;
     }
 
-    function countRefundSum(TokenInterface token, uint rate, uint newRate) constant returns (uint) {
+    function countRefundSum(uint tokenAmount, uint rate, uint newRate) constant returns (uint) {
         uint multiplier = 1000;
         uint newRateToOld = newRate*multiplier / rate;
-        uint weiSpent = token.balanceOf(msg.sender) / rate;
+        uint weiSpent = tokenAmount / rate;
         return weiSpent*multiplier / newRateToOld;
     }
 
-    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint tokenHoldTime) {
+    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) {
         uint commission = (commissionRaised/100)*4;
         serviceContract.call.gas(200000).value(commission)();
         uint totalSupply = token.totalSupply() / 100;
         for(uint i = 0; i < team.length; i++) {
             token.mint(team[i], (totalSupply*teamBonuses[i]));
-            token.hold(team[i], tokenHoldTime);
+            token.hold(team[i], teamHold[i]);
         }
     }
 
@@ -119,13 +119,13 @@ contract CrowdsaleDAOFields {
     address public serviceContract;
     uint[] public teamBonusesArr;
     address[] public team;
-    uint public tokenHoldTime = 0;
+    uint[] public teamHold;
     TokenInterface public token;
     VotingFactoryInterface public votingFactory;
     address public commissionContract;
     string public name;
     uint public created_at = now; // UNIX time
-    string public description;
+    bytes32 public description;
     uint public minVote; // in percents
     mapping(address => bool) public votings;
     bool public refundable = false;
@@ -191,11 +191,6 @@ contract State is CrowdsaleDAOFields {
         State(commissionContract);
     }
 
-    function initHold(uint _tokenHoldTime) onlyOwner(msg.sender) crowdsaleNotStarted external {
-        require(_tokenHoldTime > 0);
-        tokenHoldTime = _tokenHoldTime;
-    }
-
     modifier canInit() {
         require(canInitStateParameters);
         _;
@@ -234,7 +229,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 
         crowdsaleFinished = true;
 
-        if(weiRaised >= softCap) DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, tokenHoldTime);
+        if(weiRaised >= softCap) DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
         else {
             refundableSoftCap = true;
             newRate = rate;
@@ -590,9 +585,10 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         return token.balanceOf(_participantAddress) > 0;
     }
 
-    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates) onlyOwner(msg.sender) external {
-        require(_team.length == tokenPercents.length && _bonusPeriods.length == _bonusRates.length && canInitBonuses && (block.timestamp < startTime || canInitCrowdsaleParameters));
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates, uint[] _teamHold) onlyOwner(msg.sender) external {
+        require(_team.length == tokenPercents.length && _team.length == _teamHold.length && _bonusPeriods.length == _bonusRates.length && canInitBonuses && (block.timestamp < startTime || canInitCrowdsaleParameters));
         team = _team;
+        teamHold = _teamHold;
         teamBonusesArr = tokenPercents;
         for(uint i = 0; i < _team.length; i++) {
             teamBonuses[_team[i]] = tokenPercents[i];
@@ -617,13 +613,6 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
     Modifiers
     */
-
-
-    modifier crowdsaleNotStarted() {
-        require(startTime == 0 || block.timestamp < startTime);
-        _;
-    }
-
     modifier canSetModule(address module) {
         require(votings[msg.sender] || (module == 0x0 && msg.sender == owner));
         _;
