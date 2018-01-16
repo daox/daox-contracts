@@ -46,11 +46,11 @@ contract VotingDecisions is CrowdsaleDAOFields {
 
         delete whiteList[_addr];
 
-        uint[] memory whiteListArrCopy = whiteListArr;
-        whiteListArr = new uint[](0);
+        address[] memory whiteListArrCopy = whiteListArr;
+        whiteListArr = new address[](0);
 
         for (uint i = 0; i < whiteListArrCopy.length; i++) {
-            if (whiteListArrCopy[i] != val) whiteListArr.push(list[i]);
+            if (whiteListArrCopy[i] != _addr) whiteListArr.push(whiteListArrCopy[i]);
         }
     }
 
