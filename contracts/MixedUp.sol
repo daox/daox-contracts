@@ -355,6 +355,8 @@ contract VotingDecisions is CrowdsaleDAOFields {
         for(uint i = 0; i < whiteListArr.length; i++) {
             delete whiteList[whiteListArr[i]];
         }
+
+        whiteListArr = new address[](0);
     }
 
     function changeWhiteList(address _addr, bool res) onlyVoting external {

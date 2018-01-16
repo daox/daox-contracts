@@ -8,7 +8,7 @@ contract WhiteList is VotingFields {
     enum Action {Add, Remove, Flush}
 
     address baseVoting;
-    Action action;
+    Action public action;
     address addr = 0x0;
 
     function WhiteList(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _quorum, address _addr, uint _action){
