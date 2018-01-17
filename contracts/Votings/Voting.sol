@@ -26,7 +26,7 @@ contract Voting is VotingFields {
     function finish() external notFinished {
         require(block.timestamp - duration >= created_at);
         finished = true;
-        if (Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return;
+        if (keccak256(votingType) != keccak256(bytes32("Withdrawal")) && Common.percent(votesCount, dao.token().totalSupply(), 2) < quorum) return;
 
         if (keccak256(votingType) == keccak256(bytes32("Proposal"))) finishProposal();
         else finishNotProposal();
@@ -65,7 +65,7 @@ contract Voting is VotingFields {
     }
 
     modifier succeededCrowdsale(ICrowdsaleDAO dao) {
-        require(block.timestamp >= dao.endTime() && dao.weiRaised() >= dao.softCap());
+        require(dao.crowdsaleFinished() && dao.weiRaised() >= dao.softCap());
         _;
     }
 }
