@@ -20,8 +20,8 @@ contract VotingFactory is VotingFactoryInterface {
         return new Proposal(baseVoting, msg.sender, _description, _duration, _options);
     }
 
-    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, uint quorum, address withdrawalWallet) onlyParticipant(_creator) onlyDAO onlyWhiteList(withdrawalWallet) external returns (address) {
-        return new Withdrawal(baseVoting, msg.sender, _description, _duration, _sum, quorum, withdrawalWallet);
+    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, address withdrawalWallet) onlyParticipant(_creator) onlyDAO onlyWhiteList(withdrawalWallet) external returns (address) {
+        return new Withdrawal(baseVoting, msg.sender, _description, _duration, _sum, withdrawalWallet);
     }
 
     function createRefund(address _creator, bytes32 _description, uint _duration, uint quorum) onlyDAO onlyParticipant(_creator) external returns (address) {

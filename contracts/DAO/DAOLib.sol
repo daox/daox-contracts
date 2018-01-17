@@ -39,7 +39,6 @@ library DAOLib {
         require(_parentAddress.delegatecall(bytes4(keccak256("remove(address)")), _participantAddress));
     }
 
-    //ToDo: finish proposal creating functions
     function delegatedCreateProposal(address _votingFactory, bytes32 _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
         address _votingAddress = VotingFactoryInterface(_votingFactory).createProposal(msg.sender, _description, _duration, _options);
         VotingCreated(_votingAddress, "proposal", _dao, _description, _duration, msg.sender);
@@ -47,7 +46,7 @@ library DAOLib {
     }
 
     function delegatedCreateWithdrawal(address _votingFactory, bytes32 _description, uint _duration, uint _sum, address withdrawalWallet, address _dao) returns (address) {
-        address _votingAddress = VotingFactoryInterface(_votingFactory).createWithdrawal(msg.sender, _description, _duration, _sum, 51, withdrawalWallet);
+        address _votingAddress = VotingFactoryInterface(_votingFactory).createWithdrawal(msg.sender, _description, _duration, _sum, withdrawalWallet);
         VotingCreated(_votingAddress, "withdrawal", _dao, _description, _duration, msg.sender);
         return _votingAddress;
     }

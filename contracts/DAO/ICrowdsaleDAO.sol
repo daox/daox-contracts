@@ -23,4 +23,6 @@ contract ICrowdsaleDAO is IDAO {
     function teamBonuses(address _address) returns (uint);
 
     function token() returns (TokenInterface);
+
+    bool public crowdsaleFinished;
 }
