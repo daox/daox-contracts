@@ -46,7 +46,7 @@ contract Voting is VotingFields {
     }
 
     modifier canVote(uint optionID) {
-        require(dao.teamBonuses(msg.sender) == 0 && dao.isParticipant(msg.sender) && optionID < options.length && voted[msg.sender] > 0);
+        require(dao.teamBonuses(msg.sender) == 0 && dao.isParticipant(msg.sender) && optionID < options.length && voted[msg.sender] == 0);
         _;
     }
 
