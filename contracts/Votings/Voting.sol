@@ -17,7 +17,7 @@ contract Voting is VotingFields {
         require(block.timestamp - duration < created_at);
         uint tokensAmount = dao.token().balanceOf(msg.sender);
         options[optionID].votes += tokensAmount;
-        voted[msg.sender] = true;
+        voted[msg.sender] = optionID;
         votesCount += tokensAmount;
 
         dao.holdTokens(msg.sender, (duration + created_at) - now);
@@ -43,15 +43,6 @@ contract Voting is VotingFields {
     function finishNotProposal() private {
         if(options[0].votes > options[1].votes) result = options[0];
         else result = options[1];
-    }
-
-    function getProposalOptions() public constant returns(bytes32[]) {
-        bytes32[] memory optionDescriptions = new bytes32[](options.length);
-        for(uint i = 0; i < options.length; i++) {
-            optionDescriptions[i] = options[i].description;
-        }
-
-        return optionDescriptions;
     }
 
     modifier canVote(uint optionID) {

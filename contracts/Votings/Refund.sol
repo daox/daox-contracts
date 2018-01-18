@@ -24,7 +24,13 @@ contract Refund is VotingFields {
     }
 
     function createOptions() private {
-        options[0] = VotingLib.Option(0, "yes");
-        options[1] = VotingLib.Option(0, "no");
+        options[1] = VotingLib.Option(0, "yes");
+        options[2] = VotingLib.Option(0, "no");
+    }
+
+    function getOptions() external constant returns(uint[2] result) {
+        for (uint i = 1; i < 3; i++) {
+            result[i] = options[i].votes;
+        }
     }
 }

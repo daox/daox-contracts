@@ -6,8 +6,8 @@ import "../DAO/ICrowdsaleDAO.sol";
 contract VotingFields {
     ICrowdsaleDAO dao;
     bytes32 public description;
-    VotingLib.Option[10] public options;
-    mapping (address => bool) public voted;
+    VotingLib.Option[11] public options;
+    mapping (address => uint) public voted;
     VotingLib.Option public result;
     uint public votesCount;
     uint public duration; // UNIX
