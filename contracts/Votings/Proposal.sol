@@ -24,8 +24,8 @@ contract Proposal is VotingFields {
     }
 
     function createOptions(bytes32[] _options) private {
-        for (uint i = 1; i < _options.length; i++) {
-            options[i] = VotingLib.Option(0, _options[i]);
+        for (uint i = 0; i < _options.length; i++) {
+            options[i + 1] = VotingLib.Option(0, _options[i]);
         }
     }
 

@@ -8,7 +8,5 @@ interface VotingFactoryInterface {
 
     function createRefund(address _creator, bytes32 _description, uint _duration, uint quorum) external returns (address);
 
-    function createWhiteList(address _creator, bytes32 _description, uint _duration, uint quorum, address _addr, uint action) external returns (address);
-
     function setDaoFactory(address _dao) external;
 }

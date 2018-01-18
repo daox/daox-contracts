@@ -28,10 +28,6 @@ contract VotingFactory is VotingFactoryInterface {
         return new Refund(baseVoting, msg.sender, _description, _duration, quorum);
     }
 
-    function createWhiteList(address _creator, bytes32 _description, uint _duration, uint quorum, address _addr, uint action) onlyDAO onlyParticipant(_creator) external returns (address) {
-        return new WhiteList(baseVoting, msg.sender, _description, _duration, quorum, _addr, action);
-    }
-
     function setDaoFactory(address _dao) external {
         require(address(daoFactory) == 0x0 && _dao != 0x0);
         daoFactory = DAOFactoryInterface(_dao);

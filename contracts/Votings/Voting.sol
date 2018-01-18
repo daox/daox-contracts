@@ -13,7 +13,7 @@ contract Voting is VotingFields {
         quorum = _quorum;
     }
 
-    function addVote(uint optionID) external notFinished canVote(optionID) {
+    function addVote(uint optionID) external notFinished canVote(optionID) correctOption(optionID) {
         require(block.timestamp - duration < created_at);
         uint tokensAmount = dao.token().balanceOf(msg.sender);
         options[optionID].votes += tokensAmount;
@@ -33,20 +33,20 @@ contract Voting is VotingFields {
     }
 
     function finishProposal() private {
-        VotingLib.Option memory _result = options[0];
-        for(uint i = 0; i< options.length; i++) {
+        VotingLib.Option memory _result = options[1];
+        for (uint i = 1; i< options.length; i++) {
             if(_result.votes < options[i].votes) _result = options[i];
         }
         result = _result;
     }
 
     function finishNotProposal() private {
-        if(options[0].votes > options[1].votes) result = options[0];
-        else result = options[1];
+        if (options[1].votes > options[2].votes) result = options[1];
+        else result = options[2];
     }
 
     modifier canVote(uint optionID) {
-        require(dao.teamBonuses(msg.sender) == 0 && dao.isParticipant(msg.sender) && optionID < options.length && voted[msg.sender] == 0);
+        require(dao.teamBonuses(msg.sender) == 0 && dao.isParticipant(msg.sender) && voted[msg.sender] == 0);
         _;
     }
 
@@ -57,6 +57,11 @@ contract Voting is VotingFields {
 
     modifier succeededCrowdsale(ICrowdsaleDAO dao) {
         require(dao.crowdsaleFinished() && dao.weiRaised() >= dao.softCap());
+        _;
+    }
+
+    modifier correctOption(uint optionID) {
+        require(options[optionID].description != 0x0);
         _;
     }
 }
