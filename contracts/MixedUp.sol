@@ -55,26 +55,27 @@ library DAOLib {
         require(_parentAddress.delegatecall(bytes4(keccak256("remove(address)")), _participantAddress));
     }
 
-    function delegatedCreateProposal(address _votingFactory, bytes32 _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
-        address _votingAddress = VotingFactoryInterface(_votingFactory).createProposal(msg.sender, _description, _duration, _options);
+    //ToDo: finish proposal creating functions
+    function delegatedCreateProposal(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
+        address _votingAddress = _votingFactory.createProposal(msg.sender, _description, _duration, _options);
         VotingCreated(_votingAddress, "proposal", _dao, _description, _duration, msg.sender);
         return _votingAddress;
     }
 
-    function delegatedCreateWithdrawal(address _votingFactory, bytes32 _description, uint _duration, uint _sum, address withdrawalWallet, address _dao) returns (address) {
-        address _votingAddress = VotingFactoryInterface(_votingFactory).createWithdrawal(msg.sender, _description, _duration, _sum, withdrawalWallet);
+    function delegatedCreateWithdrawal(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, uint _sum, address withdrawalWallet, address _dao) returns (address) {
+        address _votingAddress = _votingFactory.createWithdrawal(msg.sender, _description, _duration, _sum, withdrawalWallet);
         VotingCreated(_votingAddress, "withdrawal", _dao, _description, _duration, msg.sender);
         return _votingAddress;
     }
 
-    function delegatedCreateRefund(address _votingFactory, bytes32 _description, uint _duration, address _dao) returns (address) {
-        address _votingAddress = VotingFactoryInterface(_votingFactory).createRefund(msg.sender, _description, _duration, 51);
+    function delegatedCreateRefund(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, address _dao) returns (address) {
+        address _votingAddress = _votingFactory.createRefund(msg.sender, _description, _duration, 51);
         VotingCreated(_votingAddress, "refund", _dao, _description, _duration, msg.sender);
         return _votingAddress;
     }
 
-    function delegatedCreateWhiteList(address _votingFactory, bytes32 _description, uint _duration, address _addr, uint action, address _dao) returns (address) {
-        address _votingAddress = VotingFactoryInterface(_votingFactory).createWhiteList(msg.sender, _description, _duration, 51, _addr, action);
+    function delegatedCreateWhiteList(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, address _addr, uint action, address _dao) returns (address) {
+        address _votingAddress = _votingFactory.createWhiteList(msg.sender, _description, _duration, 51, _addr, action);
         VotingCreated(_votingAddress, "whiteList", _dao, _description, _duration, msg.sender);
         return _votingAddress;
     }
@@ -670,8 +671,6 @@ contract Ownable {
     }
 }
 
-
-
 library VotingLib {
     enum VotingType {Proposal, Withdrawal, Refund, WhiteList}
 
@@ -692,6 +691,7 @@ library VotingLib {
         require(_v.delegatecall(bytes4(keccak256("finish()"))));
     }
 }
+
 contract IDAO {
     function isParticipant(address _participantAddress) external constant returns (bool);
 
@@ -701,6 +701,7 @@ contract IDAO {
     uint public weiRaised;
     uint public softCap;
 }
+
 contract ICrowdsaleDAO is IDAO {
     function addProposal(string _description, uint _duration, bytes32[] _options) external;
 
@@ -724,6 +725,7 @@ contract ICrowdsaleDAO is IDAO {
 
     bool public crowdsaleFinished;
 }
+
 contract VotingFields {
     ICrowdsaleDAO dao;
     bytes32 public description;
@@ -737,6 +739,7 @@ contract VotingFields {
     uint public quorum;
     bytes32 public votingType;
 }
+
 contract Voting is VotingFields {
 
     function create(address _dao, bytes32 _description, uint _duration, uint _quorum) succeededCrowdsale(ICrowdsaleDAO(_dao)) external {
@@ -750,7 +753,7 @@ contract Voting is VotingFields {
         require(block.timestamp - duration < created_at);
         uint tokensAmount = dao.token().balanceOf(msg.sender);
         options[optionID].votes += tokensAmount;
-        voted[msg.sender] = true;
+        voted[msg.sender] = optionID;
         votesCount += tokensAmount;
 
         dao.holdTokens(msg.sender, (duration + created_at) - now);
@@ -778,17 +781,8 @@ contract Voting is VotingFields {
         else result = options[1];
     }
 
-    function getProposalOptions() public constant returns(bytes32[]) {
-        bytes32[] memory optionDescriptions = new bytes32[](options.length);
-        for(uint i = 0; i < options.length; i++) {
-            optionDescriptions[i] = options[i].description;
-        }
-
-        return optionDescriptions;
-    }
-
     modifier canVote(uint optionID) {
-        require(dao.teamBonuses(msg.sender) == 0 && dao.isParticipant(msg.sender) && optionID < options.length && !voted[msg.sender]);
+        require(dao.teamBonuses(msg.sender) == 0 && dao.isParticipant(msg.sender) && optionID < options.length && voted[msg.sender] > 0);
         _;
     }
 
@@ -802,6 +796,7 @@ contract Voting is VotingFields {
         _;
     }
 }
+
 contract Proposal is VotingFields {
     address baseVoting;
 
@@ -822,17 +817,18 @@ contract Proposal is VotingFields {
     }
 
     function createOptions(bytes32[] _options) private {
-        for (uint i = 0; i < _options.length; i++) {
+        for (uint i = 1; i < _options.length; i++) {
             options[i] = VotingLib.Option(0, _options[i]);
         }
     }
 
     function getOptions() external constant returns(uint[] result) {
-        for (uint i = 0; i < 10; i++) {
+        for (uint i = 1; i < 11; i++) {
             result[i] = options[i].votes;
         }
     }
 }
+
 contract Withdrawal is VotingFields {
     address baseVoting;
     uint public withdrawalSum;
@@ -858,16 +854,17 @@ contract Withdrawal is VotingFields {
     }
 
     function createOptions() private {
-        options[0] = VotingLib.Option(0, "yes");
-        options[1] = VotingLib.Option(0, "no");
+        options[1] = VotingLib.Option(0, "yes");
+        options[2] = VotingLib.Option(0, "no");
     }
 
     function getOptions() external constant returns(uint[2] result) {
-        for (uint i = 0; i < 2; i++) {
+        for (uint i = 1; i < 3; i++) {
             result[i] = options[i].votes;
         }
     }
 }
+
 contract Refund is VotingFields {
     address baseVoting;
 
@@ -888,15 +885,22 @@ contract Refund is VotingFields {
     }
 
     function createOptions() private {
-        options[0] = VotingLib.Option(0, "yes");
-        options[1] = VotingLib.Option(0, "no");
+        options[1] = VotingLib.Option(0, "yes");
+        options[2] = VotingLib.Option(0, "no");
+    }
+
+    function getOptions() external constant returns(uint[2] result) {
+        for (uint i = 1; i < 3; i++) {
+            result[i] = options[i].votes;
+        }
     }
 }
+
 contract WhiteList is VotingFields {
     enum Action {Add, Remove, Flush}
 
     address baseVoting;
-    Action action;
+    Action public action;
     address addr = 0x0;
 
     function WhiteList(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _quorum, address _addr, uint _action){
@@ -926,12 +930,12 @@ contract WhiteList is VotingFields {
     }
 
     function createOptions() private {
-        options[0] = VotingLib.Option(0, "yes");
-        options[1] = VotingLib.Option(0, "no");
+        options[1] = VotingLib.Option(0, "yes");
+        options[2] = VotingLib.Option(0, "no");
     }
 
     function getOptions() external constant returns(uint[2] result) {
-        for (uint i = 0; i < 2; i++) {
+        for (uint i = 1; i < 3; i++) {
             result[i] = options[i].votes;
         }
     }
