@@ -21,8 +21,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         State module related functions
     */
-    function initState(uint _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) external {
-        DAOProxy.delegatedInitState(stateModule, _minVote, _tokenAddress, _votingFactory, _serviceContract);
+    function initState(address _tokenAddress, address _votingFactory, address _serviceContract) external {
+        DAOProxy.delegatedInitState(stateModule, _tokenAddress, _votingFactory, _serviceContract);
     }
 
     function initHold(uint _tokenHoldTime) external {
@@ -105,6 +105,10 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     function addRefund(string _description, uint _duration) {
         votings[DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this)] = true;
+    }
+
+    function addModule(string _description, uint _duration, uint _module, address _newAddress) {
+        votings[DAOLib.delegatedCreateModule(votingFactory, Common.stringToBytes32(_description), _duration, _module, _newAddress, this)] = true;
     }
 
     /*

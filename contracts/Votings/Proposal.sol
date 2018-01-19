@@ -11,7 +11,7 @@ contract Proposal is VotingFields {
         require(_options.length <= 10);
         baseVoting = _baseVoting;
         votingType = "Proposal";
-        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 50);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 0);
         createOptions(_options);
     }
 

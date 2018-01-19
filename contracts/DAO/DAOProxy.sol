@@ -1,8 +1,8 @@
 pragma solidity ^0.4.0;
 
 library DAOProxy {
-    function delegatedInitState(address stateModule, uint _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) {
-        require(stateModule.delegatecall(bytes4(keccak256("initState(uint256,address,address,address)")), _minVote, _tokenAddress, _votingFactory, _serviceContract));
+    function delegatedInitState(address stateModule, address _tokenAddress, address _votingFactory, address _serviceContract) {
+        require(stateModule.delegatecall(bytes4(keccak256("initState(address,address,address)")), _tokenAddress, _votingFactory, _serviceContract));
     }
 
     function delegatedHoldState(address stateModule, uint _tokenHoldTime) {
@@ -35,14 +35,6 @@ library DAOProxy {
 
     function delegatedHoldTokens(address votingDecisionModule, address _address, uint duration) {
         require(votingDecisionModule.delegatecall(bytes4(keccak256("holdTokens(address,uint256)")), _address, duration));
-    }
-
-    function delegatedFlushWhiteList(address votingDecisionModule) {
-        require(votingDecisionModule.delegatecall(bytes4(keccak256("flushWhiteList()"))));
-    }
-
-    function delegatedChangeWhiteList(address votingDecisionModule, address _addr, bool res) {
-        require(votingDecisionModule.delegatecall(bytes4(keccak256("changeWhiteList(address,bool)")), _addr, res));
     }
 
     function delegatedInitCrowdsaleParameters(address crowdsaleModule, uint _softCap, uint _hardCap, uint _rate, uint _startTime, uint _endTime) {
