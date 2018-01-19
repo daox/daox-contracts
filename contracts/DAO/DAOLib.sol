@@ -58,12 +58,6 @@ library DAOLib {
         return _votingAddress;
     }
 
-    function delegatedCreateWhiteList(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, address _addr, uint action, address _dao) returns (address) {
-        address _votingAddress = _votingFactory.createWhiteList(msg.sender, _description, _duration, 51, _addr, action);
-        VotingCreated(_votingAddress, "whiteList", _dao, _description, _duration, msg.sender);
-        return _votingAddress;
-    }
-
     function delegatedInitCrowdsaleParameters(address _p, uint softCap, uint hardCap, uint rate, uint startTime, uint endTime) {
         require(_p.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), softCap, hardCap, rate, startTime, endTime));
     }

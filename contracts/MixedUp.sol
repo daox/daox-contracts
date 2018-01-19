@@ -72,12 +72,6 @@ library DAOLib {
         return _votingAddress;
     }
 
-    function delegatedCreateWhiteList(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, address _addr, uint action, address _dao) returns (address) {
-        address _votingAddress = _votingFactory.createWhiteList(msg.sender, _description, _duration, 51, _addr, action);
-        VotingCreated(_votingAddress, "whiteList", _dao, _description, _duration, msg.sender);
-        return _votingAddress;
-    }
-
     function delegatedInitCrowdsaleParameters(address _p, uint softCap, uint hardCap, uint rate, uint startTime, uint endTime) {
         require(_p.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), softCap, hardCap, rate, startTime, endTime));
     }
@@ -349,32 +343,6 @@ contract VotingDecisions is CrowdsaleDAOFields {
         token.hold(_address, duration);
     }
 
-    function flushWhiteList() onlyVoting external {
-        for(uint i = 0; i < whiteListArr.length; i++) {
-            delete whiteList[whiteListArr[i]];
-        }
-
-        whiteListArr = new address[](0);
-    }
-
-    function changeWhiteList(address _addr, bool res) onlyVoting external {
-        if (res) {
-            whiteList[_addr] = true;
-            whiteListArr.push(_addr);
-
-            return;
-        }
-
-        delete whiteList[_addr];
-
-        address[] memory whiteListArrCopy = whiteListArr;
-        whiteListArr = new address[](0);
-
-        for (uint i = 0; i < whiteListArrCopy.length; i++) {
-            if (whiteListArrCopy[i] != _addr) whiteListArr.push(whiteListArrCopy[i]);
-        }
-    }
-
     modifier onlyVoting() {
         require(votings[msg.sender]);
         _;
@@ -429,14 +397,6 @@ library DAOProxy {
 
     function delegatedHoldTokens(address votingDecisionModule, address _address, uint duration) {
         require(votingDecisionModule.delegatecall(bytes4(keccak256("holdTokens(address,uint256)")), _address, duration));
-    }
-
-    function delegatedFlushWhiteList(address votingDecisionModule) {
-        require(votingDecisionModule.delegatecall(bytes4(keccak256("flushWhiteList()"))));
-    }
-
-    function delegatedChangeWhiteList(address votingDecisionModule, address _addr, bool res) {
-        require(votingDecisionModule.delegatecall(bytes4(keccak256("changeWhiteList(address,bool)")), _addr, res));
     }
 
     function delegatedInitCrowdsaleParameters(address crowdsaleModule, uint _softCap, uint _hardCap, uint _rate, uint _startTime, uint _endTime) {
@@ -512,14 +472,6 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Voting module related functions
     */
-    function flushWhiteList() external {
-        DAOProxy.delegatedFlushWhiteList(votingDecisionModule);
-    }
-
-    function changeWhiteList(address _addr, bool res) external {
-        DAOProxy.delegatedChangeWhiteList(votingDecisionModule, _addr, res);
-    }
-
     function withdrawal(address _address, uint withdrawalSum) external {
         DAOProxy.delegatedWithdrawal(votingDecisionModule,_address, withdrawalSum);
     }
@@ -566,10 +518,6 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     function addRefund(string _description, uint _duration) {
         votings[DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this)] = true;
-    }
-
-    function addWhiteList(string _description, uint _duration, address _addr, uint action) {
-        votings[DAOLib.delegatedCreateWhiteList(votingFactory, Common.stringToBytes32(_description), _duration, _addr, action, this)] = true;
     }
 
     /*
@@ -670,7 +618,7 @@ contract Ownable {
 }
 
 library VotingLib {
-    enum VotingType {Proposal, Withdrawal, Refund, WhiteList}
+    enum VotingType {Proposal, Withdrawal, Refund}
 
     struct Option {
         uint votes;
@@ -709,10 +657,6 @@ contract ICrowdsaleDAO is IDAO {
 
     function makeRefundableByVotingDecision();
 
-    function flushWhiteList() external;
-
-    function changeWhiteList(address _addr, bool res) external;
-
     function holdTokens(address _address, uint duration) external;
 
     function withdrawal(address _address, uint withdrawalSum);
@@ -737,6 +681,7 @@ contract VotingFields {
     uint public quorum;
     bytes32 public votingType;
 }
+
 interface VotingInterface {
     function voted(address _address) constant returns (uint);
 
@@ -890,51 +835,6 @@ contract Refund is VotingFields {
     function finish() {
         VotingLib.delegatecallFinish(baseVoting);
         if(result.description == "yes") dao.makeRefundableByVotingDecision();
-    }
-
-    function createOptions() private {
-        options[1] = VotingLib.Option(0, "yes");
-        options[2] = VotingLib.Option(0, "no");
-    }
-
-    function getOptions() external constant returns(uint[2] result) {
-        for (uint i = 1; i < 3; i++) {
-            result[i] = options[i].votes;
-        }
-    }
-}
-
-contract WhiteList is VotingFields {
-    enum Action {Add, Remove, Flush}
-
-    address baseVoting;
-    Action public action;
-    address addr = 0x0;
-
-    function WhiteList(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _quorum, address _addr, uint _action){
-        require(_addr != 0x0 || Action(_action) == Action.Flush);
-        baseVoting = _baseVoting;
-        votingType = "WhiteList";
-        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, _quorum);
-        addr = _addr;
-        action = Action(_action);
-        createOptions();
-    }
-
-    function addVote(uint optionID) {
-        VotingLib.delegatecallAddVote(baseVoting, optionID);
-    }
-
-    function finish() {
-        VotingLib.delegatecallFinish(baseVoting);
-        bool res = (result.description == "yes");
-        if(!res) return;
-        if(action == Action.Flush) {
-            dao.flushWhiteList();
-            return;
-        }
-        if(action == Action.Remove) res = !res;
-        dao.changeWhiteList(addr, res);
     }
 
     function createOptions() private {

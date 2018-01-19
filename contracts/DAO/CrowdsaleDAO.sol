@@ -107,10 +107,6 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         votings[DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this)] = true;
     }
 
-    function addWhiteList(string _description, uint _duration, address _addr, uint action) {
-        votings[DAOLib.delegatedCreateWhiteList(votingFactory, Common.stringToBytes32(_description), _duration, _addr, action, this)] = true;
-    }
-
     /*
         Setters for module addresses
     */

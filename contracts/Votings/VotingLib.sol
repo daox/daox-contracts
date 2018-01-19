@@ -2,7 +2,7 @@ pragma solidity ^0.4.11;
 
 
 library VotingLib {
-    enum VotingType {Proposal, Withdrawal, Refund, WhiteList}
+    enum VotingType {Proposal, Withdrawal, Refund}
 
     struct Option {
         uint votes;
