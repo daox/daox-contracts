@@ -4,7 +4,6 @@ import "./VotingFactoryInterface.sol";
 import "./Proposal.sol";
 import "./Withdrawal.sol";
 import "./Refund.sol";
-import "./WhiteList.sol";
 import "../DAO/DAOFactoryInterface.sol";
 import "../DAO/IDAO.sol";
 
