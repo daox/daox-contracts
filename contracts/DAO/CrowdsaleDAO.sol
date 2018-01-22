@@ -51,14 +51,6 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Voting module related functions
     */
-    function flushWhiteList() external {
-        DAOProxy.delegatedFlushWhiteList(votingDecisionModule);
-    }
-
-    function changeWhiteList(address _addr, bool res) external {
-        DAOProxy.delegatedChangeWhiteList(votingDecisionModule, _addr, res);
-    }
-
     function withdrawal(address _address, uint withdrawalSum) external {
         DAOProxy.delegatedWithdrawal(votingDecisionModule,_address, withdrawalSum);
     }
