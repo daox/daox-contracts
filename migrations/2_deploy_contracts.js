@@ -13,29 +13,38 @@ const Voting = artifacts.require("./DAO/Votings/Voting.sol");
 const DAODeployer = artifacts.require("./DAO/DAODeployer.sol");
 const DAOProxy = artifacts.require("./DAO/DAOProxy.sol");
 
-module.exports = (deployer) => {
-    const deployVotingFactory = () =>
-        deployer.deploy(Common)
-            .then(() => deployer.link(Common, Voting) && deployer.deploy(Voting) && deployer.deploy(VotingLib))
-            .then(() => deployer.link(VotingLib, VotingFactory) && deployer.deploy(VotingFactory, Voting.address));
+module.exports = async deployer => {
+    const deployVotingFactory = async _ => {
+        await deployer.deploy(Common);
+        deployer.link(Common, Voting);
+        await Promise.all([deployer.deploy(Voting), deployer.deploy(VotingLib)]);
+        deployer.link(VotingLib, VotingFactory);
+        await deployer.deploy(VotingFactory, Voting.address);
+    };
 
-    const deployDAOx = () =>
+    const deployDAOx = _ =>
         deployer.deploy(DAOx);
 
-    const deployModules = () =>
-        deployer.deploy(DAOLib)
-            .then(() => deployer.deploy(State))
-            .then(() => deployer.link(DAOLib, [Payment, Crowdsale]) && deployer.deploy(Payment))
-            .then(() => deployer.deploy(VotingDecisions))
-            .then(() => deployer.deploy(Crowdsale));
+    const deployModules = async _ => {
+        await deployer.deploy(DAOLib);
+        deployer.link(DAOLib, [Payment, Crowdsale]);
+        await Promise.all([
+            deployer.deploy(State),
+            deployer.deploy(Payment),
+            deployer.deploy(VotingDecisions),
+            deployer.deploy(Crowdsale)
+        ]);
+    };
 
-    const deployCrowdsaleDAOFactory = () =>
-        deployer.link(Common, [CrowdsaleDAOFactory, DAODeployer]) && deployer.deploy(DAOProxy)
-            .then(() => deployer.link(DAOLib, DAODeployer) && deployer.link(DAOProxy, DAODeployer) && deployer.deploy(DAODeployer))
-            .then(() => deployer.link(DAODeployer, CrowdsaleDAOFactory))
-            .then(() => deployer.deploy(CrowdsaleDAOFactory, DAOx.address, VotingFactory.address, [State.address, Payment.address, VotingDecisions.address, Crowdsale.address]));
+    const deployCrowdsaleDAOFactory = async _ => {
+        await deployer.deploy(DAOProxy);
+        deployer.link(Common, [CrowdsaleDAOFactory, DAODeployer]) && deployer.link(DAOLib, DAODeployer) && deployer.link(DAOProxy, DAODeployer);
+        await deployer.deploy(DAODeployer);
+        deployer.link(DAODeployer, CrowdsaleDAOFactory);
+        await deployer.deploy(CrowdsaleDAOFactory, DAOx.address, VotingFactory.address, [State.address, Payment.address, VotingDecisions.address, Crowdsale.address]);
+    };
 
-    return Promise.all([deployVotingFactory(), deployDAOx(), deployModules()])
-        .then(() => deployCrowdsaleDAOFactory())
+    await Promise.all([deployVotingFactory(), deployDAOx(), deployModules()]);
+    await deployCrowdsaleDAOFactory();
 };
 
