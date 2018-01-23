@@ -27,8 +27,9 @@ contract Crowdsale is CrowdsaleDAOFields {
 
         crowdsaleFinished = true;
 
-        if(weiRaised >= softCap) DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
-        else {
+        if(weiRaised >= softCap) {
+            teamTokensAmount = DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
+        } else {
             refundableSoftCap = true;
             newRate = rate;
         }

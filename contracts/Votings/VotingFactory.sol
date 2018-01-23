@@ -4,6 +4,7 @@ import "./VotingFactoryInterface.sol";
 import "./Proposal.sol";
 import "./Withdrawal.sol";
 import "./Refund.sol";
+import "./Module.sol";
 import "../DAO/DAOFactoryInterface.sol";
 import "../DAO/IDAO.sol";
 
@@ -23,8 +24,12 @@ contract VotingFactory is VotingFactoryInterface {
         return new Withdrawal(baseVoting, msg.sender, _description, _duration, _sum, withdrawalWallet);
     }
 
-    function createRefund(address _creator, bytes32 _description, uint _duration, uint quorum) onlyDAO onlyParticipant(_creator) external returns (address) {
-        return new Refund(baseVoting, msg.sender, _description, _duration, quorum);
+    function createRefund(address _creator, bytes32 _description, uint _duration) onlyDAO onlyParticipant(_creator) external returns (address) {
+        return new Refund(baseVoting, msg.sender, _description, _duration);
+    }
+
+    function createModule(address _creator, bytes32 _description, uint _duration, uint _module, address _newAddress) onlyDAO onlyParticipant(_creator) external returns (address) {
+        return new Module(baseVoting, msg.sender, _description, _duration, _module, _newAddress);
     }
 
     function setDaoFactory(address _dao) external {

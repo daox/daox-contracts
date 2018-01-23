@@ -31,7 +31,6 @@ contract CrowdsaleDAOFields {
     string public name;
     uint public created_at = now; // UNIX time
     bytes32 public description;
-    uint public minVote; // in percents
     mapping(address => bool) public votings;
     bool public refundable = false;
     uint internal lastWithdrawalTimestamp = 0;
@@ -41,4 +40,5 @@ contract CrowdsaleDAOFields {
     mapping(address => uint) public teamBonuses;
     uint[] public bonusPeriods;
     uint[] public bonusRates;
+    uint public teamTokensAmount;
 }

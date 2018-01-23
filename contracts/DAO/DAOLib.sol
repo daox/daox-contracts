@@ -25,14 +25,19 @@ library DAOLib {
         return weiSpent*multiplier / newRateToOld;
     }
 
-    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) {
+    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) returns(uint) {
         uint commission = (commissionRaised/100)*4;
         serviceContract.call.gas(200000).value(commission)();
         uint totalSupply = token.totalSupply() / 100;
+        uint teamTokensAmount = 0;
         for(uint i = 0; i < team.length; i++) {
-            token.mint(team[i], (totalSupply*teamBonuses[i]));
+            uint teamMemberTokensAmount = totalSupply*teamBonuses[i];
+            teamTokensAmount += teamMemberTokensAmount;
+            token.mint(team[i], teamMemberTokensAmount);
             token.hold(team[i], teamHold[i]);
         }
+
+        return teamTokensAmount;
     }
 
     function delegateRemove(address _parentAddress, address _participantAddress) {
@@ -42,19 +47,29 @@ library DAOLib {
     //ToDo: finish proposal creating functions
     function delegatedCreateProposal(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
         address _votingAddress = _votingFactory.createProposal(msg.sender, _description, _duration, _options);
-        VotingCreated(_votingAddress, "proposal", _dao, _description, _duration, msg.sender);
+        VotingCreated(_votingAddress, "Proposal", _dao, _description, _duration, msg.sender);
+
         return _votingAddress;
     }
 
     function delegatedCreateWithdrawal(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, uint _sum, address withdrawalWallet, address _dao) returns (address) {
         address _votingAddress = _votingFactory.createWithdrawal(msg.sender, _description, _duration, _sum, withdrawalWallet);
-        VotingCreated(_votingAddress, "withdrawal", _dao, _description, _duration, msg.sender);
+        VotingCreated(_votingAddress, "Withdrawal", _dao, _description, _duration, msg.sender);
+
         return _votingAddress;
     }
 
     function delegatedCreateRefund(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, address _dao) returns (address) {
-        address _votingAddress = _votingFactory.createRefund(msg.sender, _description, _duration, 51);
-        VotingCreated(_votingAddress, "refund", _dao, _description, _duration, msg.sender);
+        address _votingAddress = _votingFactory.createRefund(msg.sender, _description, _duration);
+        VotingCreated(_votingAddress, "Refund", _dao, _description, _duration, msg.sender);
+
+        return _votingAddress;
+    }
+
+    function delegatedCreateModule(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, uint _module, address _newAddress, address _dao) returns (address) {
+        address _votingAddress = _votingFactory.createModule(msg.sender, _description, _duration, _module, _newAddress);
+        VotingCreated(_votingAddress, "Module", _dao, _description, _duration, msg.sender);
+
         return _votingAddress;
     }
 

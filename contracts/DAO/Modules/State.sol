@@ -10,12 +10,11 @@ contract State is CrowdsaleDAOFields {
 
     event State(address _comission);
 
-    function initState(uint _minVote, address _tokenAddress, address _votingFactory, address _serviceContract) external onlyOwner(msg.sender) canInit {
+    function initState(address _tokenAddress, address _votingFactory, address _serviceContract) external onlyOwner(msg.sender) canInit {
         require(_tokenAddress != 0x0 && _votingFactory != 0x0 && _serviceContract != 0x0);
 
         token = TokenInterface(_tokenAddress);
         votingFactory = VotingFactoryInterface(_votingFactory);
-        minVote = _minVote;
         created_at = block.timestamp;
 
         serviceContract = _serviceContract;
