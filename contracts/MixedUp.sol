@@ -648,8 +648,6 @@ contract Ownable {
 }
 
 library VotingLib {
-    enum VotingType {Proposal, Withdrawal, Refund}
-
     struct Option {
         uint votes;
         bytes32 description;
