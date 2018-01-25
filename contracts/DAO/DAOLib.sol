@@ -6,7 +6,7 @@ import "../Votings/VotingFactoryInterface.sol";
 library DAOLib {
     event VotingCreated(address voting, string votingType, address dao, bytes32 description, uint duration, address sender);
 
-    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) returns(uint) {
+    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) constant returns(uint) {
         for(uint i = 0; i < bonusPeriods.length; i++) {
             if (now < bonusPeriods[i]) {
                 rate = bonusRates[i];
