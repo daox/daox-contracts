@@ -67,7 +67,7 @@ const rpcCall = (methodName, params, id) =>
         web3.currentProvider.sendAsync({
             jsonrpc: "2.0",
             method: methodName,
-            params : params,
+            params: params,
             id: id
         }, (err, result) => {
             if (err) return reject(err);
@@ -76,6 +76,14 @@ const rpcCall = (methodName, params, id) =>
         });
     });
 
+const fillZeros = (phrase) => {
+    const totalLength = 66;
+    const lengthDifference = totalLength - phrase.length;
+    const zeroArray = new Array(lengthDifference).fill(0);
+
+    return phrase.concat(zeroArray.join(""));
+};
 
 module.exports.getLatestBlockTimestamp = getLatestBlockTimestamp;
 module.exports.rpcCall = rpcCall;
+module.exports.fillZeros = fillZeros;

@@ -1,5 +1,5 @@
 const DAOLib = artifacts.require("./DAO/DAOLib.sol");
-const [getLatestBlockTimestamp, rpcCall] = [require("./helpers/helper").getLatestBlockTimestamp, require("./helpers/helper").rpcCall];
+const [getLatestBlockTimestamp, rpcCall] = [require("../helpers/helper").getLatestBlockTimestamp, require("../helpers/helper").rpcCall];
 
 contract("DAOLib", accounts => {
     let instance = null;
