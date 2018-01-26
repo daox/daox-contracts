@@ -22,7 +22,7 @@ interface VotingFactoryInterface {
 library DAOLib {
     event VotingCreated(address voting, string votingType, address dao, bytes32 description, uint duration, address sender);
 
-    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) returns(uint) {
+    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) constant returns(uint) {
         for(uint i = 0; i < bonusPeriods.length; i++) {
             if (now < bonusPeriods[i]) {
                 rate = bonusRates[i];
@@ -34,10 +34,10 @@ library DAOLib {
         return tokensAmount;
     }
 
-    function countRefundSum(uint tokenAmount, uint rate, uint newRate) constant returns (uint) {
+    function countRefundSum(uint rate, uint newRate, uint weiSpent) constant returns (uint) {
         uint multiplier = 1000;
         uint newRateToOld = newRate*multiplier / rate;
-        uint weiSpent = tokenAmount / rate;
+
         return weiSpent*multiplier / newRateToOld;
     }
 
@@ -60,7 +60,6 @@ library DAOLib {
         require(_parentAddress.delegatecall(bytes4(keccak256("remove(address)")), _participantAddress));
     }
 
-    //ToDo: finish proposal creating functions
     function delegatedCreateProposal(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
         address _votingAddress = _votingFactory.createProposal(msg.sender, _description, _duration, _options);
         VotingCreated(_votingAddress, "Proposal", _dao, _description, _duration, msg.sender);
@@ -236,12 +235,12 @@ contract Crowdsale is CrowdsaleDAOFields {
         require(block.timestamp >= endTime && !crowdsaleFinished);
 
         crowdsaleFinished = true;
+        newRate = rate;
 
         if(weiRaised >= softCap) {
             teamTokensAmount = DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
         } else {
             refundableSoftCap = true;
-            newRate = rate;
         }
 
         token.finishMinting();
@@ -300,17 +299,17 @@ contract Payment is CrowdsaleDAOFields {
     function refund() whenRefundable {
         require(teamBonuses[msg.sender] == 0);
 
-        uint tokensAmount = token.balanceOf(msg.sender);
         token.burn(msg.sender);
-        msg.sender.transfer(DAOLib.countRefundSum(tokensAmount, rate, newRate)*1 wei);
+        msg.sender.transfer(DAOLib.countRefundSum(rate, newRate, depositedWei[msg.sender] + depositedWithCommission[msg.sender])*1 wei);
     }
 
     function refundSoftCap() whenRefundableSoftCap {
-        require(depositedWei[msg.sender] != 0);
+        require(depositedWei[msg.sender] != 0 || depositedWithCommission[msg.sender] != 0);
 
         token.burn(msg.sender);
-        uint weiAmount = depositedWei[msg.sender];
+        uint weiAmount = depositedWei[msg.sender] + depositedWithCommission[msg.sender];
         delete depositedWei[msg.sender];
+        delete depositedWithCommission[msg.sender];
         msg.sender.transfer(weiAmount);
     }
 

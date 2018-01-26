@@ -18,11 +18,11 @@ library DAOLib {
         return tokensAmount;
     }
 
-    function countRefundSum(uint tokenAmount, uint rate, uint newRate) constant returns (uint) {
+    function countRefundSum(uint rate, uint newRate, uint weiSpent) constant returns (uint) {
         uint multiplier = 1000;
-        uint newRateToOld = newRate*multiplier / rate;
-        uint weiSpent = tokenAmount / rate;
-        return weiSpent*multiplier / newRateToOld;
+        uint newRateToOld = newRate * multiplier / rate;
+
+        return newRateToOld * weiSpent / multiplier;
     }
 
     function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) returns(uint) {
@@ -44,7 +44,6 @@ library DAOLib {
         require(_parentAddress.delegatecall(bytes4(keccak256("remove(address)")), _participantAddress));
     }
 
-    //ToDo: finish proposal creating functions
     function delegatedCreateProposal(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
         address _votingAddress = _votingFactory.createProposal(msg.sender, _description, _duration, _options);
         VotingCreated(_votingAddress, "Proposal", _dao, _description, _duration, msg.sender);
