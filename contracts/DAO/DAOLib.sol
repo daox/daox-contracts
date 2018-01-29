@@ -22,7 +22,7 @@ library DAOLib {
         uint multiplier = 1000;
         uint newRateToOld = newRate * multiplier / rate;
 
-        return newRateToOld * weiSpent / multiplier;
+        return (newRateToOld * weiSpent) / multiplier;
     }
 
     function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) returns(uint) {
