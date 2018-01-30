@@ -1,5 +1,4 @@
 const Common = artifacts.require("./Common.sol");
-const Token = artifacts.require("./Token/Token.sol");
 const VotingFactory = artifacts.require("./Votings/VotingFactory.sol");
 const VotingLib = artifacts.require("./Votings/VotingLib.sol");
 const DAOx = artifacts.require("./DAOx.sol");
@@ -30,12 +29,23 @@ module.exports = (deployer) => {
             .then(() => deployer.deploy(Crowdsale));
 
     const deployCrowdsaleDAOFactory = () =>
-        deployer.link(Common, [CrowdsaleDAOFactory, DAODeployer]) && deployer.deploy(DAOProxy)
-            .then(() => deployer.link(DAOLib, DAODeployer) && deployer.link(DAOProxy, DAODeployer) && deployer.deploy(DAODeployer))
+        deployer.deploy(DAOProxy)
+            .then(() =>
+                deployer.link(Common, [CrowdsaleDAOFactory, DAODeployer]) &&
+                deployer.link(DAOLib, DAODeployer) &&
+                deployer.link(DAOProxy, DAODeployer) &&
+                deployer.deploy(DAODeployer)
+            )
             .then(() => deployer.link(DAODeployer, CrowdsaleDAOFactory))
-            .then(() => deployer.deploy(CrowdsaleDAOFactory, DAOx.address, VotingFactory.address, [State.address, Payment.address, VotingDecisions.address, Crowdsale.address]));
+            .then(() => deployer.deploy(CrowdsaleDAOFactory, DAOx.address, VotingFactory.address, [State.address, Payment.address, VotingDecisions.address, Crowdsale.address]))
+            .catch(console.error);
 
-    return Promise.all([deployVotingFactory(), deployDAOx(), deployModules()])
-        .then(() => deployCrowdsaleDAOFactory())
+    /*
+    Version with `Promise.all()` doesn't work properly
+    */
+    deployVotingFactory()
+        .then(() => deployDAOx())
+        .then(() => deployModules())
+        .then(() => deployCrowdsaleDAOFactory());
 };
 
