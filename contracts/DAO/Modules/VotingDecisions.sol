@@ -30,32 +30,6 @@ contract VotingDecisions is CrowdsaleDAOFields {
         token.hold(_address, duration);
     }
 
-    function flushWhiteList() onlyVoting external {
-        for(uint i = 0; i < whiteListArr.length; i++) {
-            delete whiteList[whiteListArr[i]];
-        }
-
-        whiteListArr = new address[](0);
-    }
-
-    function changeWhiteList(address _addr, bool res) onlyVoting external {
-        if (res) {
-            whiteList[_addr] = true;
-            whiteListArr.push(_addr);
-
-            return;
-        }
-
-        delete whiteList[_addr];
-
-        address[] memory whiteListArrCopy = whiteListArr;
-        whiteListArr = new address[](0);
-
-        for (uint i = 0; i < whiteListArrCopy.length; i++) {
-            if (whiteListArrCopy[i] != _addr) whiteListArr.push(whiteListArrCopy[i]);
-        }
-    }
-
     modifier onlyVoting() {
         require(votings[msg.sender]);
         _;
