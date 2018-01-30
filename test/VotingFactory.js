@@ -5,7 +5,7 @@ let cdf;
 contract("VotingFactory", accounts => {
     const serviceAccount = accounts[0];
     const unknownUser = accounts[1];
-    beforeEach(() => helper.createCrowdasaleDAOFactory(accounts).then(_cdf => cdf = _cdf));
+    beforeEach(() => helper.createCrowdsaleDAOFactory(accounts).then(_cdf => cdf = _cdf));
 
     it("DaoFactory address can't be empty", () =>
         cdf.votingFactory.setDaoFactory("0x0", serviceAccount, {from: unknownUser}).catch(e => assert.isDefined(e)));

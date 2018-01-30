@@ -1,7 +1,5 @@
 "use strict";
 const helper = require('./helpers/helper.js');
-const Web3 = require("web3");
-const web3 = new Web3();
 
 contract("CrowdsaleDAOFactory", accounts => {
     const [daoName, daoDescription, daoMinVote, DAOOwner, softCap, hardCap, rate, startBlock, endBlock] = ["Test", "Test DAO", 51, accounts[2], 100, 1000, 100, 100, 100000];
@@ -15,7 +13,7 @@ contract("CrowdsaleDAOFactory", accounts => {
             .then(doesExist => assert.equal(false, doesExist, "Unknown DAO exists in User contract")));
 
     it("Should create DAO", () =>
-        helper.createCrowdsaleDAO(cdf, accounts).then(createCrowdasaleDAOcdf => cdf.exists.call(cdf.dao._address))
+        helper.createCrowdsaleDAO(cdf, accounts).then(cdf => cdf.exists.call(cdf.dao._address))
             .then(doesExist => assert.equal(true, doesExist, "Created crowdsale DAO should exist")));
 
 });
