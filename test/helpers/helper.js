@@ -1,4 +1,5 @@
 const CrowdsaleDAOFactory = artifacts.require("./DAO/CrowdsaleDAOFactory.sol");
+const CrowdsaleDAO = artifacts.require("./DAO/CrowdsaleDAO.sol");
 const Users = artifacts.require("./Users/Users.sol");
 const DAOx = artifacts.require("./DAOx.sol");
 const Common = artifacts.require("./Common.sol");
@@ -29,17 +30,16 @@ module.exports = {
         );
     },
 
-    createCrowdsaleDAO: (cdf, accounts, data = null) => {
-        const [daoName, daoDescription, daoMinVote, DAOOwner, softCap, hardCap, rate, startBlock, endBlock] = data || ["Test", "Test DAO", 51, accounts[2], 100, 1000, 100, 100, 100000];
+    createCrowdsaleDAO: async (cdf, accounts, data = null) => {
+        const [daoName, daoDescription] = data || ["Test", "Test DAO"];
 
-        return cdf.createCrowdsaleDAO(daoName, daoDescription)
-            .then(tx => {
-                const result = web3.eth.abi.decodeParameters(["address", "string"], tx.receipt.logs[0].data);
-                cdf.dao = new web3.eth.Contract(DAOJson.abi, result[0]);
+        const tx = await cdf.createCrowdsaleDAO(daoName, daoDescription);
+        const logs = web3.eth.abi.decodeParameters(["address", "string"], tx.receipt.logs[0].data);
 
-                return cdf;
-            });
-    }
+        return CrowdsaleDAO.at(logs[0]);
+    },
+
+    createToken: async (tokenName, tokenSymbol) => await Token.new(tokenName, tokenSymbol)
 };
 
 const getLatestBlockTimestamp = web3 =>
