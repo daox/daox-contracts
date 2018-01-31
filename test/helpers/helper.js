@@ -19,7 +19,7 @@ const Web3 = require("web3");
 const web3 = new Web3();
 
 module.exports = {
-    createCrowdsaleDAOFactory: async (accounts, data = null) => {
+    createCrowdsaleDAOFactory: async (accounts) => {
         const _DAOx = await DAOx.new();
         const _VotingFactory = await VotingFactory.new(Voting.address);
 
@@ -42,9 +42,9 @@ module.exports = {
     createToken: async (tokenName, tokenSymbol) => await Token.new(tokenName, tokenSymbol)
 };
 
-const getLatestBlockTimestamp = web3 =>
+const getLatestBlock = web3 =>
     new Promise((resolve, reject) =>
-        web3.eth.getBlock("latest", block => resolve(block)));
+        web3.eth.getBlock("latest", (err, block) => err ? reject(err) : resolve(block)));
 
 const rpcCall = (web3, methodName, params, id) =>
     new Promise((resolve, reject) => {
@@ -68,6 +68,19 @@ const fillZeros = (phrase) => {
     return phrase.concat(zeroArray.join(""));
 };
 
-module.exports.getLatestBlockTimestamp = getLatestBlockTimestamp;
+const handleErrorTransaction = async (transaction) => {
+    let error;
+
+    try {
+        await transaction();
+    } catch (e) {
+        error = e;
+    } finally {
+        assert.isDefined(error, "Revert was not thrown out");
+    }
+}
+
+module.exports.getLatestBlock = getLatestBlock;
 module.exports.rpcCall = rpcCall;
 module.exports.fillZeros = fillZeros;
+module.exports.handleErrorTransaction = handleErrorTransaction;
