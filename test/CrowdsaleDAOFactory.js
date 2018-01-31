@@ -8,16 +8,12 @@ contract("CrowdsaleDAOFactory", accounts => {
     let cdf;
     beforeEach(() => helper.createCrowdsaleDAOFactory(accounts).then(_cdf => cdf = _cdf));
 
-    it("Test", async () => {
-        console.log(cdf);
-    });
+    it("Unknown dao should not be in Factory", () =>
+        cdf.exists.call(accounts[0])
+            .then(doesExist => assert.equal(false, doesExist, "Unknown DAO exists in User contract")));
 
-    // it("Unknown dao should not be in Factory", () =>
-    //     cdf.exists.call(accounts[0])
-    //         .then(doesExist => assert.equal(false, doesExist, "Unknown DAO exists in User contract")));
-
-    // it("Should create DAO", () =>
-    //     helper.createCrowdsaleDAO(cdf, accounts).then(createCrowdasaleDAOcdf => cdf.exists.call(cdf.dao._address))
-    //         .then(doesExist => assert.equal(true, doesExist, "Created crowdsale DAO should exist")));
+    it("Should create DAO", () =>
+        helper.createCrowdsaleDAO(cdf, accounts).then(cdf => cdf.exists.call(cdf.dao._address))
+            .then(doesExist => assert.equal(true, doesExist, "Created crowdsale DAO should exist")));
 
 });
