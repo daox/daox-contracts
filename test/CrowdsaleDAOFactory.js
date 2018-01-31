@@ -4,6 +4,7 @@ const helper = require('./helpers/helper.js');
 contract("CrowdsaleDAOFactory", accounts => {
     const [daoName, daoDescription, daoMinVote, DAOOwner, softCap, hardCap, rate, startBlock, endBlock] = ["Test", "Test DAO", 51, accounts[2], 100, 1000, 100, 100, 100000];
     const serviceAccount = accounts[0];
+    const uknownAccount = accounts[1];
 
     let cdf;
     beforeEach(async () => cdf = await helper.createCrowdsaleDAOFactory(accounts));
@@ -24,18 +25,54 @@ contract("CrowdsaleDAOFactory", accounts => {
         assert.equal(helper.fillZeros(web3.toHex(daoDescription)), await dao.description.call(), "DAO's description doesn't correspond to the expected");
     });
 
-    it("Should set correct parameters in initState", async () => {
+    it("Should set correct parameters in initState from service account", async () => {
         const [daoName, daoDescription] = ["DAO NAME", "THIS IS A DESCRIPTION"];
         const dao = await helper.createCrowdsaleDAO(cdf, accounts, [daoName, daoDescription]);
-        const [daoxAddress, votingFactoryAddress, token] = await Promise.all([cdf.serviceContractAddress.call(), cdf.votingFactoryContractAddress.call(), helper.createToken("ANTOKEN", "ANT")]);
+        const [daoxAddress, votingFactoryAddress, token] = await Promise.all([
+            cdf.serviceContractAddress.call(),
+            cdf.votingFactoryContractAddress.call(),
+            helper.createToken("TOKEN", "TTK")]
+        );
 
-        const tx = await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {
-            from : serviceAccount
+        await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {
+            from: serviceAccount
         });
 
         assert.equal(daoxAddress, await dao.serviceContract.call());
         assert.equal(votingFactoryAddress, await dao.votingFactory.call());
         assert.equal(token.address, await dao.token.call());
-    })
+    });
+
+    it("Should not set parameters in initState from unknown account", async () => {
+        const [daoName, daoDescription] = ["DAO NAME", "THIS IS A DESCRIPTION"];
+        const dao = await helper.createCrowdsaleDAO(cdf, accounts, [daoName, daoDescription]);
+        const [daoxAddress, votingFactoryAddress, token] = await Promise.all([cdf.serviceContractAddress.call(), cdf.votingFactoryContractAddress.call(), helper.createToken("ANTOKEN", "ANT")]);
+
+        try {
+            await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {
+                from: uknownAccount
+            });
+        } catch (e) {
+            assert.isDefined(e, "Revert was not thrown out");
+        }
+    });
+
+    it("Should not set parameters in initState twice", async () => {
+        const [daoName, daoDescription] = ["DAO NAME", "THIS IS A DESCRIPTION"];
+        const dao = await helper.createCrowdsaleDAO(cdf, accounts, [daoName, daoDescription]);
+        const [daoxAddress, votingFactoryAddress, token] = await Promise.all([cdf.serviceContractAddress.call(), cdf.votingFactoryContractAddress.call(), helper.createToken("ANTOKEN", "ANT")]);
+
+        await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {
+            from: serviceAccount
+        });
+
+        try {
+            await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {
+                from: serviceAccount
+            });
+        } catch (e) {
+            assert.isDefined(e, "Revert was not thrown out");
+        }
+    });
 
 });
