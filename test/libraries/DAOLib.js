@@ -27,18 +27,18 @@ contract("DAOLib", accounts => {
 
         const tokensAmountWithBonus1 = await instance.countTokens(web3.toWei(etherAmount, "ether"),
             [startTime + timeShift, startTime + 2 * timeShift, startTime + 3 * timeShift], bonusRates, rate);
-        await rpcCall("evm_increaseTime", [timeShift], callID++);
-        await rpcCall("evm_mine", null, callID++);
+        await rpcCall(web3, "evm_increaseTime", [timeShift], callID++);
+        await rpcCall(web3, "evm_mine", null, callID++);
 
         const tokensAmountWithBonus2 = await instance.countTokens(web3.toWei(etherAmount, "ether"),
             [startTime + timeShift, startTime + 2 * timeShift, startTime + 3 * timeShift], bonusRates, rate);
-        await rpcCall("evm_increaseTime", [timeShift], callID++);
-        await rpcCall("evm_mine", null, callID++);
+        await rpcCall(web3, "evm_increaseTime", [timeShift], callID++);
+        await rpcCall(web3, "evm_mine", null, callID++);
 
         const tokensAmountWithBonus3 = await instance.countTokens(web3.toWei(etherAmount, "ether"),
             [startTime + timeShift, startTime + 2 * timeShift, startTime + 3 * timeShift], bonusRates, rate);
-        await rpcCall("evm_increaseTime", [timeShift], callID++);
-        await rpcCall("evm_mine", null, callID++);
+        await rpcCall(web3, "evm_increaseTime", [timeShift], callID++);
+        await rpcCall(web3, "evm_mine", null, callID++);
 
         const tokensAmountWithoutBonus = await instance.countTokens(web3.toWei(etherAmount, "ether"),
             [startTime + timeShift, startTime + 2 * timeShift, startTime + 3 * timeShift], bonusRates, rate);

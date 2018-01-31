@@ -46,7 +46,7 @@ const getLatestBlockTimestamp = web3 =>
     new Promise((resolve, reject) =>
         web3.eth.getBlock("latest", block => resolve(block)));
 
-const rpcCall = (methodName, params, id) =>
+const rpcCall = (web3, methodName, params, id) =>
     new Promise((resolve, reject) => {
         web3.currentProvider.sendAsync({
             jsonrpc: "2.0",
