@@ -18,7 +18,7 @@ const DAOJson = require("../../build/contracts/CrowdsaleDAO");
 const Web3 = require("web3");
 const web3 = new Web3();
 
-const createCrowdsaleDAOFactory = async (accounts) => {
+const createCrowdsaleDAOFactory = async () => {
     const _DAOx = await DAOx.new();
     const _VotingFactory = await VotingFactory.new(Voting.address);
 
@@ -94,6 +94,17 @@ const getParametersForInitState = (cdf, tokenName, tokenSymbol) =>
         createToken(tokenName, tokenSymbol)
     ]);
 
+const initState = async (cdf, dao, account, tokenName = 'ANTOKEN', tokenSymbol = 'ANT') => {
+    const [daoxAddress, votingFactoryAddress, token] = await Promise.all([
+        cdf.serviceContractAddress.call(),
+        cdf.votingFactoryContractAddress.call(),
+        createToken(tokenName, tokenSymbol)
+    ]);
+
+    await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {from: account});
+    await token.transferOwnership.sendTransaction(dao.address, {from : account})
+};
+
 module.exports.getLatestBlock = getLatestBlock;
 module.exports.rpcCall = rpcCall;
 module.exports.fillZeros = fillZeros;
@@ -103,3 +114,4 @@ module.exports.createCrowdsaleDAO = createCrowdsaleDAO;
 module.exports.createToken = createToken;
 module.exports.getParametersForInitState = getParametersForInitState;
 module.exports.initCrowdsaleParameters = initCrowdsaleParameters;
+module.exports.initState = initState;
