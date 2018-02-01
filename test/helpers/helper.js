@@ -18,29 +18,36 @@ const DAOJson = require("../../build/contracts/CrowdsaleDAO");
 const Web3 = require("web3");
 const web3 = new Web3();
 
-module.exports = {
-    createCrowdsaleDAOFactory: async (accounts) => {
-        const _DAOx = await DAOx.new();
-        const _VotingFactory = await VotingFactory.new(Voting.address);
+const createCrowdsaleDAOFactory = async () => {
+    const _DAOx = await DAOx.new();
+    const _VotingFactory = await VotingFactory.new(Voting.address);
 
-        return await CrowdsaleDAOFactory.new(
-            _DAOx.address,
-            _VotingFactory.address,
-            [State.address, Payment.address, VotingDecisions.address, Crowdsale.address]
-        );
-    },
-
-    createCrowdsaleDAO: async (cdf, accounts, data = null) => {
-        const [daoName, daoDescription] = data || ["Test", "Test DAO"];
-
-        const tx = await cdf.createCrowdsaleDAO(daoName, daoDescription);
-        const logs = web3.eth.abi.decodeParameters(["address", "string"], tx.receipt.logs[0].data);
-
-        return CrowdsaleDAO.at(logs[0]);
-    },
-
-    createToken: async (tokenName, tokenSymbol) => await Token.new(tokenName, tokenSymbol)
+    return await CrowdsaleDAOFactory.new(
+        _DAOx.address,
+        _VotingFactory.address,
+        [State.address, Payment.address, VotingDecisions.address, Crowdsale.address]
+    );
 };
+
+const createCrowdsaleDAO = async (cdf, accounts, data = null) => {
+    const [daoName, daoDescription] = data || ["Test", "Test DAO"];
+
+    const tx = await cdf.createCrowdsaleDAO(daoName, daoDescription);
+    const logs = web3.eth.abi.decodeParameters(["address", "string"], tx.receipt.logs[0].data);
+
+    return CrowdsaleDAO.at(logs[0]);
+};
+
+const initCrowdsaleParameters = async (dao, account, _web3, data = null) => {
+    const latestBlock = await getLatestBlock(_web3);
+    const [softCap, hardCap, rate, startTime, endTime] = data || [100, 200, 1000, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
+
+    await dao.initCrowdsaleParameters.sendTransaction(softCap, hardCap, rate, startTime, endTime, {
+        from: account
+    });
+};
+
+const createToken = (tokenName, tokenSymbol) => Token.new(tokenName, tokenSymbol);
 
 const getLatestBlock = web3 =>
     new Promise((resolve, reject) =>
@@ -78,9 +85,33 @@ const handleErrorTransaction = async (transaction) => {
     } finally {
         assert.isDefined(error, "Revert was not thrown out");
     }
-}
+};
+
+const getParametersForInitState = (cdf, tokenName, tokenSymbol) =>
+    Promise.all([
+        cdf.serviceContractAddress.call(),
+        cdf.votingFactoryContractAddress.call(),
+        createToken(tokenName, tokenSymbol)
+    ]);
+
+const initState = async (cdf, dao, account, tokenName = 'ANTOKEN', tokenSymbol = 'ANT') => {
+    const [daoxAddress, votingFactoryAddress, token] = await Promise.all([
+        cdf.serviceContractAddress.call(),
+        cdf.votingFactoryContractAddress.call(),
+        createToken(tokenName, tokenSymbol)
+    ]);
+
+    await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {from: account});
+    await token.transferOwnership.sendTransaction(dao.address, {from : account})
+};
 
 module.exports.getLatestBlock = getLatestBlock;
 module.exports.rpcCall = rpcCall;
 module.exports.fillZeros = fillZeros;
 module.exports.handleErrorTransaction = handleErrorTransaction;
+module.exports.createCrowdsaleDAOFactory = createCrowdsaleDAOFactory;
+module.exports.createCrowdsaleDAO = createCrowdsaleDAO;
+module.exports.createToken = createToken;
+module.exports.getParametersForInitState = getParametersForInitState;
+module.exports.initCrowdsaleParameters = initCrowdsaleParameters;
+module.exports.initState = initState;
