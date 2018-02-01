@@ -19,7 +19,7 @@ const Web3 = require("web3");
 const web3 = new Web3();
 
 module.exports = {
-    createCrowdsaleDAOFactory: async (accounts) => {
+    createCrowdsaleDAOFactory: async () => {
         const _DAOx = await DAOx.new();
         const _VotingFactory = await VotingFactory.new(Voting.address);
 
@@ -30,7 +30,7 @@ module.exports = {
         );
     },
 
-    createCrowdsaleDAO: async (cdf, accounts, data = null) => {
+    createCrowdsaleDAO: async (cdf, data = null) => {
         const [daoName, daoDescription] = data || ["Test", "Test DAO"];
 
         const tx = await cdf.createCrowdsaleDAO(daoName, daoDescription);
@@ -39,7 +39,16 @@ module.exports = {
         return CrowdsaleDAO.at(logs[0]);
     },
 
-    createToken: async (tokenName, tokenSymbol) => await Token.new(tokenName, tokenSymbol)
+    createToken: async (tokenName, tokenSymbol) => await Token.new(tokenName, tokenSymbol),
+
+    initCrowdsaleParameters: async (dao, account, _web3, data = null) => {
+        const latestBlock = await getLatestBlock(_web3);
+        const [softCap, hardCap, rate, startTime, endTime] = data || [100, 200, 1000, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
+
+        await dao.initCrowdsaleParameters.sendTransaction(softCap, hardCap, rate, startTime, endTime, {
+            from: account
+        });
+    }
 };
 
 const getLatestBlock = web3 =>
@@ -78,7 +87,7 @@ const handleErrorTransaction = async (transaction) => {
     } finally {
         assert.isDefined(error, "Revert was not thrown out");
     }
-}
+};
 
 module.exports.getLatestBlock = getLatestBlock;
 module.exports.rpcCall = rpcCall;
