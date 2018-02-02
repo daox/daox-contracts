@@ -1,5 +1,5 @@
 "use strict";
-const helper = require('./helpers/helper.js');
+const helper = require('../helpers/helper.js');
 const Token = artifacts.require("./Token/Token.sol");
 const Commission = artifacts.require("./Commission.sol");
 
