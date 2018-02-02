@@ -94,7 +94,7 @@ const getParametersForInitState = (cdf, tokenName, tokenSymbol) =>
         createToken(tokenName, tokenSymbol)
     ]);
 
-const initState = async (cdf, dao, account, tokenName = 'ANTOKEN', tokenSymbol = 'ANT') => {
+const initState = async (cdf, dao, account, tokenName = "TEST TOKEN", tokenSymbol = "TTK") => {
     const [daoxAddress, votingFactoryAddress, token] = await Promise.all([
         cdf.serviceContractAddress.call(),
         cdf.votingFactoryContractAddress.call(),
@@ -123,15 +123,9 @@ const initBonuses = async (dao, accounts) => {
     return holdTime;
 };
 
-module.exports.getLatestBlock = getLatestBlock;
-module.exports.rpcCall = rpcCall;
-module.exports.fillZeros = fillZeros;
-module.exports.handleErrorTransaction = handleErrorTransaction;
-module.exports.createCrowdsaleDAOFactory = createCrowdsaleDAOFactory;
-module.exports.createCrowdsaleDAO = createCrowdsaleDAO;
-module.exports.createToken = createToken;
-module.exports.getParametersForInitState = getParametersForInitState;
-module.exports.initCrowdsaleParameters = initCrowdsaleParameters;
-module.exports.initState = initState;
-module.exports.startCrowdsale = startCrowdsale;
-module.exports.initBonuses = initBonuses;
+module.exports = {
+    getLatestBlock, rpcCall, fillZeros,
+    handleErrorTransaction, createCrowdsaleDAOFactory,
+    createCrowdsaleDAO, createToken, getParametersForInitState,
+    initCrowdsaleParameters, initState, initBonuses, startCrowdsale
+}
