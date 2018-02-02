@@ -117,8 +117,10 @@ const startCrowdsale = async (_web3, cdf, dao, serviceAccount) => {
 };
 
 const initBonuses = async (dao, accounts) => {
-    const date = Math.round(Date.now() / 1000) + 60 * 60 * 24;
-    await dao.initBonuses.sendTransaction([accounts[0], accounts[1]], [5, 10], [], [], [date, date], {from: accounts[0]});
+    const holdTime = 60 * 60 * 24;
+    await dao.initBonuses.sendTransaction([accounts[0], accounts[1]], [5, 10], [], [], [holdTime, holdTime], {from: accounts[0]});
+
+    return holdTime;
 };
 
 module.exports.getLatestBlock = getLatestBlock;

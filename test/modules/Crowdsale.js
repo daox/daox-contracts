@@ -3,7 +3,7 @@ const helper = require('../helpers/helper.js');
 const Token = artifacts.require("./Token/Token.sol");
 const Commission = artifacts.require("./Commission.sol");
 
-contract("CrowdsaleDAO", accounts => {
+contract("Crowdsale", accounts => {
     const [serviceAccount, unknownAccount] = [accounts[0], accounts[1]];
 
     let cdf, dao;
@@ -175,7 +175,7 @@ contract("CrowdsaleDAO", accounts => {
 
         let callID = 2;
 
-        await helper.initBonuses(dao, accounts);
+        const holdTime = await helper.initBonuses(dao, accounts);
         await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
 
         const commission = Commission.at(await dao.commissionContract.call());
@@ -185,13 +185,18 @@ contract("CrowdsaleDAO", accounts => {
         await helper.rpcCall(web3, "evm_mine", null, callID++);
 
         const token = Token.at(await dao.token.call());
-        const totalSupply = await token.totalSupply.call();
+        const [totalSupply, latestBlock] = await Promise.all([
+            token.totalSupply.call(),
+            helper.getLatestBlock(web3)
+        ]);
 
         await dao.finish.sendTransaction({from: unknownAccount});
 
         assert.equal(true, await dao.crowdsaleFinished.call());
         assert.equal(false, await dao.refundableSoftCap.call());
         assert.equal(true, await token.mintingFinished.call());
+        assert.equal(latestBlock.timestamp + holdTime, await token.held.call(serviceAccount));
+        assert.equal(latestBlock.timestamp + holdTime, await token.held.call(unknownAccount));
         assert.equal(Math.round(web3.fromWei(totalSupply * 0.05)), web3.fromWei((await token.balanceOf.call(serviceAccount))));
         assert.equal(Math.round(web3.fromWei(totalSupply * 0.1)), web3.fromWei((await token.balanceOf.call(unknownAccount))));
         const serviceContract = await dao.serviceContract.call();
@@ -199,7 +204,7 @@ contract("CrowdsaleDAO", accounts => {
             helper.rpcCall(web3, "eth_getBalance", [serviceContract], callID++),
             dao.commissionRaised.call()
         ]);
-        assert.equal(web3.fromWei((commissionRaised/100)*4), web3.fromWei(serviceContractBalance.result));
+        assert.equal(web3.fromWei((commissionRaised / 100) * 4), web3.fromWei(serviceContractBalance.result));
     });
 
     it("Should finish crowdsale without achieved softCap", async () => {
