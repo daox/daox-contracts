@@ -40,7 +40,7 @@ const createCrowdsaleDAO = async (cdf, accounts, data = null) => {
 
 const initCrowdsaleParameters = async (dao, account, _web3, data = null) => {
     const latestBlock = await getLatestBlock(_web3);
-    const [softCap, hardCap, rate, startTime, endTime] = data || [100, 200, 1000, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
+    const [softCap, hardCap, rate, startTime, endTime] = data || [10, 20, 1000, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
 
     await dao.initCrowdsaleParameters.sendTransaction(softCap, hardCap, rate, startTime, endTime, {
         from: account
@@ -94,7 +94,7 @@ const getParametersForInitState = (cdf, tokenName, tokenSymbol) =>
         createToken(tokenName, tokenSymbol)
     ]);
 
-const initState = async (cdf, dao, account, tokenName = 'ANTOKEN', tokenSymbol = 'ANT') => {
+const initState = async (cdf, dao, account, tokenName = "TEST TOKEN", tokenSymbol = "TTK") => {
     const [daoxAddress, votingFactoryAddress, token] = await Promise.all([
         cdf.serviceContractAddress.call(),
         cdf.votingFactoryContractAddress.call(),
@@ -102,16 +102,30 @@ const initState = async (cdf, dao, account, tokenName = 'ANTOKEN', tokenSymbol =
     ]);
 
     await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {from: account});
-    await token.transferOwnership.sendTransaction(dao.address, {from : account})
+    await token.transferOwnership.sendTransaction(dao.address, {from: account})
 };
 
-module.exports.getLatestBlock = getLatestBlock;
-module.exports.rpcCall = rpcCall;
-module.exports.fillZeros = fillZeros;
-module.exports.handleErrorTransaction = handleErrorTransaction;
-module.exports.createCrowdsaleDAOFactory = createCrowdsaleDAOFactory;
-module.exports.createCrowdsaleDAO = createCrowdsaleDAO;
-module.exports.createToken = createToken;
-module.exports.getParametersForInitState = getParametersForInitState;
-module.exports.initCrowdsaleParameters = initCrowdsaleParameters;
-module.exports.initState = initState;
+const startCrowdsale = async (_web3, cdf, dao, serviceAccount) => {
+    let callID = 0;
+
+    await Promise.all([
+        initState(cdf, dao, serviceAccount),
+        initCrowdsaleParameters(dao, serviceAccount, _web3)
+    ]);
+    await rpcCall(_web3, "evm_increaseTime", [60], callID++);
+    await rpcCall(_web3, "evm_mine", null, callID++);
+};
+
+const initBonuses = async (dao, accounts) => {
+    const holdTime = 60 * 60 * 24;
+    await dao.initBonuses.sendTransaction([accounts[0], accounts[1]], [5, 10], [], [], [holdTime, holdTime], {from: accounts[0]});
+
+    return holdTime;
+};
+
+module.exports = {
+    getLatestBlock, rpcCall, fillZeros,
+    handleErrorTransaction, createCrowdsaleDAOFactory,
+    createCrowdsaleDAO, createToken, getParametersForInitState,
+    initCrowdsaleParameters, initState, initBonuses, startCrowdsale
+}
