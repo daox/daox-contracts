@@ -51,9 +51,8 @@ contract("Token", accounts => {
         assert.equal(tokensAmount2, await token.totalSupply.call(), "Total supply was not changed after minting");
         assert.equal(0, (await token.held.call(user1)).toNumber(), "Hold time is not zero");
 
-        const block = await helper.getLatestBlock(web3);
-
         await token.hold.sendTransaction(user1, holdTime, {from: owner});
+        const block = await helper.getLatestBlock(web3);
 
         assert.equal(block.timestamp + holdTime, (await token.held.call(user1)).toNumber(), "Hold time was not calculated correct");
     });
@@ -79,23 +78,30 @@ contract("Token", accounts => {
         assert.equal(tokensAmount2, await token.totalSupply.call(), "Total supply was not changed after minting");
         assert.equal(0, (await token.held.call(user1)).toNumber(), "Hold time is not zero");
 
-        let block = await helper.getLatestBlock(web3);
+        await token.hold.sendTransaction(user1, holdTime, {from: owner});
 
-        token.hold.sendTransaction(user1, holdTime, {from: owner});
-        console.log("until", block.timestamp + holdTime);
-        helper.handleErrorTransaction(() => token.transfer.sendTransaction(user2, tokensAmount2, {from: user1}));
+        await helper.handleErrorTransaction(() => token.transfer.sendTransaction(user2, tokensAmount2, {from: user1}));
 
         await helper.rpcCall(web3, "evm_increaseTime", [holdTime], callID++);
         await helper.rpcCall(web3, "evm_mine", null, callID++);
-        block = await helper.getLatestBlock(web3);
+        const block = await helper.getLatestBlock(web3);
 
-        console.log(block.timestamp);
-
-        //ToDo: fix
         await token.transfer.sendTransaction(user2, tokensAmount2, {from: user1});
 
-        // assert.equal(0, (await token.balanceOf.call(user1)).toNumber(), "Tokens was not transfered");
-        // assert.equal(tokensAmount2, (await token.balanceOf.call(user2)).toNumber(), "Tokens was not transfered");
-        // assert.isTrue(block.timestamp > (await token.held.call(user1)).toNumber(), "Held time is not correct");
+        assert.equal(0, (await token.balanceOf.call(user1)).toNumber(), "Tokens was not transfered");
+        assert.equal(tokensAmount2, (await token.balanceOf.call(user2)).toNumber(), "Tokens was not transfered");
+        assert.isTrue(block.timestamp >= (await token.held.call(user1)).toNumber(), "Held time is not correct");
+    });
+
+    it("Should transfer tokens when not holded", async () => {
+        await token.mint.sendTransaction(user1, tokensAmount3, {from: owner});
+
+        assert.equal(tokensAmount3, await token.balanceOf.call(user1), "User1 didn't receive tokens");
+        assert.equal(tokensAmount3, await token.totalSupply.call(), "Total supply was not changed after minting");
+
+        await token.transfer.sendTransaction(user2, tokensAmount2, {from: user1});
+
+        assert.equal(tokensAmount3 - tokensAmount2, (await token.balanceOf.call(user1)).toNumber(), "Tokens was not transfered");
+        assert.equal(tokensAmount2, (await token.balanceOf.call(user2)).toNumber(), "Tokens was not transfered");
     });
 });
