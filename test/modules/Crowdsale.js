@@ -31,27 +31,27 @@ contract("Crowdsale", accounts => {
         const latestBlock = await helper.getLatestBlock(web3);
         const data = [100, 200, 1000, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
 
-        helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, unknownAccount, web3, data));
+        return helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, unknownAccount, web3, data));
     });
 
     it("Should not be able to set parameters for crowdsale when start time already passed", async () => {
         const latestBlock = await helper.getLatestBlock(web3);
         const data = [100, 200, 1000, latestBlock.timestamp - 1, latestBlock.timestamp + 120];
 
-        helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, serviceAccount, web3, data));
+        return helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, serviceAccount, web3, data));
     });
 
     it("Should not be able to set parameters for crowdsale twice", async () => {
         await helper.initCrowdsaleParameters(dao, serviceAccount, web3);
 
-        helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, serviceAccount, web3));
+        return helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, serviceAccount, web3));
     });
 
     it("Should not be able to set parameters for crowdsale when softCap is bigger then hardCap time already passed", async () => {
         const latestBlock = await helper.getLatestBlock(web3);
         const data = [200, 100, 1000, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
 
-        helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, serviceAccount, web3, data));
+        return helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, serviceAccount, web3, data));
     });
 
     it("Should deposit ether and mint tokens", async () => {
@@ -138,7 +138,7 @@ contract("Crowdsale", accounts => {
         await helper.rpcCall(web3, "evm_increaseTime", [50], callID++);
         await helper.rpcCall(web3, "evm_mine", null, callID++);
 
-        await helper.handleErrorTransaction(() => dao.sendTransaction({from: unknownAccount, value: weiAmount}));
+        return helper.handleErrorTransaction(() => dao.sendTransaction({from: unknownAccount, value: weiAmount}));
     });
 
     it("Should not let send more ether than hardCap", async () => {
@@ -152,7 +152,7 @@ contract("Crowdsale", accounts => {
         await helper.rpcCall(web3, "evm_increaseTime", [70], callID++);
         await helper.rpcCall(web3, "evm_mine", null, callID++);
 
-        await helper.handleErrorTransaction(() => dao.sendTransaction({from: accounts[2], value: weiAmount}));
+        return helper.handleErrorTransaction(() => dao.sendTransaction({from: accounts[2], value: weiAmount}));
     });
 
     it("Should not let send more ether after end of crowdsale", async () => {
@@ -166,7 +166,7 @@ contract("Crowdsale", accounts => {
         await helper.rpcCall(web3, "evm_increaseTime", [130], callID++);
         await helper.rpcCall(web3, "evm_mine", null, callID++);
 
-        await helper.handleErrorTransaction(() => dao.sendTransaction({from: unknownAccount, value: weiAmount}));
+        return helper.handleErrorTransaction(() => dao.sendTransaction({from: unknownAccount, value: weiAmount}));
     });
 
     it("Should finish crowdsale with achieved softCap", async () => {
@@ -233,7 +233,7 @@ contract("Crowdsale", accounts => {
         await helper.rpcCall(web3, "evm_increaseTime", [50], callID++);
         await helper.rpcCall(web3, "evm_mine", null, callID++);
 
-        await helper.handleErrorTransaction(async () => await dao.finish.sendTransaction({from: unknownAccount}));
+        return helper.handleErrorTransaction(async () => await dao.finish.sendTransaction({from: unknownAccount}));
     });
 
     it("Should not let finish crowdsale twice", async () => {
@@ -244,6 +244,6 @@ contract("Crowdsale", accounts => {
         await helper.rpcCall(web3, "evm_mine", null, callID++);
 
         await dao.finish.sendTransaction({from: unknownAccount});
-        await helper.handleErrorTransaction(async () => await dao.finish.sendTransaction({from: unknownAccount}));
+        return helper.handleErrorTransaction(async () => await dao.finish.sendTransaction({from: unknownAccount}));
     });
 });
