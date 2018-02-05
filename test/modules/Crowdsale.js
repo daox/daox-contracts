@@ -175,7 +175,7 @@ contract("Crowdsale", accounts => {
 
         let callID = 2;
 
-        const holdTime = await helper.initBonuses(dao, accounts);
+        const [,holdTime] = await helper.initBonuses(dao, accounts);
         await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
 
         const commission = Commission.at(await dao.commissionContract.call());

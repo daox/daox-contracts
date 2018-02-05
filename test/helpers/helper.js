@@ -117,15 +117,35 @@ const startCrowdsale = async (_web3, cdf, dao, serviceAccount) => {
 };
 
 const initBonuses = async (dao, accounts) => {
+    const date = Math.round(Date.now() / 1000);
     const holdTime = 60 * 60 * 24;
-    await dao.initBonuses.sendTransaction([accounts[0], accounts[1]], [5, 10], [], [], [holdTime, holdTime], {from: accounts[0]});
+    await dao.initBonuses.sendTransaction([accounts[0], accounts[1]], [5, 10], [date, date + 60], [10, 20], [holdTime, holdTime], {from: accounts[0]});
 
-    return holdTime;
+    return [date, holdTime];
 };
 
+const makeCrowdsale = async (_web3, cdf, dao, serviceAccount, successful = true) => {
+    const etherAmount = successful ? 10.1 : 0.1;
+    const weiAmount = _web3.toWei(etherAmount, "ether");
+
+    let callID = 2;
+
+    await startCrowdsale(_web3, cdf, dao, serviceAccount);
+    await dao.sendTransaction({from: serviceAccount, value: weiAmount});
+
+    await rpcCall(_web3, "evm_increaseTime", [60], callID++);
+    await rpcCall(_web3, "evm_mine", null, callID++);
+
+    return await dao.finish.sendTransaction({from: serviceAccount});
+};
+
+const decodeVotingParameters = (tx) =>
+    web3.eth.abi.decodeParameters(["address", "string", "address", "bytes32", "uint", "address"], tx.receipt.logs[0].data);
+
+
 module.exports = {
-    getLatestBlock, rpcCall, fillZeros,
+    getLatestBlock, rpcCall, fillZeros, makeCrowdsale,
     handleErrorTransaction, createCrowdsaleDAOFactory,
-    createCrowdsaleDAO, createToken, getParametersForInitState,
+    createCrowdsaleDAO, getParametersForInitState, decodeVotingParameters,
     initCrowdsaleParameters, initState, initBonuses, startCrowdsale
-}
+};
