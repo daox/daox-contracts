@@ -22,7 +22,7 @@ const createCrowdsaleDAOFactory = async () => {
     const _DAOx = await DAOx.new();
     const _VotingFactory = await VotingFactory.new(Voting.address);
 
-    return await CrowdsaleDAOFactory.new(
+    return CrowdsaleDAOFactory.new(
         _DAOx.address,
         _VotingFactory.address,
         [State.address, Payment.address, VotingDecisions.address, Crowdsale.address]
@@ -49,17 +49,18 @@ const initCrowdsaleParameters = async (dao, account, _web3, data = null) => {
 
 const createToken = (tokenName, tokenSymbol) => Token.new(tokenName, tokenSymbol);
 
-const getLatestBlock = web3 =>
+const getLatestBlock = _web3 =>
     new Promise((resolve, reject) =>
-        web3.eth.getBlock("latest", (err, block) => err ? reject(err) : resolve(block)));
+        _web3.eth.getBlock("latest", (err, block) => err ? reject(err) : resolve(block)));
 
-const rpcCall = (web3, methodName, params, id) =>
+let callID = 0;
+const rpcCall = (_web3, methodName, params) =>
     new Promise((resolve, reject) => {
-        web3.currentProvider.sendAsync({
+        _web3.currentProvider.sendAsync({
             jsonrpc: "2.0",
             method: methodName,
             params: params,
-            id: id
+            id: callID++
         }, (err, result) => {
             if (err) return reject(err);
 
@@ -112,13 +113,13 @@ const startCrowdsale = async (_web3, cdf, dao, serviceAccount) => {
         initState(cdf, dao, serviceAccount),
         initCrowdsaleParameters(dao, serviceAccount, _web3)
     ]);
-    await rpcCall(_web3, "evm_increaseTime", [60], callID++);
-    await rpcCall(_web3, "evm_mine", null, callID++);
+    await rpcCall(_web3, "evm_increaseTime", [60]);
+    await rpcCall(_web3, "evm_mine", null);
 };
 
-const initBonuses = async (dao, accounts) => {
-    //ToDo: Fix to block.timestamp
-    const date = Math.round(Date.now() / 1000);
+const initBonuses = async (dao, accounts, _web3) => {
+    const block = await getLatestBlock(_web3);
+    const date = block.timestamp;
     const holdTime = 60 * 60 * 24;
     await dao.initBonuses.sendTransaction([accounts[0], accounts[1]], [5, 10], [date, date + 60], [10, 20], [holdTime, holdTime], {from: accounts[0]});
 
@@ -129,15 +130,13 @@ const makeCrowdsale = async (_web3, cdf, dao, serviceAccount, successful = true)
     const etherAmount = successful ? 10.1 : 0.1;
     const weiAmount = _web3.toWei(etherAmount, "ether");
 
-    let callID = 2;
-
     await startCrowdsale(_web3, cdf, dao, serviceAccount);
     await dao.sendTransaction({from: serviceAccount, value: weiAmount});
 
-    await rpcCall(_web3, "evm_increaseTime", [60], callID++);
-    await rpcCall(_web3, "evm_mine", null, callID++);
+    await rpcCall(_web3, "evm_increaseTime", [60]);
+    await rpcCall(_web3, "evm_mine", null);
 
-    return await dao.finish.sendTransaction({from: serviceAccount});
+    return dao.finish.sendTransaction({from: serviceAccount});
 };
 
 const decodeVotingParameters = (tx) =>

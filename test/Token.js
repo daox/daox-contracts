@@ -17,7 +17,7 @@ contract("Token", accounts => {
         assert.equal(tokensAmount1, user1Balance, "Not correct user1 balance");
     });
 
-    it("Should be not mintable by unknown account", async () => helper.handleErrorTransaction(async () => token.mint.sendTransaction(user1, tokensAmount1, {from : user2})));
+    it("Should be not mintable by unknown account", () => helper.handleErrorTransaction(() => token.mint.sendTransaction(user1, tokensAmount1, {from : user2})));
 
     it("Should be mintable by owner", async () => {
         await token.mint.sendTransaction(user1, tokensAmount1, {from : owner});
@@ -82,8 +82,8 @@ contract("Token", accounts => {
 
         await helper.handleErrorTransaction(() => token.transfer.sendTransaction(user2, tokensAmount2, {from: user1}));
 
-        await helper.rpcCall(web3, "evm_increaseTime", [holdTime], callID++);
-        await helper.rpcCall(web3, "evm_mine", null, callID++);
+        await helper.rpcCall(web3, "evm_increaseTime", [holdTime]);
+        await helper.rpcCall(web3, "evm_mine", null);
         const block = await helper.getLatestBlock(web3);
 
         await token.transfer.sendTransaction(user2, tokensAmount2, {from: user1});
