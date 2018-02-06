@@ -1,9 +1,7 @@
 "use strict";
 const helper = require('../helpers/helper.js');
 const Proposal = artifacts.require('./Votings/Proposal.sol');
-const CrowdsaleDAO = artifacts.require('./DAO/CrowdsaleDAO.sol');
 const Token = artifacts.require('./Token/Token.sol');
-
 
 contract("Proposal", accounts => {
     const [serviceAccount, unknownAccount] = [accounts[0], accounts[1]];
@@ -21,6 +19,18 @@ contract("Proposal", accounts => {
         const logs = helper.decodeVotingParameters(tx);
         proposal = Proposal.at(logs[0]);
     });
+
+    const makeProposal = async (finish = true) => {
+        await Promise.all([
+            await proposal.addVote(1),
+            await proposal.addVote(3, {from: unknownAccount}),
+        ]);
+
+        await helper.rpcCall(web3, "evm_increaseTime", [110]);
+        await helper.rpcCall(web3, "evm_mine", null);
+        if (finish) await proposal.finish();
+
+    };
 
     it("Should add vote from 2 different accounts", async () => {
 
@@ -52,18 +62,50 @@ contract("Proposal", accounts => {
     });
 
     it("Should finish voting", async () => {
-        let callID = 0;
-
         await Promise.all([
             await proposal.addVote(1),
             await proposal.addVote(3, {from: unknownAccount}),
         ]);
 
-        await helper.rpcCall(web3, "evm_increaseTime", [110], callID++);
-        await helper.rpcCall(web3, "evm_mine", null, callID++);
+        await helper.rpcCall(web3, "evm_increaseTime", [110]);
+        await helper.rpcCall(web3, "evm_mine", null);
         await proposal.finish();
 
         assert.equal(true, await proposal.finished.call());
         assert.deepEqual(await proposal.result.call(), await proposal.options.call(1));
+    });
+
+    it("Should not be able to vote twice", async () => {
+        await proposal.addVote(1);
+
+        return helper.handleErrorTransaction(() => proposal.addVote(2));
+    });
+
+    it("Should not be able to vote after moment when voting was finished", async () => {
+        await makeProposal();
+
+        return helper.handleErrorTransaction(() => proposal.addVote(2));
+    });
+
+    it("Should not be able to vote after moment when duration exceeded", async () => {
+        await makeProposal(false);
+
+        return helper.handleErrorTransaction(() => proposal.addVote(2));
+    });
+
+    it("Should not be able to vote for nonexistent option", async () =>
+        helper.handleErrorTransaction(() => proposal.addVote(4)));
+
+    it("Should not be able to finish voting twice", async () => {
+        await makeProposal();
+
+        return helper.handleErrorTransaction(() => proposal.finish());
+    });
+
+    it("Should not be able to finish voting before the end", async () => {
+        await helper.rpcCall(web3, "evm_increaseTime", [50]);
+        await helper.rpcCall(web3, "evm_mine", null);
+
+        return helper.handleErrorTransaction(() => proposal.finish());
     });
 });

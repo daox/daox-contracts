@@ -126,17 +126,20 @@ const initBonuses = async (dao, accounts, _web3) => {
     return [date, holdTime];
 };
 
-const makeCrowdsale = async (_web3, cdf, dao, serviceAccount, successful = true) => {
+const makeCrowdsale = async (_web3, cdf, dao, accounts, successful = true) => {
     const etherAmount = successful ? 10.1 : 0.1;
     const weiAmount = _web3.toWei(etherAmount, "ether");
 
-    await startCrowdsale(_web3, cdf, dao, serviceAccount);
-    await dao.sendTransaction({from: serviceAccount, value: weiAmount});
+    await startCrowdsale(_web3, cdf, dao, accounts[0]);
+    await Promise.all([
+        dao.sendTransaction({from: accounts[0], value: weiAmount}),
+        dao.sendTransaction({from: accounts[1], value: _web3.toWei(1, "ether")})
+    ]);
 
     await rpcCall(_web3, "evm_increaseTime", [60]);
     await rpcCall(_web3, "evm_mine", null);
 
-    return dao.finish.sendTransaction({from: serviceAccount});
+    return await dao.finish();
 };
 
 const decodeVotingParameters = (tx) =>
