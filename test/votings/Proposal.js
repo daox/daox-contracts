@@ -44,8 +44,8 @@ contract("Proposal", accounts => {
         const [option1, option2, balance1, balance2] = await Promise.all([
             proposal.options.call(1),
             proposal.options.call(3),
-            await token.balanceOf.call(serviceAccount),
-            await token.balanceOf.call(unknownAccount),
+            token.balanceOf.call(serviceAccount),
+            token.balanceOf.call(unknownAccount),
         ]);
 
         assert.equal(balance1.toNumber(), option1[0].toNumber());

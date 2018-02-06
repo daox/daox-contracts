@@ -107,8 +107,6 @@ const initState = async (cdf, dao, account, tokenName = "TEST TOKEN", tokenSymbo
 };
 
 const startCrowdsale = async (_web3, cdf, dao, serviceAccount) => {
-    let callID = 0;
-
     await Promise.all([
         initState(cdf, dao, serviceAccount),
         initCrowdsaleParameters(dao, serviceAccount, _web3)
@@ -142,6 +140,15 @@ const makeCrowdsale = async (_web3, cdf, dao, accounts, successful = true) => {
     return dao.finish();
 };
 
+const makeCrowdsaleNew = async (_web3, cdf, dao, serviceAccount, backers, shiftTime = 60) => {
+    await startCrowdsale(_web3, cdf, dao, serviceAccount);
+    await Promise.all(Object.keys(backers).map(address => dao.sendTransaction({from: address, value: backers[address]})));
+    await rpcCall(_web3, "evm_increaseTime", [shiftTime]);
+    await rpcCall(_web3, "evm_mine", null);
+
+    return dao.finish();
+};
+
 const decodeVotingParameters = (tx) =>
     web3.eth.abi.decodeParameters(["address", "string", "address", "bytes32", "uint", "address"], tx.receipt.logs[0].data);
 
@@ -150,5 +157,5 @@ module.exports = {
     getLatestBlock, rpcCall, fillZeros, makeCrowdsale,
     handleErrorTransaction, createCrowdsaleDAOFactory,
     createCrowdsaleDAO, getParametersForInitState, decodeVotingParameters,
-    initCrowdsaleParameters, initState, initBonuses, startCrowdsale
+    initCrowdsaleParameters, initState, initBonuses, startCrowdsale, makeCrowdsaleNew
 };

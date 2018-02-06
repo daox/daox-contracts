@@ -19,12 +19,6 @@ contract("Token", accounts => {
 
     it("Should be not mintable by unknown account", () => helper.handleErrorTransaction(() => token.mint.sendTransaction(user1, tokensAmount1, {from : user2})));
 
-    it("Should be mintable by owner", async () => {
-        await token.mint.sendTransaction(user1, tokensAmount1, {from : owner});
-
-        assert.equal(tokensAmount1, await token.balanceOf.call(user1), "Not correct user1 balance");
-    });
-
     it("Should be burnable by owner", async () => {
         await token.mint.sendTransaction(user1, tokensAmount2, {from: owner});
         assert.equal(tokensAmount2, await token.balanceOf.call(user1), "User1 didn't receive tokens");
