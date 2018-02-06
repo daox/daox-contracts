@@ -40,10 +40,15 @@ contract Voting is VotingFields {
 
     function finishProposal() private {
         VotingLib.Option memory _result = options[1];
-        for (uint i = 1; i< options.length; i++) {
-            if(_result.votes < options[i].votes) _result = options[i];
+        bool equal = false;
+        for (uint i = 1; i < options.length; i++) {
+            if (_result.votes == options[i].votes) equal = true;
+            else if (_result.votes < options[i].votes) {
+                _result = options[i];
+                equal = false;
+            }
         }
-        result = _result;
+        if (!equal) result = _result;
     }
 
     function finishNotProposal() private {
