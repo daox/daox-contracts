@@ -733,7 +733,7 @@ contract Voting is VotingFields {
         quorum = _quorum;
     }
 
-    function addVote(uint optionID) external notFinished canVote(optionID) correctOption(optionID) {
+    function addVote(uint optionID) external notFinished canVote correctOption(optionID) {
         require(block.timestamp - duration < created_at);
         uint tokensAmount = dao.token().balanceOf(msg.sender);
         options[optionID].votes += tokensAmount;
@@ -746,12 +746,8 @@ contract Voting is VotingFields {
     function finish() external notFinished {
         require(block.timestamp - duration >= created_at);
         finished = true;
-        if (keccak256(votingType) == keccak256(bytes32("Withdrawal"))) {
-            finishNotProposal();
-        }
-        if (keccak256(votingType) == keccak256(bytes32("Proposal"))) {
-            finishProposal();
-        }
+        if (keccak256(votingType) == keccak256(bytes32("Withdrawal"))) return finishNotProposal();
+        if (keccak256(votingType) == keccak256(bytes32("Proposal"))) return finishProposal();
 
         //Other two cases of votings (`Module` and `Refund`) requires quorum
         if (Common.percent(votesCount, dao.token().totalSupply() - dao.teamTokensAmount(), 2) < quorum) return;
@@ -760,10 +756,15 @@ contract Voting is VotingFields {
 
     function finishProposal() private {
         VotingLib.Option memory _result = options[1];
-        for (uint i = 1; i< options.length; i++) {
-            if(_result.votes < options[i].votes) _result = options[i];
+        bool equal = false;
+        for (uint i = 2; i < options.length; i++) {
+            if (_result.votes == options[i].votes) equal = true;
+            else if (_result.votes < options[i].votes) {
+                _result = options[i];
+                equal = false;
+            }
         }
-        result = _result;
+        if (!equal) result = _result;
     }
 
     function finishNotProposal() private {
@@ -771,7 +772,7 @@ contract Voting is VotingFields {
         else result = options[2];
     }
 
-    modifier canVote(uint optionID) {
+    modifier canVote() {
         require(dao.teamBonuses(msg.sender) == 0 && dao.isParticipant(msg.sender) && voted[msg.sender] == 0);
         _;
     }
