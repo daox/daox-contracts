@@ -139,7 +139,7 @@ const makeCrowdsale = async (_web3, cdf, dao, accounts, successful = true) => {
     await rpcCall(_web3, "evm_increaseTime", [60]);
     await rpcCall(_web3, "evm_mine", null);
 
-    return await dao.finish();
+    return dao.finish();
 };
 
 const decodeVotingParameters = (tx) =>

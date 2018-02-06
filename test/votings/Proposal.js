@@ -22,14 +22,13 @@ contract("Proposal", accounts => {
 
     const makeProposal = async (finish = true) => {
         await Promise.all([
-            await proposal.addVote(1),
-            await proposal.addVote(3, {from: unknownAccount}),
+            proposal.addVote(1),
+            proposal.addVote(3, {from: unknownAccount}),
         ]);
 
         await helper.rpcCall(web3, "evm_increaseTime", [110]);
         await helper.rpcCall(web3, "evm_mine", null);
         if (finish) await proposal.finish();
-
     };
 
     it("Should add vote from 2 different accounts", async () => {
@@ -62,14 +61,7 @@ contract("Proposal", accounts => {
     });
 
     it("Should finish voting", async () => {
-        await Promise.all([
-            await proposal.addVote(1),
-            await proposal.addVote(3, {from: unknownAccount}),
-        ]);
-
-        await helper.rpcCall(web3, "evm_increaseTime", [110]);
-        await helper.rpcCall(web3, "evm_mine", null);
-        await proposal.finish();
+        await makeProposal();
 
         assert.equal(true, await proposal.finished.call());
         assert.deepEqual(await proposal.result.call(), await proposal.options.call(1));
