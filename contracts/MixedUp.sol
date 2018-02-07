@@ -750,8 +750,12 @@ contract Voting is VotingFields {
         if (keccak256(votingType) == keccak256(bytes32("Proposal"))) return finishProposal();
 
         //Other two cases of votings (`Module` and `Refund`) requires quorum
-        if (Common.percent(votesCount, dao.token().totalSupply() - dao.teamTokensAmount(), 2) < quorum) return;
-        finishNotProposal();
+        if (Common.percent(options[1].votes, dao.token().totalSupply() - dao.teamTokensAmount(), 2) >= quorum) {
+            result = options[1];
+            return;
+        }
+
+        result = options[2];
     }
 
     function finishProposal() private {
