@@ -45,7 +45,7 @@ contract("Refund", accounts => {
         const backers = [backer1, backer2];
         const [backersToWei, backersToOption] = [{}, {}];
         backersToWei[`${backers[0]}`] = web3.toWei(5, "ether");
-        backersToWei[`${backers[1]}`] = web3.toWei(5, "ether")
+        backersToWei[`${backers[1]}`] = web3.toWei(5, "ether");
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 2;
 
@@ -73,7 +73,7 @@ contract("Refund", accounts => {
         const backers = [backer1, backer2];
         const [backersToWei, backersToOption] = [{}, {}];
         backersToWei[`${backers[0]}`] = web3.toWei(5, "ether");
-        backersToWei[`${backers[1]}`] = web3.toWei(5, "ether")
+        backersToWei[`${backers[1]}`] = web3.toWei(5, "ether");
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 2;
 
@@ -84,7 +84,7 @@ contract("Refund", accounts => {
         const backers = [backer1, backer2];
         const [backersToWei, backersToOption] = [{}, {}];
         backersToWei[`${backers[0]}`] = web3.toWei(5, "ether");
-        backersToWei[`${backers[1]}`] = web3.toWei(5, "ether")
+        backersToWei[`${backers[1]}`] = web3.toWei(5, "ether");
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 1;
 
