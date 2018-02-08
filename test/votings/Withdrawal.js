@@ -3,7 +3,7 @@ const helper = require('../helpers/helper.js');
 const Withdrawal = artifacts.require('./Votings/Refund.sol');
 const Token = artifacts.require('./Token/Token.sol');
 
-contract("Withdrawal", async accounts => {
+contract("Withdrawal", accounts => {
     const [serviceAccount, unknownAccount] = [accounts[0], accounts[1]];
     const [teamPerson1, teamPerson2] = [accounts[2], accounts[3]];
     const [whiteListAddress1, whiteListAddress2] = [accounts[4], accounts[5]];
@@ -11,7 +11,7 @@ contract("Withdrawal", async accounts => {
     const [backer1, backer2, backer3, backer4] = [accounts[6], accounts[7], accounts[8], accounts[9]];
     const teamBonuses = [8, 9];
     const withdrawalDuration = 300;
-    const withdrawalSum = 1;
+    let withdrawalSum = 1;
 
     let withdrawal, dao, cdf, timestamp;
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
@@ -203,5 +203,18 @@ contract("Withdrawal", async accounts => {
         assert.deepEqual(option1, result, "Withdrawal should be accepted");
         assert.equal((totalSupply.toNumber() - teamTokensAmount.toNumber()) / 100 * teamTokensPercentage, teamTokensAmount.toNumber(), "Team percentage was not calculated correct");
         assert.isTrue(isFinished, "Withdrawal was not finished");
+    });
+
+    it("Should not create withdrawal with sum > dao.balance", async () => {
+        const backers = [backer1, backer2];
+        const [backersToWei, backersToOption] = [{}, {}];
+        backersToWei[`${backers[0]}`] = web3.toWei(5, "ether");
+        backersToWei[`${backers[1]}`] = web3.toWei(5, "ether");
+        backersToOption[`${backers[0]}`] = 1;
+        backersToOption[`${backers[1]}`] = 2;
+
+        withdrawalSum = 11; //greater then dao balance
+
+        return helper.handleErrorTransaction(() => makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, true, true));
     });
 });
