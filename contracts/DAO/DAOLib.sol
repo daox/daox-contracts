@@ -6,8 +6,8 @@ import "../Votings/VotingFactoryInterface.sol";
 library DAOLib {
     event VotingCreated(address voting, string votingType, address dao, bytes32 description, uint duration, address sender);
 
-    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) constant returns(uint) {
-        for(uint i = 0; i < bonusPeriods.length; i++) {
+    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) constant returns (uint) {
+        for (uint i = 0; i < bonusPeriods.length; i++) {
             if (now < bonusPeriods[i]) {
                 rate = bonusRates[i];
                 break;
@@ -18,20 +18,19 @@ library DAOLib {
         return tokensAmount;
     }
 
-    function countRefundSum(uint rate, uint newRate, uint weiSpent) constant returns (uint) {
-        uint multiplier = 1000;
-        uint newRateToOld = newRate * multiplier / rate;
+    function countRefundSum(uint tokensAmount, uint rate, uint newRate) constant returns (uint) {
+        uint multiplier = 100000;
 
-        return (newRateToOld * weiSpent) / multiplier;
+        return (tokensAmount * newRate) / (multiplier * rate);
     }
 
-    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) returns(uint) {
-        uint commission = (commissionRaised/100)*4;
+    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) returns (uint) {
+        uint commission = (commissionRaised / 100) * 4;
         serviceContract.call.gas(200000).value(commission)();
-        uint totalSupply = token.totalSupply() / 100;
+        uint totalSupply = token.totalSupply() / 100 / 1 ether;
         uint teamTokensAmount = 0;
-        for(uint i = 0; i < team.length; i++) {
-            uint teamMemberTokensAmount = totalSupply*teamBonuses[i];
+        for (uint i = 0; i < team.length; i++) {
+            uint teamMemberTokensAmount = totalSupply * teamBonuses[i];
             teamTokensAmount += teamMemberTokensAmount;
             token.mint(team[i], teamMemberTokensAmount);
             token.hold(team[i], teamHold[i]);

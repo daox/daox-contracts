@@ -20,7 +20,7 @@ contract CrowdsaleDAOFields {
     mapping(address => uint) public depositedWithCommission;
     bool public crowdsaleFinished;
     bool public refundableSoftCap = false;
-    uint newRate = 0;
+    uint public newRate = 0;
     address public serviceContract;
     uint[] public teamBonusesArr;
     address[] public team;
@@ -33,7 +33,7 @@ contract CrowdsaleDAOFields {
     bytes32 public description;
     mapping(address => bool) public votings;
     bool public refundable = false;
-    uint internal lastWithdrawalTimestamp = 0;
+    uint public lastWithdrawalTimestamp = 0;
     uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;
     address[] public whiteListArr;
     mapping(address => bool) public whiteList;
