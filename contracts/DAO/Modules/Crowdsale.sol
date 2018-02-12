@@ -69,7 +69,7 @@ contract Crowdsale is CrowdsaleDAOFields {
     }
 
     modifier validPurchase(uint value) {
-        require(weiRaised + value < hardCap && block.timestamp < endTime);
+        require(weiRaised + value <= hardCap && block.timestamp < endTime);
         _;
     }
 

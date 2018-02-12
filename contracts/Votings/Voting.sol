@@ -26,24 +26,29 @@ contract Voting is VotingFields {
     function finish() external notFinished {
         require(block.timestamp - duration >= created_at);
         finished = true;
-        if (keccak256(votingType) == keccak256(bytes32("Withdrawal"))) {
-            finishNotProposal();
-        }
-        if (keccak256(votingType) == keccak256(bytes32("Proposal"))) {
-            finishProposal();
-        }
+        if (keccak256(votingType) == keccak256(bytes32("Withdrawal"))) return finishNotProposal();
+        if (keccak256(votingType) == keccak256(bytes32("Proposal"))) return finishProposal();
 
         //Other two cases of votings (`Module` and `Refund`) requires quorum
-        if (Common.percent(votesCount, dao.token().totalSupply() - dao.teamTokensAmount(), 2) < quorum) return;
-        finishNotProposal();
+        if (Common.percent(options[1].votes, dao.token().totalSupply() - dao.teamTokensAmount(), 2) >= quorum) {
+            result = options[1];
+            return;
+        }
+
+        result = options[2];
     }
 
     function finishProposal() private {
         VotingLib.Option memory _result = options[1];
-        for (uint i = 1; i< options.length; i++) {
-            if(_result.votes < options[i].votes) _result = options[i];
+        bool equal = false;
+        for (uint i = 2; i < options.length; i++) {
+            if (_result.votes == options[i].votes) equal = true;
+            else if (_result.votes < options[i].votes) {
+                _result = options[i];
+                equal = false;
+            }
         }
-        result = _result;
+        if (!equal) result = _result;
     }
 
     function finishNotProposal() private {

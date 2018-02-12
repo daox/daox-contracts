@@ -32,8 +32,8 @@ contract("Payment", accounts => {
             helper.initCrowdsaleParameters(dao, serviceAccount, web3, crowdsaleParameters)
         ]);
 
-        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime1], callID++);
-        await helper.rpcCall(web3, "evm_mine", null, callID++);
+        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime1]);
+        await helper.rpcCall(web3, "evm_mine", null);
     });
 
     it("Should send commission tokens", async () => {
@@ -48,8 +48,8 @@ contract("Payment", accounts => {
         assert.equal(web3.toWei(softCap, "ether"), await dao.commissionRaised.call(), "Commission raised variable is not correct");
         assert.equal(web3.toWei(softCap, "ether"), await dao.depositedWithCommission.call(unknownAccount), "Deposited with commission was not calculated correct");
 
-        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2], callID++);
-        await helper.rpcCall(web3, "evm_mine", null, callID++);
+        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2]);
+        await helper.rpcCall(web3, "evm_mine", null);
 
         await dao.finish.sendTransaction({
             from: unknownAccount
@@ -73,8 +73,8 @@ contract("Payment", accounts => {
             gasPrice: 0
         });
 
-        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2], callID++);
-        await helper.rpcCall(web3, "evm_mine", null, callID++);
+        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2]);
+        await helper.rpcCall(web3, "evm_mine", null);
 
         await dao.finish.sendTransaction({
             from: accounts[2],
@@ -86,7 +86,7 @@ contract("Payment", accounts => {
         assert.isNotTrue(await dao.weiRaised.call() > await dao.softCap.call(), "Wei raised should be less than soft cap");
         assert.equal(web3.toWei(softCap / 2), (await dao.weiRaised.call()).toNumber(), "Wei raised calculated not correct");
 
-        let rpcResponse = await helper.rpcCall(web3, "eth_getBalance", [accounts[2]], callID++);
+        let rpcResponse = await helper.rpcCall(web3, "eth_getBalance", [accounts[2]]);
         const balanceBefore = web3.fromWei(rpcResponse.result);
 
         await dao.refundSoftCap.sendTransaction({
@@ -94,7 +94,7 @@ contract("Payment", accounts => {
             gasPrice: 0
         });
 
-        rpcResponse = await helper.rpcCall(web3, "eth_getBalance", [accounts[2]], callID++);
+        rpcResponse = await helper.rpcCall(web3, "eth_getBalance", [accounts[2]]);
         const balanceAfter = web3.fromWei(rpcResponse.result);
 
         assert.equal(parseFloat(balanceBefore) + softCap / 2, parseInt(balanceAfter), "Refunded amount of ether is not correct");
@@ -107,8 +107,8 @@ contract("Payment", accounts => {
             gasPrice: 0
         });
 
-        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2], callID++);
-        await helper.rpcCall(web3, "evm_mine", null, callID++);
+        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2]);
+        await helper.rpcCall(web3, "evm_mine", null);
 
         await dao.finish.sendTransaction({
             from: accounts[2],
@@ -132,8 +132,8 @@ contract("Payment", accounts => {
             gasPrice: 0
         });
 
-        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2], callID++);
-        await helper.rpcCall(web3, "evm_mine", null, callID++);
+        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2]);
+        await helper.rpcCall(web3, "evm_mine", null);
 
         await dao.finish.sendTransaction({
             from: accounts[2],

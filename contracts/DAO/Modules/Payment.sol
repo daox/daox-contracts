@@ -15,8 +15,9 @@ contract Payment is CrowdsaleDAOFields {
     function refund() whenRefundable {
         require(teamBonuses[msg.sender] == 0);
 
+        uint tokensAmount = token.balanceOf(msg.sender);
         token.burn(msg.sender);
-        msg.sender.transfer(DAOLib.countRefundSum(rate, newRate, depositedWei[msg.sender] + depositedWithCommission[msg.sender])*1 wei);
+        msg.sender.transfer(DAOLib.countRefundSum(tokensAmount, rate, newRate));
     }
 
     function refundSoftCap() whenRefundableSoftCap {

@@ -6,7 +6,7 @@ const Refund = artifacts.require('./Votings/Refund.sol');
 const Module = artifacts.require('./Votings/Module.sol');
 const VotingFactory = artifacts.require('./Votings/VotingFactory.sol');
 
-contract("CrowdsaleDAO", accounts => {
+contract("VotingFactory", accounts => {
     const [serviceAccount, unknownAccount] = [accounts[0], accounts[1]];
 
     let cdf, dao;
@@ -14,7 +14,7 @@ contract("CrowdsaleDAO", accounts => {
         cdf = await helper.createCrowdsaleDAOFactory();
         dao = await helper.createCrowdsaleDAO(cdf);
         await dao.setWhiteList.sendTransaction([serviceAccount]);
-        await helper.makeCrowdsale(web3, cdf, dao, serviceAccount);
+        await helper.makeCrowdsale(web3, cdf, dao, accounts);
     });
 
     it("Should create proposal", async () => {
@@ -98,11 +98,11 @@ contract("CrowdsaleDAO", accounts => {
     it("Should not be able to create any voting from not participant", async () => {
         const description = 'Test Description';
 
-        await Promise.all([
-            helper.handleErrorTransaction(async () => await dao.addModule(description, 100, 1, unknownAccount, {from: unknownAccount})),
-            helper.handleErrorTransaction(async () => await dao.addRefund(description, 100, {from: unknownAccount})),
-            helper.handleErrorTransaction(async () => await dao.addWithdrawal(description, 100, 1, serviceAccount, {from: unknownAccount})),
-            helper.handleErrorTransaction(async () => await dao.addProposal(description, 100, ['yes', 'no', 'maybe'], {from: unknownAccount})),
+        return Promise.all([
+            helper.handleErrorTransaction(() => dao.addModule(description, 100, 1, unknownAccount, {from: accounts[2]})),
+            helper.handleErrorTransaction(() => dao.addRefund(description, 100, {from: accounts[2]})),
+            helper.handleErrorTransaction(() => dao.addWithdrawal(description, 100, 1, serviceAccount, {from: accounts[2]})),
+            helper.handleErrorTransaction(() => dao.addProposal(description, 100, ['yes', 'no', 'maybe'], {from: accounts[2]})),
         ]);
     });
 
@@ -110,7 +110,7 @@ contract("CrowdsaleDAO", accounts => {
         const description = 'Test Description';
         const votingFactory = VotingFactory.at(await dao.votingFactory.call());
 
-        await Promise.all([
+        return Promise.all([
             helper.handleErrorTransaction(async () => await votingFactory.addModule(serviceAccount, description, 100, 1, unknownAccount)),
             helper.handleErrorTransaction(async () => await votingFactory.addRefund(serviceAccount, description, 100)),
             helper.handleErrorTransaction(async () => await votingFactory.addWithdrawal(serviceAccount, description, 100, 1, serviceAccount)),
@@ -121,32 +121,32 @@ contract("CrowdsaleDAO", accounts => {
     it("Should not be able to create withdrawal with wallet which is not in white list", async () => {
         const description = 'Test Description';
 
-        await helper.handleErrorTransaction(async () => await dao.addWithdrawal(description, 100, 1, unknownAccount));
+        return helper.handleErrorTransaction(() => dao.addWithdrawal(description, 100, 1, unknownAccount));
     });
 
     it("Should not be able to create withdrawal with zero sum", async () => {
         const description = 'Test Description';
 
-        await helper.handleErrorTransaction(async () => await dao.addWithdrawal(description, 100, 0, serviceAccount));
+        helper.handleErrorTransaction(() => dao.addWithdrawal(description, 100, 0, serviceAccount));
     });
 
     it("Should not be able to create withdrawal with sum more than dao balance", async () => {
         const description = 'Test Description';
 
-        await helper.handleErrorTransaction(async () => await dao.addWithdrawal(description, 100, web3.toWei(11), serviceAccount));
+        return helper.handleErrorTransaction(() => dao.addWithdrawal(description, 100, web3.toWei(12), serviceAccount));
     });
 
     it("Should not be able to create proposal with less than 2 options", async () => {
         const description = 'Test Description';
 
-        await helper.handleErrorTransaction(async () => await dao.addProposal(description, 100, ['yes']));
+        return helper.handleErrorTransaction(() => dao.addProposal(description, 100, ['yes']));
     });
 
     it("Should not be able to create withdrawal with more than 10 options", async () => {
         const description = 'Test Description';
 
-        await helper.handleErrorTransaction(async () =>
-            await dao.addProposal(description, 100, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']));
+        return helper.handleErrorTransaction(() =>
+            dao.addProposal(description, 100, ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']));
     });
 
     it("Should not be able to create any voting before succeeded crowdsale", async () => {
@@ -154,9 +154,9 @@ contract("CrowdsaleDAO", accounts => {
 
         const daoTest = await helper.createCrowdsaleDAO(cdf);
         await daoTest.setWhiteList.sendTransaction([serviceAccount]);
-        await helper.makeCrowdsale(web3, cdf, daoTest, serviceAccount, false);
+        await helper.makeCrowdsale(web3, cdf, daoTest, accounts, false);
 
-        await Promise.all([
+        return Promise.all([
             helper.handleErrorTransaction(async () => await daoTest.addModule(description, 100, 1, unknownAccount)),
             helper.handleErrorTransaction(async () => await daoTest.addRefund(description, 100)),
             helper.handleErrorTransaction(async () => await daoTest.addWithdrawal(description, 100, 1, serviceAccount)),

@@ -58,11 +58,11 @@ contract("State", accounts => {
 
         const latestBlock = await helper.getLatestBlock(web3);
 
-        const tx = await dao.initCrowdsaleParameters.sendTransaction(1, 3, 5, latestBlock.timestamp + 100, latestBlock.timestamp * 2, {
+        await dao.initCrowdsaleParameters.sendTransaction(1, 3, 5, latestBlock.timestamp + 100, latestBlock.timestamp * 2, {
             from: serviceAccount
         });
 
-        await helper.rpcCall(web3, "evm_increaseTime", [latestBlock.timestamp + 100], 0);
+        await helper.rpcCall(web3, "evm_increaseTime", [100], 0);
 
         return helper.handleErrorTransaction(() => dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {
             from: serviceAccount

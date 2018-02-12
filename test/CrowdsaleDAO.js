@@ -10,7 +10,7 @@ contract("CrowdsaleDAO", accounts => {
     beforeEach(async () => dao = await helper.createCrowdsaleDAO(cdf));
 
     it("Should initiate bonus periods and token bonuses for team", async () => {
-        const [date,] = await helper.initBonuses(dao, accounts);
+        const [date,] = await helper.initBonuses(dao, accounts, web3);
 
         assert.equal(serviceAccount, await dao.team.call(0));
         assert.equal(5, await dao.teamBonusesArr.call(0));
@@ -19,45 +19,54 @@ contract("CrowdsaleDAO", accounts => {
         assert.equal(10, await dao.teamBonusesArr.call(1));
         assert.equal(10, await dao.teamBonuses.call(unknownAccount));
 
-        assert.equal(date, await dao.bonusPeriods.call(0));
-        assert.equal(date + 60, await dao.bonusPeriods.call(1));
+        assert.equal(date, (await dao.bonusPeriods.call(0)).toNumber());
+        assert.equal(date + 60, (await dao.bonusPeriods.call(1)).toNumber());
 
-        assert.equal(10, await dao.bonusRates.call(0));
-        assert.equal(20, await dao.bonusRates.call(1));
+        assert.equal(10, (await dao.bonusRates.call(0)).toNumber());
+        assert.equal(20, (await dao.bonusRates.call(1)).toNumber());
         assert.equal(false, await dao.canInitBonuses.call());
     });
 
     it("Should not initiate bonuses when periods and rates count mismatch", async () => {
-        const date = Math.round(Date.now() / 1000);
+        const block = await helper.getLatestBlock(web3);
+        const date = block.timestamp;
         const holdTime = 60 * 60 * 24;
-        await helper.handleErrorTransaction(async () => await dao.initBonuses([serviceAccount, unknownAccount], [5, 10], [date], [10, 20], [holdTime, holdTime]))
+
+        return helper.handleErrorTransaction(() => dao.initBonuses([serviceAccount, unknownAccount], [5, 10], [date], [10, 20], [holdTime, holdTime]))
     });
 
     it("Should not initiate bonuses when team members and team bonuses count mismatch", async () => {
-        const date = Math.round(Date.now() / 1000);
+        const block = await helper.getLatestBlock(web3);
+        const date = block.timestamp;
         const holdTime = 60 * 60 * 24;
-        await helper.handleErrorTransaction(async () => await dao.initBonuses([serviceAccount, unknownAccount], [5], [date, date + 60], [10, 20],[holdTime, holdTime]))
+
+        return helper.handleErrorTransaction(() => dao.initBonuses([serviceAccount, unknownAccount], [5], [date, date + 60], [10, 20], [holdTime, holdTime]))
     });
 
     it("Should not initiate bonuses when team members and team hold count mismatch", async () => {
-        const date = Math.round(Date.now() / 1000);
+        const block = await helper.getLatestBlock(web3);
+        const date = block.timestamp;
         const holdTime = 60 * 60 * 24;
-        await helper.handleErrorTransaction(async () => await dao.initBonuses([serviceAccount, unknownAccount],[5, 10],[date, date + 60],[10, 20],[holdTime]))
+
+        return helper.handleErrorTransaction(() => dao.initBonuses([serviceAccount, unknownAccount], [5, 10], [date, date + 60], [10, 20], [holdTime]))
     });
 
     it("Should not be able to initiate bonus periods and token bonuses for team twice", async () => {
-        await helper.initBonuses(dao, accounts);
-        await helper.handleErrorTransaction(async () => await helper.initBonuses(dao, accounts));
+        await helper.initBonuses(dao, accounts, web3);
+
+        return helper.handleErrorTransaction(() => helper.initBonuses(dao, accounts, web3));
     });
 
     it("Should not be able to initiate bonus periods and token bonuses for team after start of crowdsale", async () => {
         await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
-        await helper.handleErrorTransaction(async () => await helper.initBonuses(dao, accounts));
+
+        return helper.handleErrorTransaction(() => helper.initBonuses(dao, accounts, web3));
     });
 
     it("Should not be able to initiate bonus periods and token bonuses for team from not owner", async () => {
         await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
-        await helper.handleErrorTransaction(async () => await helper.initBonuses(dao, [unknownAccount, serviceAccount]));
+
+        return helper.handleErrorTransaction(() => helper.initBonuses(dao, [unknownAccount, serviceAccount], web3));
     });
 
     it("Should set white list addresses", async () => {
@@ -73,12 +82,11 @@ contract("CrowdsaleDAO", accounts => {
     it("Should not be able to set white list addresses twice", async () => {
         await dao.setWhiteList.sendTransaction([serviceAccount, unknownAccount]);
 
-        await helper.handleErrorTransaction(async () => await dao.setWhiteList([serviceAccount, unknownAccount]));
+        return helper.handleErrorTransaction(() => dao.setWhiteList([serviceAccount, unknownAccount]));
     });
 
-    it("Should not be able to set white list addresses from not owner", async () => {
-        await helper.handleErrorTransaction(async () =>
-            await dao.setWhiteList.sendTransaction([serviceAccount, unknownAccount], {from: unknownAccount}));
-    });
+    it("Should not be able to set white list addresses from not owner", () =>
+        helper.handleErrorTransaction(
+            () => dao.setWhiteList.sendTransaction([serviceAccount, unknownAccount], {from: unknownAccount})));
 
 });
