@@ -12,7 +12,7 @@ contract VotingDecisions is CrowdsaleDAOFields {
     }
 
     function makeRefundableByUser() external {
-        require(lastWithdrawalTimestamp != 0 && block.timestamp >= lastWithdrawalTimestamp + withdrawalPeriod);
+        require(lastWithdrawalTimestamp != 0 && block.timestamp >= created_at + withdrawalPeriod);
         makeRefundable();
     }
 
