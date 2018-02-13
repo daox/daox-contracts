@@ -26,7 +26,6 @@ contract Crowdsale is CrowdsaleDAOFields {
         require(block.timestamp >= endTime && !crowdsaleFinished);
 
         crowdsaleFinished = true;
-        newRate = rate;
 
         if(weiRaised >= softCap) {
             teamTokensAmount = DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
