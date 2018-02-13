@@ -200,7 +200,7 @@ contract("Refund", accounts => {
         assert.isTrue(isFinished, "Refund was not finished");
     });
 
-    it("Should not accept refund when amount of votes for option#1 is less then 90%", async () => {
+    it("Should accept refund when amount of votes for option#1 = 90%", async () => {
         const backers = [backer1, backer2];
         const [backersToWei, backersToOption] = [{}, {}];
         backersToWei[`${backers[0]}`] = web3.toWei(18, "ether");
