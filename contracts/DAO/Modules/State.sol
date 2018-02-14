@@ -3,7 +3,6 @@ pragma solidity ^0.4.0;
 import "../../DAO/Owned.sol";
 import "../CrowdsaleDAOFields.sol";
 import "../../Commission.sol";
-import "./OwnedFields.sol";
 
 contract State is CrowdsaleDAOFields {
     address public owner;
