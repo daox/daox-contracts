@@ -119,7 +119,7 @@ const initBonuses = async (dao, accounts, _web3) => {
     const block = await getLatestBlock(_web3);
     const date = block.timestamp;
     const holdTime = 60 * 60 * 24;
-    await dao.initBonuses.sendTransaction([accounts[0], accounts[1]], [5, 10], [date, date + 60], [10, 20], [holdTime, holdTime], {from: accounts[0]});
+    await dao.initBonuses([accounts[0], accounts[1]], [5, 10], [date, date + 60], [10, 20], [holdTime, holdTime]);
 
     return [date, holdTime];
 };
