@@ -14,7 +14,6 @@ contract("Payment", accounts => {
     let cdf, dao, crowdsaleParameters;
     const shiftTime1 = 10000;
     const shiftTime2 = 20000;
-    let callID = 0;
 
     before(async () => cdf = await helper.createCrowdsaleDAOFactory(accounts));
 
@@ -42,11 +41,12 @@ contract("Payment", accounts => {
 
         await commissionContract.sendTransaction({
             from: unknownAccount,
-            value: web3.toWei(softCap, "ether")
+            value: web3.toWei(softCap)
         });
 
-        assert.equal(web3.toWei(softCap, "ether"), await dao.commissionRaised.call(), "Commission raised variable is not correct");
-        assert.equal(web3.toWei(softCap, "ether"), await dao.depositedWithCommission.call(unknownAccount), "Deposited with commission was not calculated correct");
+        assert.equal(web3.toWei(softCap), await dao.commissionRaised.call(), "Commission raised variable is not correct");
+        assert.equal(web3.toWei(softCap), await dao.depositedWithCommission.call(unknownAccount), "Deposited with commission was not calculated correct");
+        assert.equal(web3.toWei(softCap), await dao.depositedWei.call(unknownAccount), "Deposited with commission was not calculated correct");
 
         await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2]);
         await helper.rpcCall(web3, "evm_mine", null);
@@ -63,13 +63,16 @@ contract("Payment", accounts => {
         const daoXToken = Token.at(await daox.token.call());
         const balance = await daoXToken.balanceOf.call(unknownAccount);
 
-        assert.equal(web3.toWei(softCap, "ether") * 100, balance, "Received invalid amount of DAOx tokens");
+        assert.equal(web3.toWei(softCap) * 100, balance, "Received invalid amount of DAOx tokens");
     });
 
     it("Should refund when soft cap was not reached", async () => {
-        await dao.sendTransaction({
+        const commissionContractAddress = await dao.commissionContract.call();
+        const commissionContract = Commission.at(commissionContractAddress);
+
+        await commissionContract.sendTransaction({
             from: accounts[2],
-            value: web3.toWei(softCap / 2, "ether"),
+            value: web3.toWei(softCap / 2),
             gasPrice: 0
         });
 
@@ -81,10 +84,12 @@ contract("Payment", accounts => {
             gasPrice: 0
         });
 
-        assert.isTrue(await dao.crowdsaleFinished.call(), "Crowdsale was not finished");
+        // assert.isTrue(await dao.crowdsaleFinished.call(), "Crowdsale was not finished");
         assert.isTrue(await dao.refundableSoftCap.call(), "Crowdsale is not refundable");
         assert.isNotTrue(await dao.weiRaised.call() > await dao.softCap.call(), "Wei raised should be less than soft cap");
-        assert.equal(web3.toWei(softCap / 2), (await dao.weiRaised.call()).toNumber(), "Wei raised calculated not correct");
+        assert.equal(web3.toWei(softCap / 2), (await dao.weiRaised.call()).toNumber(), "Wei raised calculated not correct")
+        assert.equal(web3.toWei(softCap / 2), (await dao.depositedWei.call(accounts[2])).toNumber());
+        assert.equal(web3.toWei(softCap / 2), (await dao.depositedWithCommission.call(accounts[2])).toNumber());
 
         let rpcResponse = await helper.rpcCall(web3, "eth_getBalance", [accounts[2]]);
         const balanceBefore = web3.fromWei(rpcResponse.result);
@@ -103,7 +108,7 @@ contract("Payment", accounts => {
     it("Should not refund when soft cap was reached", async () => {
         await dao.sendTransaction({
             from: accounts[2],
-            value: web3.toWei(softCap, "ether"),
+            value: web3.toWei(softCap),
             gasPrice: 0
         });
 
@@ -117,6 +122,7 @@ contract("Payment", accounts => {
 
         assert.isTrue(await dao.crowdsaleFinished.call(), "Crowdsale was not finished");
         assert.isTrue((await dao.weiRaised.call()).toNumber() === (await dao.softCap.call()).toNumber(), "Wei raised should be equal soft cap");
+        assert.isNotTrue(await dao.refundableSoftCap.call());
         assert.equal(web3.toWei(softCap), (await dao.weiRaised.call()).toNumber(), "Wei raised calculated not correct");
 
         return helper.handleErrorTransaction(() => dao.refundSoftCap.sendTransaction({
@@ -128,7 +134,7 @@ contract("Payment", accounts => {
     it("Should not refund to unknown account when soft cap was not reached", async () => {
         await dao.sendTransaction({
             from: accounts[2],
-            value: web3.toWei(softCap / 2, "ether"),
+            value: web3.toWei(softCap / 2),
             gasPrice: 0
         });
 
