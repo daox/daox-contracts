@@ -15,4 +15,5 @@ contract VotingFields {
     bool public finished = false;
     uint public quorum;
     bytes32 public votingType;
+    uint public minimalDuration = 60 * 60 * 24 * 7; // 7 days
 }
