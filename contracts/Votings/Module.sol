@@ -10,13 +10,13 @@ contract Module is VotingFields {
     address public newModuleAddress;
     address baseVoting;
 
-    function Module(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _module, address _newAddress) {
+    function Module(address _baseVoting, address _dao, string _name, string _description, uint _duration, uint _module, address _newAddress) {
         require(_module >= 0 && _module <= 3);
         baseVoting = _baseVoting;
         votingType = "Module";
         module = Modules(_module);
         newModuleAddress = _newAddress;
-        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 80);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _name, _description, _duration, 80);
         createOptions();
     }
 

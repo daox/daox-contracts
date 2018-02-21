@@ -7,10 +7,10 @@ import "../Common.sol";
 contract Refund is VotingFields {
     address baseVoting;
 
-    function Refund(address _baseVoting, address _dao, bytes32 _description, uint _duration) {
+    function Refund(address _baseVoting, address _dao, string _name, string _description, uint _duration) {
         baseVoting = _baseVoting;
         votingType = "Refund";
-        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 90);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _name, _description, _duration, 90);
         createOptions();
     }
 

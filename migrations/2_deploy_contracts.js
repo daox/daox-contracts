@@ -15,7 +15,8 @@ const DAOProxy = artifacts.require("./DAO/DAOProxy.sol");
 module.exports = (deployer) => {
     const deployVotingFactory = () =>
         deployer.deploy(Common)
-            .then(() => deployer.link(Common, Voting) && deployer.deploy(Voting) && deployer.deploy(VotingLib))
+            .then(() => deployer.link(Common, Voting) && deployer.deploy(Voting))
+            .then(() => deployer.link(Common, VotingLib) && deployer.deploy(VotingLib))
             .then(() => deployer.link(VotingLib, VotingFactory) && deployer.deploy(VotingFactory, Voting.address));
 
     const deployDAOx = () =>

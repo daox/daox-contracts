@@ -150,7 +150,7 @@ const makeCrowdsaleNew = async (_web3, cdf, dao, serviceAccount, backers, shiftT
 };
 
 const decodeVotingParameters = (tx) =>
-    web3.eth.abi.decodeParameters(["address", "string", "address", "bytes32", "uint", "address"], tx.receipt.logs[0].data);
+    web3.eth.abi.decodeParameters(["address", "string", "address", "string", "string", "uint", "address"], tx.receipt.logs[0].data);
 
 const finishVoting = async (shiftTime, finish, duration, voting, _web3) => {
     if (shiftTime) {

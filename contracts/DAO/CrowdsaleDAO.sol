@@ -87,20 +87,20 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     /*
         Create proposal functions
     */
-    function addProposal(string _description, uint _duration, bytes32[] _options) {
-        votings[DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this)] = true;
+    function addProposal(string _name, string _description, uint _duration, bytes32[] _options) {
+        votings[DAOLib.delegatedCreateProposal(votingFactory, _name, _description, _duration, _options, this)] = true;
     }
 
-    function addWithdrawal(string _description, uint _duration, uint _sum, address withdrawalWallet) {
-        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, withdrawalWallet, this)] = true;
+    function addWithdrawal(string _name, string _description, uint _duration, uint _sum, address withdrawalWallet) {
+        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, _name, _description, _duration, _sum, withdrawalWallet, this)] = true;
     }
 
-    function addRefund(string _description, uint _duration) {
-        votings[DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this)] = true;
+    function addRefund(string _name, string _description, uint _duration) {
+        votings[DAOLib.delegatedCreateRefund(votingFactory, _name, _description, _duration, this)] = true;
     }
 
-    function addModule(string _description, uint _duration, uint _module, address _newAddress) {
-        votings[DAOLib.delegatedCreateModule(votingFactory, Common.stringToBytes32(_description), _duration, _module, _newAddress, this)] = true;
+    function addModule(string _name, string _description, uint _duration, uint _module, address _newAddress) {
+        votings[DAOLib.delegatedCreateModule(votingFactory, _name, _description, _duration, _module, _newAddress, this)] = true;
     }
 
     /*
