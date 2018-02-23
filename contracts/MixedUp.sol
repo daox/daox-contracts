@@ -22,8 +22,8 @@ interface VotingFactoryInterface {
 library DAOLib {
     event VotingCreated(address voting, string votingType, address dao, bytes32 description, uint duration, address sender);
 
-    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) constant returns(uint) {
-        for(uint i = 0; i < bonusPeriods.length; i++) {
+    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) constant returns (uint) {
+        for (uint i = 0; i < bonusPeriods.length; i++) {
             if (now < bonusPeriods[i]) {
                 rate = bonusRates[i];
                 break;
@@ -34,20 +34,19 @@ library DAOLib {
         return tokensAmount;
     }
 
-    function countRefundSum(uint rate, uint newRate, uint weiSpent) constant returns (uint) {
-        uint multiplier = 1000;
-        uint newRateToOld = newRate*multiplier / rate;
+    function countRefundSum(uint tokensAmount, uint rate, uint newRate) constant returns (uint) {
+        uint multiplier = 100000;
 
-        return weiSpent*multiplier / newRateToOld;
+        return (tokensAmount * newRate) / (multiplier * rate);
     }
 
-    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) returns(uint) {
-        uint commission = (commissionRaised/100)*4;
+    function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) returns (uint) {
+        uint commission = (commissionRaised / 100) * 4;
         serviceContract.call.gas(200000).value(commission)();
-        uint totalSupply = token.totalSupply() / 100;
+        uint totalSupply = token.totalSupply() / 100 / 1 ether;
         uint teamTokensAmount = 0;
-        for(uint i = 0; i < team.length; i++) {
-            uint teamMemberTokensAmount = totalSupply*teamBonuses[i];
+        for (uint i = 0; i < team.length; i++) {
+            uint teamMemberTokensAmount = totalSupply * teamBonuses[i];
             teamTokensAmount += teamMemberTokensAmount;
             token.mint(team[i], teamMemberTokensAmount);
             token.hold(team[i], teamHold[i]);
@@ -123,7 +122,7 @@ contract CrowdsaleDAOFields {
     mapping(address => uint) public depositedWithCommission;
     bool public crowdsaleFinished;
     bool public refundableSoftCap = false;
-    uint newRate = 0;
+    uint public newRate = 0;
     address public serviceContract;
     uint[] public teamBonusesArr;
     address[] public team;
@@ -136,7 +135,7 @@ contract CrowdsaleDAOFields {
     bytes32 public description;
     mapping(address => bool) public votings;
     bool public refundable = false;
-    uint internal lastWithdrawalTimestamp = 0;
+    uint public lastWithdrawalTimestamp = 0;
     uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;
     address[] public whiteListArr;
     mapping(address => bool) public whiteList;
@@ -147,7 +146,7 @@ contract CrowdsaleDAOFields {
 }
 
 contract Owned {
-    address owner;
+    address public owner;
 
     function Owned(address _owner) {
         owner = _owner;
@@ -162,6 +161,7 @@ contract Owned {
         owner = newOwner;
     }
 }
+
 interface IDAOPayable {
     function handleCommissionPayment(address _sender) payable;
 }
@@ -183,7 +183,7 @@ contract State is CrowdsaleDAOFields {
 
     event State(address _comission);
 
-    function initState(address _tokenAddress, address _votingFactory, address _serviceContract) external onlyOwner(msg.sender) canInit {
+    function initState(address _tokenAddress, address _votingFactory, address _serviceContract) external onlyOwner(msg.sender) canInit crowdsaleNotStarted {
         require(_tokenAddress != 0x0 && _votingFactory != 0x0 && _serviceContract != 0x0);
 
         token = TokenInterface(_tokenAddress);
@@ -250,7 +250,7 @@ contract Crowdsale is CrowdsaleDAOFields {
         require(_sender != 0x0);
 
         uint weiAmount = msg.value;
-        if(commission) {
+        if (commission) {
             commissionRaised = commissionRaised + weiAmount;
             depositedWithCommission[_sender] += weiAmount;
         }
@@ -299,15 +299,16 @@ contract Payment is CrowdsaleDAOFields {
     function refund() whenRefundable {
         require(teamBonuses[msg.sender] == 0);
 
+        uint tokensAmount = token.balanceOf(msg.sender);
         token.burn(msg.sender);
-        msg.sender.transfer(DAOLib.countRefundSum(rate, newRate, depositedWei[msg.sender] + depositedWithCommission[msg.sender])*1 wei);
+        msg.sender.transfer(DAOLib.countRefundSum(tokensAmount, rate, newRate));
     }
 
     function refundSoftCap() whenRefundableSoftCap {
-        require(depositedWei[msg.sender] != 0 || depositedWithCommission[msg.sender] != 0);
+        require(depositedWei[msg.sender] != 0);
 
         token.burn(msg.sender);
-        uint weiAmount = depositedWei[msg.sender] + depositedWithCommission[msg.sender];
+        uint weiAmount = depositedWei[msg.sender];
         delete depositedWei[msg.sender];
         delete depositedWithCommission[msg.sender];
         msg.sender.transfer(weiAmount);
@@ -333,10 +334,11 @@ contract Payment is CrowdsaleDAOFields {
         _;
     }
 }
+
 contract VotingDecisions is CrowdsaleDAOFields {
 
     function withdrawal(address _address, uint withdrawalSum) onlyVoting external {
-        assert(_address.call.value(withdrawalSum * 1 ether)());
+        assert(_address.call.value(withdrawalSum)());
         lastWithdrawalTimestamp = block.timestamp;
     }
 
@@ -351,8 +353,9 @@ contract VotingDecisions is CrowdsaleDAOFields {
 
     function makeRefundable() private {
         require(!refundable);
+        uint multiplier = 100000;
         refundable = true;
-        newRate = token.totalSupply() / this.balance;
+        newRate = this.balance * rate * multiplier / (token.totalSupply() - teamTokensAmount);
     }
 
     function holdTokens(address _address, uint duration) onlyVoting external {
@@ -364,6 +367,7 @@ contract VotingDecisions is CrowdsaleDAOFields {
         _;
     }
 }
+
 interface DAOFactoryInterface {
     function exists(address _address) constant returns (bool);
 }
@@ -413,14 +417,6 @@ library DAOProxy {
 
     function delegatedHoldTokens(address votingDecisionModule, address _address, uint duration) {
         require(votingDecisionModule.delegatecall(bytes4(keccak256("holdTokens(address,uint256)")), _address, duration));
-    }
-
-    function delegatedFlushWhiteList(address votingDecisionModule) {
-        require(votingDecisionModule.delegatecall(bytes4(keccak256("flushWhiteList()"))));
-    }
-
-    function delegatedChangeWhiteList(address votingDecisionModule, address _addr, bool res) {
-        require(votingDecisionModule.delegatecall(bytes4(keccak256("changeWhiteList(address,bool)")), _addr, res));
     }
 
     function delegatedInitCrowdsaleParameters(address crowdsaleModule, uint _softCap, uint _hardCap, uint _rate, uint _startTime, uint _endTime) {
@@ -719,11 +715,114 @@ contract VotingFields {
 }
 
 interface VotingInterface {
+    function finished() constant returns(bool);
     function voted(address _address) constant returns (uint);
 
-    function getOptions() external constant returns(uint[] result);
+    function getOptions() external constant returns(uint[2] result);
+
+    function addVote(uint optionID);
+
+    function finish();
 }
 
+contract Proposal is VotingFields {
+    address baseVoting;
+
+    function Proposal(address _baseVoting, address _dao, bytes32 _description, uint _duration, bytes32[] _options){
+        require(_options.length >= 2 && _options.length <= 10);
+        baseVoting = _baseVoting;
+        votingType = "Proposal";
+        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 0);
+        createOptions(_options);
+    }
+
+    function addVote(uint optionID) {
+        VotingLib.delegatecallAddVote(baseVoting, optionID);
+    }
+
+    function finish() {
+        VotingLib.delegatecallFinish(baseVoting);
+    }
+
+    function createOptions(bytes32[] _options) private {
+        for (uint i = 0; i < _options.length; i++) {
+            options[i + 1] = VotingLib.Option(0, _options[i]);
+        }
+    }
+
+    function getOptions() external constant returns(uint[10] result) {
+        for (uint i = 1; i < 11; i++) {
+            result[i] = options[i].votes;
+        }
+    }
+}
+
+contract Withdrawal is VotingFields {
+    address baseVoting;
+    uint public withdrawalSum;
+    address public withdrawalWallet;
+
+    function Withdrawal(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _sum, address _withdrawalWallet){
+        require(_sum > 0 && _sum <= _dao.balance);
+        baseVoting = _baseVoting;
+        votingType = "Withdrawal";
+        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 0);
+        withdrawalSum = _sum;
+        withdrawalWallet = _withdrawalWallet;
+        createOptions();
+    }
+
+    function addVote(uint optionID) {
+        VotingLib.delegatecallAddVote(baseVoting, optionID);
+    }
+
+    function finish() {
+        VotingLib.delegatecallFinish(baseVoting);
+        if(result.description == "yes") dao.withdrawal(withdrawalWallet, withdrawalSum);
+    }
+
+    function createOptions() private {
+        options[1] = VotingLib.Option(0, "yes");
+        options[2] = VotingLib.Option(0, "no");
+    }
+
+    function getOptions() external constant returns(uint[2] result) {
+        for (uint i = 1; i < 3; i++) {
+            result[i] = options[i].votes;
+        }
+    }
+}
+
+contract Refund is VotingFields {
+    address baseVoting;
+
+    function Refund(address _baseVoting, address _dao, bytes32 _description, uint _duration) {
+        baseVoting = _baseVoting;
+        votingType = "Refund";
+        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 90);
+        createOptions();
+    }
+
+    function addVote(uint optionID) {
+        VotingLib.delegatecallAddVote(baseVoting, optionID);
+    }
+
+    function finish() {
+        VotingLib.delegatecallFinish(baseVoting);
+        if(result.description == "yes") dao.makeRefundableByVotingDecision();
+    }
+
+    function createOptions() private {
+        options[1] = VotingLib.Option(0, "yes");
+        options[2] = VotingLib.Option(0, "no");
+    }
+
+    function getOptions() external constant returns(uint[2] result) {
+        for (uint i = 1; i < 3; i++) {
+            result[i] = options[i].votes;
+        }
+    }
+}
 contract Voting is VotingFields {
 
     function create(address _dao, bytes32 _description, uint _duration, uint _quorum) succeededCrowdsale(ICrowdsaleDAO(_dao)) external {
@@ -797,105 +896,6 @@ contract Voting is VotingFields {
     }
 }
 
-contract Proposal is VotingFields {
-    address baseVoting;
-
-    function Proposal(address _baseVoting, address _dao, bytes32 _description, uint _duration, bytes32[] _options){
-        require(_options.length <= 10);
-        baseVoting = _baseVoting;
-        votingType = "Proposal";
-        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 0);
-        createOptions(_options);
-    }
-
-    function addVote(uint optionID) {
-        VotingLib.delegatecallAddVote(baseVoting, optionID);
-    }
-
-    function finish() {
-        VotingLib.delegatecallFinish(baseVoting);
-    }
-
-    function createOptions(bytes32[] _options) private {
-        for (uint i = 0; i < _options.length; i++) {
-            options[i + 1] = VotingLib.Option(0, _options[i]);
-        }
-    }
-
-    function getOptions() external constant returns(uint[] result) {
-        for (uint i = 1; i < 11; i++) {
-            result[i] = options[i].votes;
-        }
-    }
-}
-
-contract Withdrawal is VotingFields {
-    address baseVoting;
-    uint public withdrawalSum;
-    address public withdrawalWallet;
-
-    function Withdrawal(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _sum, address _withdrawalWallet){
-        require(_sum > 0 && _sum * 1 ether <= _dao.balance);
-        baseVoting = _baseVoting;
-        votingType = "Withdrawal";
-        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 0);
-        withdrawalSum = _sum;
-        withdrawalWallet = _withdrawalWallet;
-        createOptions();
-    }
-
-    function addVote(uint optionID) {
-        VotingLib.delegatecallAddVote(baseVoting, optionID);
-    }
-
-    function finish() {
-        VotingLib.delegatecallFinish(baseVoting);
-        if(result.description == "yes") dao.withdrawal(withdrawalWallet, withdrawalSum);
-    }
-
-    function createOptions() private {
-        options[1] = VotingLib.Option(0, "yes");
-        options[2] = VotingLib.Option(0, "no");
-    }
-
-    function getOptions() external constant returns(uint[2] result) {
-        for (uint i = 1; i < 3; i++) {
-            result[i] = options[i].votes;
-        }
-    }
-}
-
-contract Refund is VotingFields {
-    address baseVoting;
-
-    function Refund(address _baseVoting, address _dao, bytes32 _description, uint _duration) {
-        baseVoting = _baseVoting;
-        votingType = "Refund";
-        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 90);
-        createOptions();
-    }
-
-    function addVote(uint optionID) {
-        VotingLib.delegatecallAddVote(baseVoting, optionID);
-    }
-
-    function finish() {
-        VotingLib.delegatecallFinish(baseVoting);
-        if(result.description == "yes") dao.makeRefundableByVotingDecision();
-    }
-
-    function createOptions() private {
-        options[1] = VotingLib.Option(0, "yes");
-        options[2] = VotingLib.Option(0, "no");
-    }
-
-    function getOptions() external constant returns(uint[2] result) {
-        for (uint i = 1; i < 3; i++) {
-            result[i] = options[i].votes;
-        }
-    }
-}
-
 contract Module is VotingFields {
     enum Modules{State, Payment, VotingDecisions, Crowdsale}
     Modules public module;
@@ -903,6 +903,7 @@ contract Module is VotingFields {
     address baseVoting;
 
     function Module(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _module, address _newAddress) {
+        require(_module >= 0 && _module <= 3);
         baseVoting = _baseVoting;
         votingType = "Module";
         module = Modules(_module);
