@@ -7,8 +7,8 @@ import "../CrowdsaleDAOFields.sol";
 contract VotingDecisions is CrowdsaleDAOFields {
 
     function withdrawal(address _address, uint withdrawalSum) onlyVoting external {
-        assert(_address.call.value(withdrawalSum)());
         lastWithdrawalTimestamp = block.timestamp;
+        _address.transfer(withdrawalSum);
     }
 
     function makeRefundableByUser() external {

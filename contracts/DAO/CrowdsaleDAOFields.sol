@@ -1,7 +1,6 @@
 pragma solidity ^0.4.0;
 
 import "../Token/TokenInterface.sol";
-import "../Users/UserInterface.sol";
 import "../Votings/VotingFactoryInterface.sol";
 
 contract CrowdsaleDAOFields {

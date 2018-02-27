@@ -27,7 +27,7 @@ library DAOLib {
     function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) returns (uint) {
         uint commission = (commissionRaised / 100) * 4;
         serviceContract.call.gas(200000).value(commission)();
-        uint totalSupply = token.totalSupply() / 100 / 1 ether;
+        uint totalSupply = token.totalSupply() / 100;
         uint teamTokensAmount = 0;
         for (uint i = 0; i < team.length; i++) {
             uint teamMemberTokensAmount = totalSupply * teamBonuses[i];
