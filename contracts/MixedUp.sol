@@ -43,7 +43,7 @@ library DAOLib {
     function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) returns (uint) {
         uint commission = (commissionRaised / 100) * 4;
         serviceContract.call.gas(200000).value(commission)();
-        uint totalSupply = token.totalSupply() / 100 / 1 ether;
+        uint totalSupply = token.totalSupply() / 100;
         uint teamTokensAmount = 0;
         for (uint i = 0; i < team.length; i++) {
             uint teamMemberTokensAmount = totalSupply * teamBonuses[i];
@@ -716,6 +716,7 @@ contract VotingFields {
 
 interface VotingInterface {
     function finished() constant returns(bool);
+
     function voted(address _address) constant returns (uint);
 
     function getOptions() external constant returns(uint[2] result);
@@ -750,10 +751,9 @@ contract Proposal is VotingFields {
         }
     }
 
-    function getOptions() external constant returns(uint[10] result) {
-        for (uint i = 1; i < 11; i++) {
-            result[i] = options[i].votes;
-        }
+    function getOptions() external constant returns(uint[10]) {
+        return [options[1].votes, options[2].votes, options[3].votes, options[4].votes, options[5].votes,
+        options[6].votes, options[7].votes, options[8].votes, options[9].votes, options[10].votes];
     }
 }
 
@@ -786,10 +786,8 @@ contract Withdrawal is VotingFields {
         options[2] = VotingLib.Option(0, "no");
     }
 
-    function getOptions() external constant returns(uint[2] result) {
-        for (uint i = 1; i < 3; i++) {
-            result[i] = options[i].votes;
-        }
+    function getOptions() external constant returns(uint[2]) {
+        return [options[1].votes, options[2].votes];
     }
 }
 
@@ -817,10 +815,8 @@ contract Refund is VotingFields {
         options[2] = VotingLib.Option(0, "no");
     }
 
-    function getOptions() external constant returns(uint[2] result) {
-        for (uint i = 1; i < 3; i++) {
-            result[i] = options[i].votes;
-        }
+    function getOptions() external constant returns(uint[2]) {
+        return [options[1].votes, options[2].votes];
     }
 }
 contract Voting is VotingFields {
@@ -932,10 +928,8 @@ contract Module is VotingFields {
         options[2] = VotingLib.Option(0, "no");
     }
 
-    function getOptions() external constant returns(uint[2] result) {
-        for (uint i = 1; i < 3; i++) {
-            result[i] = options[i].votes;
-        }
+    function getOptions() external constant returns(uint[2]) {
+        return [options[1].votes, options[2].votes];
     }
 }
 

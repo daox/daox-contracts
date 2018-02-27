@@ -28,9 +28,7 @@ contract Refund is VotingFields {
         options[2] = VotingLib.Option(0, "no");
     }
 
-    function getOptions() external constant returns(uint[2] result) {
-        for (uint i = 1; i < 3; i++) {
-            result[i] = options[i].votes;
-        }
+    function getOptions() external constant returns(uint[2]) {
+        return [options[1].votes, options[2].votes];
     }
 }
