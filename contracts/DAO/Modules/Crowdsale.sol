@@ -39,7 +39,7 @@ contract Crowdsale is CrowdsaleDAOFields {
     }
 
     function finish() external {
-        require(block.timestamp >= endTime && !crowdsaleFinished);
+        require((block.timestamp >= endTime || weiRaised == hardCap) && !crowdsaleFinished);
 
         crowdsaleFinished = true;
         newRate = rate;
