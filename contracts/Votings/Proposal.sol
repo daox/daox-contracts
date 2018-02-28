@@ -15,11 +15,16 @@ contract Proposal is VotingFields {
         createOptions(_options);
     }
 
-    function addVote(uint optionID) {
+    function getOptions() external constant returns(uint[10]) {
+        return [options[1].votes, options[2].votes, options[3].votes, options[4].votes, options[5].votes,
+        options[6].votes, options[7].votes, options[8].votes, options[9].votes, options[10].votes];
+    }
+
+    function addVote(uint optionID) public {
         VotingLib.delegatecallAddVote(baseVoting, optionID);
     }
 
-    function finish() {
+    function finish() public {
         VotingLib.delegatecallFinish(baseVoting);
     }
 
@@ -27,10 +32,5 @@ contract Proposal is VotingFields {
         for (uint i = 0; i < _options.length; i++) {
             options[i + 1] = VotingLib.Option(0, _options[i]);
         }
-    }
-
-    function getOptions() external constant returns(uint[10]) {
-        return [options[1].votes, options[2].votes, options[3].votes, options[4].votes, options[5].votes,
-        options[6].votes, options[7].votes, options[8].votes, options[9].votes, options[10].votes];
     }
 }

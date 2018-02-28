@@ -19,11 +19,15 @@ contract Withdrawal is VotingFields {
         createOptions();
     }
 
-    function addVote(uint optionID) {
+    function getOptions() external constant returns(uint[2]) {
+        return [options[1].votes, options[2].votes];
+    }
+
+    function addVote(uint optionID) public {
         VotingLib.delegatecallAddVote(baseVoting, optionID);
     }
 
-    function finish() {
+    function finish() public {
         VotingLib.delegatecallFinish(baseVoting);
         if(result.description == "yes") dao.withdrawal(withdrawalWallet, withdrawalSum);
     }
@@ -31,9 +35,5 @@ contract Withdrawal is VotingFields {
     function createOptions() private {
         options[1] = VotingLib.Option(0, "yes");
         options[2] = VotingLib.Option(0, "no");
-    }
-
-    function getOptions() external constant returns(uint[2]) {
-        return [options[1].votes, options[2].votes];
     }
 }

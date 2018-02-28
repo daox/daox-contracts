@@ -12,7 +12,7 @@ contract VotingFactory is VotingFactoryInterface {
     address baseVoting;
     DAOFactoryInterface daoFactory;
 
-    function VotingFactory(address _baseVoting){
+    function VotingFactory(address _baseVoting) {
         baseVoting = _baseVoting;
     }
 
