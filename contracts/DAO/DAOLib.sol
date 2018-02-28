@@ -4,25 +4,14 @@ import "../Token/TokenInterface.sol";
 import "../Votings/VotingFactoryInterface.sol";
 
 library DAOLib {
-    event VotingCreated(address voting, string votingType, address dao, bytes32 description, uint duration, address sender);
-
-    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) constant returns (uint) {
-        for (uint i = 0; i < bonusPeriods.length; i++) {
-            if (now < bonusPeriods[i]) {
-                rate = bonusRates[i];
-                break;
-            }
-        }
-        uint tokensAmount = weiAmount * rate;
-
-        return tokensAmount;
-    }
-
-    function countRefundSum(uint tokensAmount, uint rate, uint newRate) constant returns (uint) {
-        uint multiplier = 100000;
-
-        return (tokensAmount * newRate) / (multiplier * rate);
-    }
+    event VotingCreated(
+        address voting,
+        string votingType,
+        address dao,
+        bytes32 description,
+        uint duration,
+        address sender
+    );
 
     function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) returns (uint) {
         uint commission = (commissionRaised / 100) * 4;
@@ -87,5 +76,23 @@ library DAOLib {
 
     function delegatedFinish(address _p) {
         require(_p.delegatecall(bytes4(keccak256("finish()"))));
+    }
+
+    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) constant returns (uint) {
+        for (uint i = 0; i < bonusPeriods.length; i++) {
+            if (now < bonusPeriods[i]) {
+                rate = bonusRates[i];
+                break;
+            }
+        }
+        uint tokensAmount = weiAmount * rate;
+
+        return tokensAmount;
+    }
+
+    function countRefundSum(uint tokensAmount, uint rate, uint newRate) constant returns (uint) {
+        uint multiplier = 100000;
+
+        return (tokensAmount * newRate) / (multiplier * rate);
     }
 }

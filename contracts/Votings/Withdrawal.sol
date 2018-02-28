@@ -9,7 +9,7 @@ contract Withdrawal is VotingFields {
     uint public withdrawalSum;
     address public withdrawalWallet;
 
-    function Withdrawal(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _sum, address _withdrawalWallet){
+    function Withdrawal(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _sum, address _withdrawalWallet) {
         require(_sum > 0 && _sum <= _dao.balance);
         baseVoting = _baseVoting;
         votingType = "Withdrawal";

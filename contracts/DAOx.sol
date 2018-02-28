@@ -10,21 +10,20 @@ contract DAOx is Owned {
     uint weiRaised;
     DAOFactoryInterface daoFactory;
 
-    function DAOx()
-    Owned(msg.sender){
+    function DAOx() Owned(msg.sender){
         token = new Token("DAOx", "DAOX");
     }
 
-    function() onlyDAO payable {
+    function() payable onlyDAO {
         weiRaised = weiRaised + msg.value;
     }
 
-    function setDaoFactory(address _dao, address _creator) onlyOwner(_creator) external {
+    function setDaoFactory(address _dao, address _creator) external onlyOwner(_creator) {
         require(address(daoFactory) == 0x0 && _dao != 0x0);
         daoFactory = DAOFactoryInterface(_dao);
     }
 
-    function getCommissionTokens(address _address, uint weiSent) onlyDAO external {
+    function getCommissionTokens(address _address, uint weiSent) external onlyDAO {
         uint tokensAmount = weiSent * tokenRate;
         token.mint(_address, tokensAmount);
     }

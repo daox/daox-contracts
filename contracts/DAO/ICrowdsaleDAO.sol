@@ -4,6 +4,9 @@ import "./IDAO.sol";
 import "../Token/TokenInterface.sol";
 
 contract ICrowdsaleDAO is IDAO {
+    bool public crowdsaleFinished;
+    uint public teamTokensAmount;
+
     function addProposal(string _description, uint _duration, bytes32[] _options) external;
 
     function addWithdrawal(string _description, uint _duration, uint _sum) external;
@@ -12,9 +15,9 @@ contract ICrowdsaleDAO is IDAO {
 
     function addModule(string _description, uint _duration, uint _module, address _newAddress) external;
 
-    function makeRefundableByVotingDecision();
-
     function holdTokens(address _address, uint duration) external;
+
+    function makeRefundableByVotingDecision();
 
     function withdrawal(address _address, uint withdrawalSum);
 
@@ -29,7 +32,4 @@ contract ICrowdsaleDAO is IDAO {
     function teamBonuses(address _address) returns (uint);
 
     function token() returns (TokenInterface);
-
-    bool public crowdsaleFinished;
-    uint public teamTokensAmount;
 }

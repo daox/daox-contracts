@@ -10,9 +10,9 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         string _name
     );
 
-    mapping(address => string) DAOs;
     address public serviceContractAddress;
     address public votingFactoryContractAddress;
+    mapping(address => string) DAOs;
     address[4] modules;
 
     function CrowdsaleDAOFactory(address _serviceContractAddress, address _votingFactoryAddress, address[4] _modules) {

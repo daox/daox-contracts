@@ -7,12 +7,12 @@ contract Owned {
         owner = _owner;
     }
 
+    function transferOwnership(address newOwner) onlyOwner(msg.sender) {
+        owner = newOwner;
+    }
+
     modifier onlyOwner(address _sender) {
         require(_sender == owner);
         _;
-    }
-
-    function transferOwnership(address newOwner) onlyOwner(msg.sender) {
-        owner = newOwner;
     }
 }

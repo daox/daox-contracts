@@ -11,20 +11,18 @@ contract Token is MintableToken {
     uint constant public decimals = 18;
     mapping(address => uint) public held;
 
-
-    function Token(string _name, string _symbol)
-    {
+    function Token(string _name, string _symbol) {
         name = _name;
         symbol = _symbol;
         TokenCreation(this);
     }
 
-    function hold(address addr, uint duration) onlyOwner external {
+    function hold(address addr, uint duration) external onlyOwner {
         uint holdTime = now + duration;
         if (held[addr] == 0 || holdTime > held[addr]) held[addr] = holdTime;
     }
 
-    function burn(address _burner) onlyOwner external {
+    function burn(address _burner) external onlyOwner {
         require(_burner != 0x0);
 
         uint balance = balanceOf(_burner);
@@ -32,11 +30,11 @@ contract Token is MintableToken {
         totalSupply = totalSupply.sub(balance);
     }
 
-    function transfer(address to, uint256 value) notHolded(msg.sender) public returns (bool) {
+    function transfer(address to, uint256 value) public notHolded(msg.sender) returns (bool) {
         super.transfer(to, value);
     }
 
-    function transferFrom(address from, address to, uint256 value) notHolded(from) public returns (bool) {
+    function transferFrom(address from, address to, uint256 value) public notHolded(from) returns (bool) {
         super.transferFrom(from, to, value);
     }
 

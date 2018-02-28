@@ -6,7 +6,7 @@ import "../Common.sol";
 
 contract Voting is VotingFields {
 
-    function create(address _dao, bytes32 _description, uint _duration, uint _quorum) succeededCrowdsale(ICrowdsaleDAO(_dao)) external {
+    function create(address _dao, bytes32 _description, uint _duration, uint _quorum) external succeededCrowdsale(ICrowdsaleDAO(_dao)) {
         dao = ICrowdsaleDAO(_dao);
         description = _description;
         duration = _duration;

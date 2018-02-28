@@ -33,11 +33,11 @@ contract CrowdsaleDAOFields {
     mapping(address => bool) public votings;
     bool public refundable = false;
     uint public lastWithdrawalTimestamp = 0;
-    uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;
     address[] public whiteListArr;
     mapping(address => bool) public whiteList;
     mapping(address => uint) public teamBonuses;
     uint[] public bonusPeriods;
     uint[] public bonusRates;
     uint public teamTokensAmount;
+    uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;
 }
