@@ -209,9 +209,25 @@ contract("Crowdsale", accounts => {
         assert.equal(true, await token.mintingFinished.call());
     });
 
-    it("Should not let finish crowdsale before it's end", async () => {
-        let callID = 2;
+    it("Should finish crowdsale with achieved hardCap before it's end", async () => {
+        const etherAmount = 20;
+        const weiAmount = web3.toWei(etherAmount, "ether");
 
+        await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
+        await dao.sendTransaction({from: accounts[2], value: weiAmount});
+        await helper.rpcCall(web3, "evm_increaseTime", [30]);
+        await helper.rpcCall(web3, "evm_mine", null);
+
+        const token = Token.at(await dao.token.call());
+        await dao.finish.sendTransaction({from: unknownAccount});
+
+        assert.equal(true, await dao.crowdsaleFinished.call());
+        assert.equal(false, await dao.refundableSoftCap.call());
+        assert.equal(true, await token.mintingFinished.call());
+        assert.deepEqual(await dao.hardCap.call(), await dao.weiRaised.call());
+    });
+
+    it("Should not let finish crowdsale before it's end", async () => {
         await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
         await helper.rpcCall(web3, "evm_increaseTime", [50]);
         await helper.rpcCall(web3, "evm_mine", null);
