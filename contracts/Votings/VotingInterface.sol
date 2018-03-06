@@ -7,7 +7,7 @@ interface VotingInterface {
 
     function getOptions() external constant returns(uint[2] result);
 
-    function addVote(uint optionID);
+    function addVote(uint optionID) external;
 
-    function finish();
+    function finish() external;
 }
