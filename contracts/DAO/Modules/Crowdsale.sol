@@ -13,8 +13,8 @@ contract Crowdsale is CrowdsaleDAOFields {
 
 		uint weiAmount = msg.value;
 		if (commission) {
-				commissionRaised = commissionRaised + weiAmount;
-				depositedWithCommission[_sender] += weiAmount;
+			commissionRaised = commissionRaised + weiAmount;
+			depositedWithCommission[_sender] += weiAmount;
 		}
 
 		weiRaised += weiAmount;
@@ -25,43 +25,42 @@ contract Crowdsale is CrowdsaleDAOFields {
 		token.mint(_sender, tokensAmount);
 	}
 
-	function handleDXTPayment(address _sender, uint dxtAmount) external CrowdsaleStarted validDXTPurchase(dxtAmount) {
-		require(_sender != 0x0);
-
+	function handleDXTPayment(uint dxtAmount) external CrowdsaleStarted validDXTPurchase(dxtAmount) {
 		DXTRaised += dxtAmount;
-		depositedDXT[_sender] += dxtAmount;
+		depositedDXT[msg.sender] += dxtAmount;
 
 		uint tokensAmount = DAOLib.countTokens(dxtAmount, bonusPeriods, bonusDXTRates, DXTRate);
 		tokenMintedByDXT += tokensAmount;
-		token.mint(_sender, tokensAmount);
+		token.mint(msg.sender, tokensAmount);
 	}
 
-	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _startTime, uint _endTime) external onlyOwner(msg.sender) canInit {
-			require(_softCap != 0 && _hardCap != 0 && _etherRate != 0 && _startTime != 0 && _endTime != 0);
-			require(_softCap < _hardCap && _startTime > block.timestamp);
-			softCap = _softCap * 1 ether;
-			hardCap = _hardCap * 1 ether;
+	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXTRate, uint _startTime, uint _endTime) external onlyOwner(msg.sender) canInit {
+		require(_softCap != 0 && _hardCap != 0 && _etherRate != 0 && _DXTRate != 0 && _startTime != 0 && _endTime != 0);
+		require(_softCap < _hardCap && _startTime > block.timestamp);
+		softCap = _softCap * 1 ether;
+		hardCap = _hardCap * 1 ether;
 
-			startTime = _startTime;
-			endTime = _endTime;
+		startTime = _startTime;
+		endTime = _endTime;
 
-			etherRate = _etherRate;
+		etherRate = _etherRate;
+		DXTRate = _DXTRate;
 
-			canInitCrowdsaleParameters = false;
+		canInitCrowdsaleParameters = false;
 	}
 
 	function finish() external {
-			require((block.timestamp >= endTime || weiRaised == hardCap) && !crowdsaleFinished);
+		require((block.timestamp >= endTime || weiRaised == hardCap) && !crowdsaleFinished);
 
-			crowdsaleFinished = true;
+		crowdsaleFinished = true;
 
-			if(weiRaised >= softCap) {
-				teamTokensAmount = DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
-			} else {
-				refundableSoftCap = true;
-			}
+		if(weiRaised >= softCap) {
+			teamTokensAmount = DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
+		} else {
+			refundableSoftCap = true;
+		}
 
-			token.finishMinting();
+		token.finishMinting();
 	}
 
 	modifier canInit() {
