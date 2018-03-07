@@ -24,7 +24,8 @@ contract VotingDecisions is CrowdsaleDAOFields {
         require(!refundable);
         uint multiplier = 100000;
         refundable = true;
-        newRate = this.balance * rate * multiplier / (token.totalSupply() - teamTokensAmount);
+        newEtherRate = this.balance * etherRate * multiplier / (token.totalSupply() - teamTokensAmount);
+        newDXTRate = DXT.balanceOf(this) * DXTRate * multiplier / (token.totalSupply() - teamTokensAmount);
     }
 
     function holdTokens(address _address, uint duration) onlyVoting external {

@@ -24,6 +24,10 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedHandlePayment(crowdsaleModule, _sender, true);
     }
 
+    function handleDXTPayment(uint _amount) {
+        DAOProxy.delegatedHandleDXTPayment(crowdsaleModule, msg.sender, _amount);
+    }
+
     function withdrawal(address _address, uint withdrawalSum) external {
         DAOProxy.delegatedWithdrawal(votingDecisionModule,_address, withdrawalSum);
     }
@@ -64,8 +68,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedHoldState(stateModule, _tokenHoldTime);
     }
 
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startTime, uint _endTime) public {
-        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _rate, _startTime, _endTime);
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _startTime, uint _endTime) public {
+        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _startTime, _endTime);
     }
 
     function addProposal(string _description, uint _duration, bytes32[] _options) public {
@@ -84,10 +88,6 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         votings[DAOLib.delegatedCreateModule(votingFactory, Common.stringToBytes32(_description), _duration, _module, _newAddress, this)] = true;
     }
 
-    function getCommissionTokens() public {
-        DAOProxy.delegatedGetCommissionTokens(paymentModule);
-    }
-
     function makeRefundableByUser() public {
         DAOProxy.delegatedMakeRefundableByUser(votingDecisionModule);
     }
@@ -104,11 +104,12 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedFinish(crowdsaleModule);
     }
 
-    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates, uint[] _teamHold) public onlyOwner(msg.sender) {
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusEtherRates, uint[] _bonusDXTRates, uint[] _teamHold) public onlyOwner(msg.sender) {
         require(
 					_team.length == tokenPercents.length &&
 					_team.length == _teamHold.length &&
-					_bonusPeriods.length == _bonusRates.length &&
+					_bonusPeriods.length == _bonusEtherRates.length &&
+                    _bonusPeriods.length == _bonusDXTRates.length &&
 					canInitBonuses &&
 					(block.timestamp < startTime || canInitCrowdsaleParameters));
 
@@ -121,7 +122,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         }
 
         bonusPeriods = _bonusPeriods;
-        bonusRates = _bonusRates;
+        bonusEtherRates = _bonusEtherRates;
+        bonusDXTRates = _bonusDXTRates;
 
         canInitBonuses = false;
     }

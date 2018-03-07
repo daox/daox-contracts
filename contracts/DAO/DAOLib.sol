@@ -60,8 +60,8 @@ library DAOLib {
         return _votingAddress;
     }
 
-    function delegatedInitCrowdsaleParameters(address _p, uint softCap, uint hardCap, uint rate, uint startTime, uint endTime) {
-        require(_p.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), softCap, hardCap, rate, startTime, endTime));
+    function delegatedInitCrowdsaleParameters(address _p, uint softCap, uint hardCap, uint etherRate, uint startTime, uint endTime) {
+        require(_p.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), softCap, hardCap, etherRate, startTime, endTime));
     }
 
     function delegatedCreate(address _p, address _usersAddress, uint8 _minVote, address _tokenAddress,
@@ -78,21 +78,21 @@ library DAOLib {
         require(_p.delegatecall(bytes4(keccak256("finish()"))));
     }
 
-    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) constant returns (uint) {
+    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint etherRate) constant returns (uint) {
         for (uint i = 0; i < bonusPeriods.length; i++) {
             if (now < bonusPeriods[i]) {
-                rate = bonusRates[i];
+                etherRate = bonusRates[i];
                 break;
             }
         }
-        uint tokensAmount = weiAmount * rate;
+        uint tokensAmount = weiAmount * etherRate;
 
         return tokensAmount;
     }
 
-    function countRefundSum(uint tokensAmount, uint rate, uint newRate) constant returns (uint) {
+    function countRefundSum(uint tokensAmount, uint etherRate, uint newRate) constant returns (uint) {
         uint multiplier = 100000;
 
-        return (tokensAmount * newRate) / (multiplier * rate);
+        return (tokensAmount * newRate) / (multiplier * etherRate);
     }
 }

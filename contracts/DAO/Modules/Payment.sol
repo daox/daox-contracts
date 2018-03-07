@@ -17,7 +17,7 @@ contract Payment is CrowdsaleDAOFields {
 
         uint tokensAmount = token.balanceOf(msg.sender);
         token.burn(msg.sender);
-        msg.sender.transfer(DAOLib.countRefundSum(tokensAmount, rate, newRate));
+        msg.sender.transfer(DAOLib.countRefundSum(tokensAmount, etherRate, newEtherRate));
     }
 
     function refundSoftCap() whenRefundableSoftCap {
@@ -25,8 +25,13 @@ contract Payment is CrowdsaleDAOFields {
 
         token.burn(msg.sender);
         uint weiAmount = depositedWei[msg.sender];
+        uint tokensAmount = depositedDXT[msg.sender];
+
         delete depositedWei[msg.sender];
         delete depositedWithCommission[msg.sender];
+        delete depositedDXT[msg.sender];
+
+        DXT.transfer(msg.sender, tokensAmount);
         msg.sender.transfer(weiAmount);
     }
 
