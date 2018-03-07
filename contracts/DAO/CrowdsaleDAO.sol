@@ -28,8 +28,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedHandleDXTPayment(crowdsaleModule, _amount);
     }
 
-    function withdrawal(address _address, uint withdrawalSum) external {
-        DAOProxy.delegatedWithdrawal(votingDecisionModule,_address, withdrawalSum);
+    function withdrawal(address _address, uint withdrawalSum, bool dxt) external {
+        DAOProxy.delegatedWithdrawal(votingDecisionModule,_address, withdrawalSum, dxt);
     }
 
     function makeRefundableByVotingDecision() external {
@@ -76,8 +76,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         votings[DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this)] = true;
     }
 
-    function addWithdrawal(string _description, uint _duration, uint _sum, address withdrawalWallet) public {
-        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, withdrawalWallet, this)] = true;
+    function addWithdrawal(string _description, uint _duration, uint _sum, address withdrawalWallet, bool dxt) public {
+        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, withdrawalWallet, dxt, this)] = true;
     }
 
     function addRefund(string _description, uint _duration) public {
@@ -106,12 +106,13 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusEtherRates, uint[] _bonusDXTRates, uint[] _teamHold) public onlyOwner(msg.sender) {
         require(
-					_team.length == tokenPercents.length &&
-					_team.length == _teamHold.length &&
-					_bonusPeriods.length == _bonusEtherRates.length &&
-                    _bonusPeriods.length == _bonusDXTRates.length &&
-					canInitBonuses &&
-					(block.timestamp < startTime || canInitCrowdsaleParameters));
+			_team.length == tokenPercents.length &&
+			_team.length == _teamHold.length &&
+			_bonusPeriods.length == _bonusEtherRates.length &&
+            _bonusPeriods.length == _bonusDXTRates.length &&
+			canInitBonuses &&
+			(block.timestamp < startTime || canInitCrowdsaleParameters)
+        );
 
         team = _team;
         teamHold = _teamHold;

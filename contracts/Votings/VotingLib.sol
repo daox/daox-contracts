@@ -1,5 +1,7 @@
 pragma solidity ^0.4.11;
 
+import "../DAO/ICrowdsaleDAO.sol";
+
 library VotingLib {
     struct Option {
         uint votes;
@@ -16,5 +18,9 @@ library VotingLib {
 
     function delegatecallFinish(address _v) {
         require(_v.delegatecall(bytes4(keccak256("finish()"))));
+    }
+
+    function isValidWithdrawal(ICrowdsaleDAO dao, uint sum, bool dxt) constant returns(bool) {
+        return !dxt ? dao.balance >= sum  : dao.DXT().balanceOf(msg.sender) >= sum;
     }
 }

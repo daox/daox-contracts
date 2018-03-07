@@ -21,8 +21,8 @@ library DAOProxy {
         require(paymentModule.delegatecall(bytes4(keccak256("refundSoftCap()"))));
     }
 
-    function delegatedWithdrawal(address votingDecisionModule, address _address, uint withdrawalSum) {
-        require(votingDecisionModule.delegatecall(bytes4(keccak256("withdrawal(address,uint256)")), _address, withdrawalSum));
+    function delegatedWithdrawal(address votingDecisionModule, address _address, uint withdrawalSum, bool dxt) {
+        require(votingDecisionModule.delegatecall(bytes4(keccak256("withdrawal(address,uint256,bool)")), _address, withdrawalSum, dxt));
     }
 
     function delegatedMakeRefundableByUser(address votingDecisionModule) {

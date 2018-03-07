@@ -6,9 +6,9 @@ import "../CrowdsaleDAOFields.sol";
 
 contract VotingDecisions is CrowdsaleDAOFields {
 
-    function withdrawal(address _address, uint withdrawalSum) onlyVoting external {
+    function withdrawal(address _address, uint withdrawalSum, bool dxt) onlyVoting external {
         lastWithdrawalTimestamp = block.timestamp;
-        _address.transfer(withdrawalSum);
+        dxt ? _address.transfer(withdrawalSum) : DXT.transfer(_address, withdrawalSum);
     }
 
     function makeRefundableByUser() external {
@@ -24,8 +24,8 @@ contract VotingDecisions is CrowdsaleDAOFields {
         require(!refundable);
         uint multiplier = 100000;
         refundable = true;
-        newEtherRate = this.balance * etherRate * multiplier / (token.totalSupply() - teamTokensAmount);
-        newDXTRate = DXT.balanceOf(this) * DXTRate * multiplier / (token.totalSupply() - teamTokensAmount);
+        newEtherRate = this.balance * etherRate * multiplier / tokenMintedByEther;
+        newDXTRate = DXT.balanceOf(this) * DXTRate * multiplier / tokenMintedByDXT;
     }
 
     function holdTokens(address _address, uint duration) onlyVoting external {
