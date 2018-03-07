@@ -41,7 +41,11 @@ contract CrowdsaleDAOFields {
     mapping(address => bool) public whiteList;
     mapping(address => uint) public teamBonuses;
     uint[] public bonusPeriods;
-    uint[] public bonusRates;
+    uint[] public bonusEtherRates;
+    uint[] public bonusDXTRates;
     uint public teamTokensAmount;
     uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;
+    TokenInterface public DXTToken;
+    uint public tokenMintedByEther;
+    uint public tokenMintedByDXT;
 }
