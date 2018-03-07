@@ -1,6 +1,5 @@
 const CrowdsaleDAOFactory = artifacts.require("./DAO/CrowdsaleDAOFactory.sol");
 const CrowdsaleDAO = artifacts.require("./DAO/CrowdsaleDAO.sol");
-const Users = artifacts.require("./Users/Users.sol");
 const DAOx = artifacts.require("./DAOx.sol");
 const Common = artifacts.require("./Common.sol");
 const Voting = artifacts.require("./Votings/Voting.sol");
