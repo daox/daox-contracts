@@ -4,7 +4,8 @@ import "../Token/TokenInterface.sol";
 import "../Votings/VotingFactoryInterface.sol";
 
 contract CrowdsaleDAOFields {
-    uint public rate;
+    uint public etherRate;
+    uint public DXTRate;
     uint public softCap;
     uint public hardCap;
     uint public startTime;
@@ -15,11 +16,14 @@ contract CrowdsaleDAOFields {
     bool public canSetWhiteList = true;
     uint public commissionRaised = 0;
     uint public weiRaised = 0;
+    uint public DXTRaised = 0;
     mapping(address => uint) public depositedWei;
+    mapping(address => uint) public depositedDXT;
     mapping(address => uint) public depositedWithCommission;
     bool public crowdsaleFinished;
     bool public refundableSoftCap = false;
-    uint public newRate = 0;
+    uint public newEtherRate = 0;
+    uint public newDXTRate = 0;
     address public serviceContract;
     uint[] public teamBonusesArr;
     address[] public team;
