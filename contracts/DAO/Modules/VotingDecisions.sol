@@ -25,7 +25,7 @@ contract VotingDecisions is CrowdsaleDAOFields {
         uint multiplier = 100000;
         refundable = true;
         newEtherRate = this.balance * etherRate * multiplier / tokenMintedByEther;
-        newDXTRate = DXT.balanceOf(this) * DXTRate * multiplier / tokenMintedByDXT;
+        newDXTRate = tokenMintedByDXT != 0 ? DXT.balanceOf(this) * DXTRate * multiplier / tokenMintedByDXT : 0;
     }
 
     function holdTokens(address _address, uint duration) onlyVoting external {

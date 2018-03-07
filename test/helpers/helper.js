@@ -39,9 +39,9 @@ const createCrowdsaleDAO = async (cdf, accounts, data = null) => {
 
 const initCrowdsaleParameters = async (dao, account, _web3, data = null) => {
     const latestBlock = await getLatestBlock(_web3);
-    const [softCap, hardCap, rate, startTime, endTime] = data || [10, 20, 1000, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
+    const [softCap, hardCap, etherRate, DXTRate, startTime, endTime] = data || [10, 20, 1000, 5000, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
 
-    await dao.initCrowdsaleParameters.sendTransaction(softCap, hardCap, rate, startTime, endTime, {
+    await dao.initCrowdsaleParameters.sendTransaction(softCap, hardCap, etherRate, DXTRate, startTime, endTime, {
         from: account
     });
 };
@@ -118,7 +118,7 @@ const initBonuses = async (dao, accounts, _web3) => {
     const block = await getLatestBlock(_web3);
     const date = block.timestamp;
     const holdTime = 60 * 60 * 24;
-    await dao.initBonuses([accounts[0], accounts[1]], [5, 10], [date, date + 60], [10, 20], [holdTime, holdTime]);
+    await dao.initBonuses([accounts[0], accounts[1]], [5, 10], [date, date + 60], [10, 20], [100, 200], [holdTime, holdTime]);
 
     return [date, holdTime];
 };

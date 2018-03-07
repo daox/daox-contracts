@@ -17,14 +17,14 @@ contract("Withdrawal", accounts => {
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
     beforeEach(async () => {
         dao = await helper.createCrowdsaleDAO(cdf);
-        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [10000, 10000]);
+        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000]);
         await dao.setWhiteList.sendTransaction([whiteListAddress1, whiteListAddress2]);
     });
 
     const makeDAOAndCreateWithdrawal = async (backersToWei, backersToOptions, withdrawalCreator, whiteListAddress, finish = true, shiftTime = false) => {
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
-        const tx = await dao.addWithdrawal("Test description", withdrawalDuration, web3.toWei(withdrawalSum), whiteListAddress, {from : withdrawalCreator});
+        const tx = await dao.addWithdrawal("Test description", withdrawalDuration, web3.toWei(withdrawalSum), whiteListAddress, false, {from : withdrawalCreator});
         const logs = helper.decodeVotingParameters(tx);
         withdrawal = Withdrawal.at(logs[0]);
 
@@ -146,7 +146,7 @@ contract("Withdrawal", accounts => {
         const backers = [backer1, backer2, teamPerson1];
         const [backersToWei, backersToOption] = [{}, {}];
         backersToWei[`${backers[0]}`] = web3.toWei(5, "ether");
-        backersToWei[`${backers[1]}`] = web3.toWei(5, "ether")
+        backersToWei[`${backers[1]}`] = web3.toWei(5, "ether");
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 2;
         backersToOption[`${backers[2]}`] = 1;
@@ -159,7 +159,7 @@ contract("Withdrawal", accounts => {
         const [backersToWei, backersToOption] = [{}, {}];
         for (let i = 0; i < backers.length; i++) {
             backersToWei[`${backers[i]}`] = web3.toWei(5, "ether");
-            backersToOption[`${backers[i]}`] = i % 2 == 0 ? 1 : 2; // 10 eth (in tokens) for "yes" and 10 eth (in tokens) for "no"
+            backersToOption[`${backers[i]}`] = i % 2 === 0 ? 1 : 2; // 10 eth (in tokens) for "yes" and 10 eth (in tokens) for "no"
         }
 
         await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, true, true);
@@ -203,6 +203,7 @@ contract("Withdrawal", accounts => {
         assert.deepEqual(option1, result, "Withdrawal should be accepted");
         assert.equal((totalSupply.toNumber() - teamTokensAmount.toNumber()) / 100 * teamTokensPercentage, teamTokensAmount.toNumber(), "Team percentage was not calculated correct");
         assert.isTrue(isFinished, "Withdrawal was not finished");
+        assert.isTrue(false);
     });
 
     it("Should not create withdrawal with sum > dao.balance", async () => {

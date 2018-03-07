@@ -98,4 +98,23 @@ contract("Token", accounts => {
         assert.equal(tokensAmount3 - tokensAmount2, (await token.balanceOf.call(user1)).toNumber(), "Tokens was not transfered");
         assert.equal(tokensAmount2, (await token.balanceOf.call(user2)).toNumber(), "Tokens was not transfered");
     });
+
+    it("Should not allow by unknown account", async () => {
+        await token.mint.sendTransaction(user1, tokensAmount2, {from: owner});
+        assert.equal(tokensAmount2, await token.balanceOf.call(user1), "User1 didn't receive tokens");
+        assert.equal(tokensAmount2, await token.totalSupply.call(), "Total supply was not changed after minting");
+
+        return helper.handleErrorTransaction(() => token.allowAndTransfer.sendTransaction(user1, {from : user1}));
+    });
+
+    it("Should allow by service account", async () => {
+        await token.mint.sendTransaction(user1, tokensAmount2, {from: owner});
+        assert.equal(tokensAmount2, await token.balanceOf.call(user1), "User1 didn't receive tokens");
+        assert.equal(tokensAmount2, await token.totalSupply.call(), "Total supply was not changed after minting");
+
+        await token.allowAndTransfer.sendTransaction(user1, owner, tokensAmount2, {from : owner});
+
+        assert.equal(tokensAmount2, await token.balanceOf.call(owner));
+        assert.equal(0, await token.balanceOf.call(user1));
+    });
 });

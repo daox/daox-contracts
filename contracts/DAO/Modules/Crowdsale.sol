@@ -31,6 +31,8 @@ contract Crowdsale is CrowdsaleDAOFields {
 
 		uint tokensAmount = DAOLib.countTokens(dxtAmount, bonusPeriods, bonusDXTRates, DXTRate);
 		tokenMintedByDXT += tokensAmount;
+
+		DXT.allowAndTransfer(msg.sender, this, dxtAmount);
 		token.mint(msg.sender, tokensAmount);
 	}
 

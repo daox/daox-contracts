@@ -39,7 +39,7 @@ contract("VotingFactory", accounts => {
 
     it("Should create withdrawal", async () => {
         const description = 'Test Description';
-        const tx = await dao.addWithdrawal(description, 100, web3.toWei(1), serviceAccount);
+        const tx = await dao.addWithdrawal(description, 100, web3.toWei(1), serviceAccount, false);
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 

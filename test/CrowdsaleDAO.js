@@ -22,8 +22,10 @@ contract("CrowdsaleDAO", accounts => {
         assert.equal(date, (await dao.bonusPeriods.call(0)).toNumber());
         assert.equal(date + 60, (await dao.bonusPeriods.call(1)).toNumber());
 
-        assert.equal(10, (await dao.bonusRates.call(0)).toNumber());
-        assert.equal(20, (await dao.bonusRates.call(1)).toNumber());
+        assert.equal(10, (await dao.bonusEtherRates.call(0)).toNumber());
+        assert.equal(20, (await dao.bonusEtherRates.call(1)).toNumber());
+        assert.equal(100, (await dao.bonusDXTRates.call(0)).toNumber());
+        assert.equal(200, (await dao.bonusDXTRates.call(1)).toNumber());
         assert.equal(false, await dao.canInitBonuses.call());
     });
 
@@ -32,7 +34,15 @@ contract("CrowdsaleDAO", accounts => {
         const date = block.timestamp;
         const holdTime = 60 * 60 * 24;
 
-        return helper.handleErrorTransaction(() => dao.initBonuses([serviceAccount, unknownAccount], [5, 10], [date], [10, 20], [holdTime, holdTime]))
+        return helper.handleErrorTransaction(() => dao.initBonuses([serviceAccount, unknownAccount], [5, 10], [date], [10, 20], [100, 200], [holdTime, holdTime]))
+    });
+
+    it("Should not initiate bonuses when periods and rates count mismatch", async () => {
+        const block = await helper.getLatestBlock(web3);
+        const date = block.timestamp;
+        const holdTime = 60 * 60 * 24;
+
+        return helper.handleErrorTransaction(() => dao.initBonuses([serviceAccount, unknownAccount], [5, 10], [date, date + 60], [10, 20], [100, 200, 300], [holdTime, holdTime]))
     });
 
     it("Should not initiate bonuses when team members and team bonuses count mismatch", async () => {
@@ -40,7 +50,7 @@ contract("CrowdsaleDAO", accounts => {
         const date = block.timestamp;
         const holdTime = 60 * 60 * 24;
 
-        return helper.handleErrorTransaction(() => dao.initBonuses([serviceAccount, unknownAccount], [5], [date, date + 60], [10, 20], [holdTime, holdTime]))
+        return helper.handleErrorTransaction(() => dao.initBonuses([serviceAccount, unknownAccount], [5], [date, date + 60], [10, 20], [100, 200], [holdTime, holdTime]))
     });
 
     it("Should not initiate bonuses when team members and team hold count mismatch", async () => {
@@ -48,8 +58,10 @@ contract("CrowdsaleDAO", accounts => {
         const date = block.timestamp;
         const holdTime = 60 * 60 * 24;
 
-        return helper.handleErrorTransaction(() => dao.initBonuses([serviceAccount, unknownAccount], [5, 10], [date, date + 60], [10, 20], [holdTime]))
+        return helper.handleErrorTransaction(() => dao.initBonuses([serviceAccount, unknownAccount], [5, 10], [date, date + 60], [10, 20], [100, 200], [holdTime]))
     });
+
+
 
     it("Should not be able to initiate bonus periods and token bonuses for team twice", async () => {
         await helper.initBonuses(dao, accounts, web3);

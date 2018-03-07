@@ -21,7 +21,7 @@ contract("Module", accounts => {
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
     beforeEach(async () => {
         dao = await helper.createCrowdsaleDAO(cdf);
-        await dao.initBonuses.sendTransaction([teamPerson1, teamPerson2], teamBonuses, [], [], [10000, 10000]);
+        await dao.initBonuses.sendTransaction([teamPerson1, teamPerson2], teamBonuses, [], [], [], [10000, 10000]);
     });
 
     const makeDAOAndCreateModule = async (backersToWei, backersToOptions, creator, moduleName, newModuleAddress, finish = true, shiftTime = false) => {
@@ -162,7 +162,7 @@ contract("Module", accounts => {
         const [backersToWei, backersToOption] = [{}, {}];
         for (let i = 0; i < backers.length; i++) {
             backersToWei[`${backers[i]}`] = web3.toWei(5, "ether");
-            backersToOption[`${backers[i]}`] = i % 2 == 0 ? 1 : 2; // 10 eth (in tokens) for "yes" and 10 eth (in tokens) for "no"
+            backersToOption[`${backers[i]}`] = i % 2 === 0 ? 1 : 2; // 10 eth (in tokens) for "yes" and 10 eth (in tokens) for "no"
         }
 
         await makeDAOAndCreateModule(backersToWei, backersToOption, backer1, Modules.State, newModuleAddress2, true, true);
