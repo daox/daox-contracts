@@ -64,12 +64,12 @@ contract Crowdsale is CrowdsaleDAOFields {
     }
 
     modifier CrowdsaleStarted() {
-        require(block.timestamp >= startTime);
+        require(block.timestamp >= startTime && block.timestamp < endTime && !crowdsaleFinished);
         _;
     }
 
     modifier validPurchase(uint value) {
-        require(weiRaised + value <= hardCap && block.timestamp < endTime);
+        require(weiRaised + value <= hardCap);
         _;
     }
 
