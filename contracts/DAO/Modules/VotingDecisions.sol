@@ -8,7 +8,7 @@ contract VotingDecisions is CrowdsaleDAOFields {
 
     function withdrawal(address _address, uint withdrawalSum, bool dxt) onlyVoting external {
         lastWithdrawalTimestamp = block.timestamp;
-        dxt ? _address.transfer(withdrawalSum) : DXT.transfer(_address, withdrawalSum);
+        dxt ? DXT.transfer(_address, withdrawalSum) : _address.transfer(withdrawalSum);
     }
 
     function makeRefundableByUser() external {

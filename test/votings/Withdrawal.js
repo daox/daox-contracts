@@ -203,7 +203,6 @@ contract("Withdrawal", accounts => {
         assert.deepEqual(option1, result, "Withdrawal should be accepted");
         assert.equal((totalSupply.toNumber() - teamTokensAmount.toNumber()) / 100 * teamTokensPercentage, teamTokensAmount.toNumber(), "Team percentage was not calculated correct");
         assert.isTrue(isFinished, "Withdrawal was not finished");
-        assert.isTrue(false);
     });
 
     it("Should not create withdrawal with sum > dao.balance", async () => {

@@ -60,8 +60,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         return token.balanceOf(_participantAddress) > 0;
     }
 
-    function initState(address _tokenAddress, address _votingFactory, address _serviceContract) public {
-        DAOProxy.delegatedInitState(stateModule, _tokenAddress, _votingFactory, _serviceContract);
+    function initState(address _tokenAddress, address _votingFactory, address _serviceContract, address _DXT) public {
+        DAOProxy.delegatedInitState(stateModule, _tokenAddress, _votingFactory, _serviceContract, _DXT);
     }
 
     function initHold(uint _tokenHoldTime) public {
