@@ -20,9 +20,9 @@ contract("State", accounts => {
     });
 
     it("Should correct init state from service account", async () => {
-        const [daoxAddress, votingFactoryAddress, token] = await helper.getParametersForInitState(cdf, tokenName, tokenSymbol);
+        const [daoxAddress, votingFactoryAddress, token, DXT] = await helper.getParametersForInitState(cdf, tokenName, tokenSymbol);
 
-        await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {
+        await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, DXT.address, {
             from: serviceAccount
         });
 
@@ -34,7 +34,7 @@ contract("State", accounts => {
     });
 
     it("Should not correct init state from unknown account", async () => {
-        const [daoxAddress, votingFactoryAddress, token] = await helper.getParametersForInitState(cdf, tokenName, tokenSymbol);
+        const [daoxAddress, votingFactoryAddress, token, DXT] = await helper.getParametersForInitState(cdf, tokenName, tokenSymbol);
 
         return await helper.handleErrorTransaction(() => dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {
             from: uknownAccount
@@ -42,29 +42,29 @@ contract("State", accounts => {
     });
 
     it("Should not init state twice", async () => {
-        const [daoxAddress, votingFactoryAddress, token] = await helper.getParametersForInitState(cdf, tokenName, tokenSymbol);
+        const [daoxAddress, votingFactoryAddress, token, DXT] = await helper.getParametersForInitState(cdf, tokenName, tokenSymbol);
 
-        await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {
+        await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, DXT.address, {
             from: serviceAccount
         });
 
-        return await helper.handleErrorTransaction(() => dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {
+        return await helper.handleErrorTransaction(() => dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, DXT.address, {
             from: serviceAccount
         }));
     });
 
     it("Should not init state when crowdsale started", async () => {
-        const [daoxAddress, votingFactoryAddress, token] = await helper.getParametersForInitState(cdf, tokenName, tokenSymbol);
+        const [daoxAddress, votingFactoryAddress, token, DXT] = await helper.getParametersForInitState(cdf, tokenName, tokenSymbol);
 
         const latestBlock = await helper.getLatestBlock(web3);
 
-        await dao.initCrowdsaleParameters.sendTransaction(1, 3, 5, latestBlock.timestamp + 100, latestBlock.timestamp * 2, {
+        await dao.initCrowdsaleParameters.sendTransaction(1, 3, 5, 100, latestBlock.timestamp + 100, latestBlock.timestamp * 2, {
             from: serviceAccount
         });
 
         await helper.rpcCall(web3, "evm_increaseTime", [100], 0);
 
-        return helper.handleErrorTransaction(() => dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {
+        return helper.handleErrorTransaction(() => dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, DXT.address, {
             from: serviceAccount
         }));
     });

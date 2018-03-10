@@ -10,11 +10,10 @@ contract("Payment", accounts => {
     const unknownAccount = accounts[1];
 
     const [daoName, daoDescription, tokenName, tokenSymbol] = ["DAO NAME", "THIS IS A DESCRIPTION", "TEST TOKEN", "TTK"];
-    let softCap, hardCap, rate, startTime, endTime;
+    let softCap, hardCap, etherRate, DXTRate, startTime, endTime;
     let cdf, dao, crowdsaleParameters;
     const shiftTime1 = 10000;
     const shiftTime2 = 20000;
-    let callID = 0;
 
     before(async () => cdf = await helper.createCrowdsaleDAOFactory(accounts));
 
@@ -23,8 +22,8 @@ contract("Payment", accounts => {
 
         const block = await helper.getLatestBlock(web3);
 
-        [softCap, hardCap, rate, startTime, endTime] = [3, 10, 5000, block.timestamp + shiftTime1, block.timestamp + shiftTime2];
-        crowdsaleParameters = [softCap, hardCap, rate, startTime, endTime];
+        [softCap, hardCap, etherRate, DXTRate, startTime, endTime] = [3, 10, 5000, 10000, block.timestamp + shiftTime1, block.timestamp + shiftTime2];
+        crowdsaleParameters = [softCap, hardCap, etherRate, DXTRate, startTime, endTime];
 
         //Initialize transaction
         await Promise.all([
@@ -34,36 +33,6 @@ contract("Payment", accounts => {
 
         await helper.rpcCall(web3, "evm_increaseTime", [shiftTime1]);
         await helper.rpcCall(web3, "evm_mine", null);
-    });
-
-    it("Should send commission tokens", async () => {
-        const commissionContractAddress = await dao.commissionContract.call();
-        const commissionContract = Commission.at(commissionContractAddress);
-
-        await commissionContract.sendTransaction({
-            from: unknownAccount,
-            value: web3.toWei(softCap, "ether")
-        });
-
-        assert.equal(web3.toWei(softCap, "ether"), await dao.commissionRaised.call(), "Commission raised variable is not correct");
-        assert.equal(web3.toWei(softCap, "ether"), await dao.depositedWithCommission.call(unknownAccount), "Deposited with commission was not calculated correct");
-
-        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2]);
-        await helper.rpcCall(web3, "evm_mine", null);
-
-        await dao.finish.sendTransaction({
-            from: unknownAccount
-        });
-
-        await dao.getCommissionTokens.sendTransaction({
-            from: unknownAccount
-        });
-
-        const daox = DAOX.at(await dao.serviceContract.call());
-        const daoXToken = Token.at(await daox.token.call());
-        const balance = await daoXToken.balanceOf.call(unknownAccount);
-
-        assert.equal(web3.toWei(softCap, "ether") * 100, balance, "Received invalid amount of DAOx tokens");
     });
 
     it("Should refund when soft cap was not reached", async () => {

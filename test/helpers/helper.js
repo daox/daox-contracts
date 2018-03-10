@@ -14,6 +14,7 @@ const Crowdsale = artifacts.require("./DAO/Modules/Crowdsale.sol");
 CrowdsaleDAOFactory.link(DAOProxy);
 CrowdsaleDAOFactory.link(DAOLib);
 const DAOJson = require("../../build/contracts/CrowdsaleDAO");
+const DXT = artifacts.require("./Token/Token.sol");
 const Web3 = require("web3");
 const web3 = new Web3();
 
@@ -91,7 +92,8 @@ const getParametersForInitState = (cdf, tokenName, tokenSymbol) =>
     Promise.all([
         cdf.serviceContractAddress.call(),
         cdf.votingFactoryContractAddress.call(),
-        createToken(tokenName, tokenSymbol)
+        createToken(tokenName, tokenSymbol),
+        createToken("DAOX Token", "DXT")
     ]);
 
 const initState = async (cdf, dao, account, tokenName = "TEST TOKEN", tokenSymbol = "TTK") => {
@@ -101,7 +103,7 @@ const initState = async (cdf, dao, account, tokenName = "TEST TOKEN", tokenSymbo
         createToken(tokenName, tokenSymbol)
     ]);
 
-    await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, {from: account});
+    await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, DXT.address, {from: account});
     await token.transferOwnership.sendTransaction(dao.address, {from: account})
 };
 

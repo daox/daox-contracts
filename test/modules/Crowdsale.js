@@ -13,14 +13,14 @@ contract("Crowdsale", accounts => {
 
     it("Should set parameters for crowdsale", async () => {
         const latestBlock = await helper.getLatestBlock(web3);
-        const [softCap, hardCap, rate, startTime, endTime] = [100, 200, 1000, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
+        const [softCap, hardCap, etherRate, DXTRate, startTime, endTime] = [100, 200, 1000, 5000, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
 
-        await dao.initCrowdsaleParameters(softCap, hardCap, rate, startTime, endTime);
+        await dao.initCrowdsaleParameters(softCap, hardCap, etherRate, DXTRate, startTime, endTime);
 
         const [contractSF, contractHC] = await Promise.all([dao.softCap.call(), dao.hardCap.call()]);
         assert.equal(web3.toWei(softCap), contractSF.toString());
         assert.equal(web3.toWei(hardCap), contractHC.toString());
-        assert.equal(rate, await dao.rate.call());
+        assert.equal(etherRate, await dao.etherRate.call());
         assert.equal(startTime, await dao.startTime.call());
         assert.equal(endTime, await dao.endTime.call());
     });
@@ -59,8 +59,8 @@ contract("Crowdsale", accounts => {
         const token = Token.at(await dao.token.call());
         assert.equal(weiAmount, await dao.weiRaised.call());
         assert.equal(weiAmount, await dao.depositedWei.call(unknownAccount));
-        assert.equal(etherAmount * await dao.rate.call(), web3.fromWei(await token.balanceOf.call(unknownAccount)));
-        assert.equal(etherAmount * await dao.rate.call(), web3.fromWei(await token.totalSupply.call()));
+        assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await token.balanceOf.call(unknownAccount)));
+        assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await token.totalSupply.call()));
     });
 
     it("Should deposit ether and mint tokens for 2 accounts", async () => {
@@ -77,9 +77,9 @@ contract("Crowdsale", accounts => {
         assert.equal(weiAmount * 2, await dao.weiRaised.call());
         assert.equal(weiAmount, await dao.depositedWei.call(unknownAccount));
         assert.equal(weiAmount, await dao.depositedWei.call(serviceAccount));
-        assert.equal(etherAmount * await dao.rate.call(), web3.fromWei(await token.balanceOf.call(serviceAccount)));
-        assert.equal(etherAmount * await dao.rate.call(), web3.fromWei(await token.balanceOf.call(unknownAccount)));
-        assert.equal(etherAmount * 2 * await dao.rate.call(), web3.fromWei(await token.totalSupply.call()));
+        assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await token.balanceOf.call(serviceAccount)));
+        assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await token.balanceOf.call(unknownAccount)));
+        assert.equal(etherAmount * 2 * await dao.etherRate.call(), web3.fromWei(await token.totalSupply.call()));
     });
 
     it("Should deposit ether with commission and mint tokens", async () => {
@@ -95,8 +95,8 @@ contract("Crowdsale", accounts => {
         assert.equal(weiAmount, await dao.depositedWei.call(unknownAccount));
         assert.equal(weiAmount, await dao.depositedWithCommission.call(unknownAccount));
         assert.equal(weiAmount, await dao.commissionRaised.call());
-        assert.equal(etherAmount * await dao.rate.call(), web3.fromWei(await token.balanceOf.call(unknownAccount)));
-        assert.equal(etherAmount * await dao.rate.call(), web3.fromWei(await token.totalSupply.call()));
+        assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await token.balanceOf.call(unknownAccount)));
+        assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await token.totalSupply.call()));
     });
 
     it("Should deposit ether with commission and mint tokens for 2 accounts", async () => {
@@ -117,9 +117,9 @@ contract("Crowdsale", accounts => {
         assert.equal(weiAmount, await dao.depositedWithCommission.call(unknownAccount));
         assert.equal(weiAmount, await dao.depositedWithCommission.call(serviceAccount));
         assert.equal(weiAmount * 2, await dao.commissionRaised.call());
-        assert.equal(etherAmount * await dao.rate.call(), web3.fromWei(await token.balanceOf.call(unknownAccount)));
-        assert.equal(etherAmount * await dao.rate.call(), web3.fromWei(await token.balanceOf.call(serviceAccount)));
-        assert.equal(etherAmount * 2 * await dao.rate.call(), web3.fromWei(await token.totalSupply.call()));
+        assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await token.balanceOf.call(unknownAccount)));
+        assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await token.balanceOf.call(serviceAccount)));
+        assert.equal(etherAmount * 2 * await dao.etherRate.call(), web3.fromWei(await token.totalSupply.call()));
     });
 
     it("Should not let send ether before crowdsale start", async () => {
@@ -236,8 +236,6 @@ contract("Crowdsale", accounts => {
     });
 
     it("Should not let finish crowdsale twice", async () => {
-        let callID = 2;
-
         await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
         await helper.rpcCall(web3, "evm_increaseTime", [60]);
         await helper.rpcCall(web3, "evm_mine", null);
