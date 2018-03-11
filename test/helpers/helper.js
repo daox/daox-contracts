@@ -153,10 +153,59 @@ const makeCrowdsaleNew = async (_web3, cdf, dao, serviceAccount, backers, shiftT
 const decodeVotingParameters = (tx) =>
     web3.eth.abi.decodeParameters(["address", "string", "address", "bytes32", "uint", "address"], tx.receipt.logs[0].data);
 
+const finishVoting = async (shiftTime, finish, duration, voting, _web3) => {
+    if (shiftTime) {
+        await rpcCall(_web3, "evm_increaseTime", [duration]);
+        await rpcCall(_web3, "evm_mine", null);
+    }
+    if (finish) {
+        return voting.finish()
+    }
+};
+
+const makeWithdrawal = async (backersToOptions, finish=true, shiftTime=false, withdrawal, duration, _web3) => {
+    timestamp = (await getLatestBlock(_web3)).timestamp;
+    await Promise.all(Object.keys(backersToOptions).map(key => withdrawal.addVote.sendTransaction(backersToOptions[key], {from: key})));
+
+    return finishVoting(shiftTime, finish, duration, withdrawal, _web3);
+};
+
+const makeModule = async (backersToOptions, finish=true, shiftTime=false, module, duration, _web3) => {
+    timestamp = (await getLatestBlock(_web3)).timestamp;
+    await Promise.all(Object.keys(backersToOptions).map(key => module.addVote.sendTransaction(backersToOptions[key], {from: key})));
+
+    return finishVoting(shiftTime, finish, duration, module, _web3);
+};
+
+const makeProposal = async (backersToOptions, finish = true, shiftTime=false, proposal, duration, _web3) => {
+    timestamp = (await getLatestBlock(_web3)).timestamp;
+    await Promise.all(Object.keys(backersToOptions).map(key => proposal.addVote.sendTransaction(backersToOptions[key], {from: key})));
+
+    return finishVoting(shiftTime, finish, duration, proposal, _web3);
+};
+
+const makeRefund = async (backersToOptions, finish, shiftTime, refund, duration, _web3) => {
+    timestamp = (await getLatestBlock(_web3)).timestamp;
+    await Promise.all(Object.keys(backersToOptions).map(key => refund.addVote.sendTransaction(backersToOptions[key], {from: key})));
+
+    return finishVoting(shiftTime, finish, duration, refund, _web3);
+};
+
+const getBalance = async (_web3, address) => {
+    const rpcResponse = await rpcCall(_web3, "eth_getBalance", [address]);
+
+    return _web3.fromWei(rpcResponse.result);
+};
+
+const EPSILON = 1e-9;
+const doesApproximatelyEqual = (a, b) =>
+    a + EPSILON >= b && a - EPSILON <= b;
+
 
 module.exports = {
     getLatestBlock, rpcCall, fillZeros, makeCrowdsale,
     handleErrorTransaction, createCrowdsaleDAOFactory,
     createCrowdsaleDAO, getParametersForInitState, decodeVotingParameters,
-    initCrowdsaleParameters, initState, initBonuses, startCrowdsale, makeCrowdsaleNew
+    initCrowdsaleParameters, initState, initBonuses, startCrowdsale, makeCrowdsaleNew,
+    makeWithdrawal, makeModule, makeProposal, makeRefund, getBalance, doesApproximatelyEqual
 };
