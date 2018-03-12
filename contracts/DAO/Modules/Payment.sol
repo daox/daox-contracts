@@ -14,11 +14,19 @@ contract Payment is CrowdsaleDAOFields {
 
     function refund() whenRefundable {
         require(teamBonuses[msg.sender] == 0);
+        uint multiplier = 100;
 
-        uint tokensAmountHalf = token.balanceOf(msg.sender)/2;
+        uint etherPerDXTRate = tokenMintedByEther * multiplier / (tokenMintedByEther + tokenMintedByDXT);
+        uint dxtPerEtherRate = tokenMintedByDXT * multiplier / (tokenMintedByEther + tokenMintedByDXT);
+
+        uint tokensAmount = token.balanceOf(msg.sender);
         token.burn(msg.sender);
-        msg.sender.transfer(DAOLib.countRefundSum(tokensAmountHalf, etherRate, newEtherRate));
-        DXT.transfer(msg.sender, DAOLib.countRefundSum(tokensAmountHalf, DXTRate, newDXTRate));
+
+        if (etherPerDXTRate != 0)
+            msg.sender.transfer(DAOLib.countRefundSum(etherPerDXTRate * tokensAmount, etherRate, newEtherRate));
+
+        if (dxtPerEtherRate != 0)
+            DXT.transfer(msg.sender, DAOLib.countRefundSum(dxtPerEtherRate * tokensAmount, DXTRate, newDXTRate));
     }
 
     function refundSoftCap() whenRefundableSoftCap {

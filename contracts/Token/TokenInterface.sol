@@ -8,5 +8,5 @@ interface TokenInterface {
     function burn(address burner);
     function hold(address addr, uint duration) external;
     function transfer(address _to, uint _amount) external;
-    function allowAndTransfer(address _from, address _to, uint256 _amount) external;
+    function contributeTo(address _to, uint256 _amount) public;
 }

@@ -25,15 +25,14 @@ contract Crowdsale is CrowdsaleDAOFields {
 		token.mint(_sender, tokensAmount);
 	}
 
-	function handleDXTPayment(uint dxtAmount) external CrowdsaleStarted validDXTPurchase(dxtAmount) {
-		DXTRaised += dxtAmount;
-		depositedDXT[msg.sender] += dxtAmount;
+	function handleDXTPayment(address _from, uint _dxtAmount) external CrowdsaleStarted validDXTPurchase(_dxtAmount) onlyDXT {
+		DXTRaised += _dxtAmount;
+		depositedDXT[_from] += _dxtAmount;
 
-		uint tokensAmount = DAOLib.countTokens(dxtAmount, bonusPeriods, bonusDXTRates, DXTRate);
+		uint tokensAmount = DAOLib.countTokens(_dxtAmount, bonusPeriods, bonusDXTRates, DXTRate);
 		tokenMintedByDXT += tokensAmount;
 
-		DXT.allowAndTransfer(msg.sender, this, dxtAmount);
-		token.mint(msg.sender, tokensAmount);
+		token.mint(_from, tokensAmount);
 	}
 
 	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXTRate, uint _startTime, uint _endTime) external onlyOwner(msg.sender) canInit {
@@ -86,10 +85,14 @@ contract Crowdsale is CrowdsaleDAOFields {
 	}
 
 	modifier validDXTPurchase(uint value) {
-		require(weiRaised + value / (etherRate / DXTRate) <= hardCap);
+		require(weiRaised + value * (etherRate / DXTRate) <= hardCap);
 		_;
 	}
 
+	modifier onlyDXT() {
+		require(msg.sender == address(DXT));
+		_;
+	}
 
 	modifier onlyOwner(address _sender) {
 			require(_sender == owner);

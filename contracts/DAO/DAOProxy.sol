@@ -49,7 +49,7 @@ library DAOProxy {
         require(crowdsaleModule.delegatecall(bytes4(keccak256("handlePayment(address,bool)")), _sender, _commission));
     }
 
-    function delegatedHandleDXTPayment(address crowdsaleModule, uint _amount) {
-        require(crowdsaleModule.delegatecall(bytes4(keccak256("handleDXTPayment(uint256)")), _amount));
+    function delegatedHandleDXTPayment(address crowdsaleModule, address _from, uint _amount) {
+        require(crowdsaleModule.delegatecall(bytes4(keccak256("handleDXTPayment(address,uint256)")), _from, _amount));
     }
 }
