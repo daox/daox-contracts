@@ -85,7 +85,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 	}
 
 	modifier validDXTPurchase(uint value) {
-		require(weiRaised + value * (etherRate / DXTRate) <= hardCap);
+		require(weiRaised + (value * 1 ether) / (etherRate / DXTRate) <= hardCap);
 		_;
 	}
 

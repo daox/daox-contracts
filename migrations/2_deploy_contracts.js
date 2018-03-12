@@ -11,7 +11,7 @@ const Crowdsale = artifacts.require("./DAO/Modules/Crowdsale.sol");
 const Voting = artifacts.require("./DAO/Votings/Voting.sol");
 const DAODeployer = artifacts.require("./DAO/DAODeployer.sol");
 const DAOProxy = artifacts.require("./DAO/DAOProxy.sol");
-const DXT = artifacts.require("./Token/Token.sol");
+const DXT = artifacts.require("./Token/DXT.sol");
 
 module.exports = (deployer) => {
     const deployVotingFactory = () =>
