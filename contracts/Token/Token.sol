@@ -30,9 +30,9 @@ contract Token is MintableToken {
         totalSupply = totalSupply.sub(balance);
     }
 
-    function allowAndTransfer(address _from, address _to, uint256 _amount) external notHolded(_from) onlyOwner {
-        allowed[_from][_to] = _amount;
-        super.transferFrom(_from, _to, _amount);
+    function contributeTo(address _to, uint256 _amount) public notHolded(msg.sender) {
+        super.transfer(_to, _amount);
+        _to.call(bytes4(keccak256("handleDXTPayment(uint256)")), msg.sender, _amount);
     }
 
     function transfer(address to, uint256 value) public notHolded(msg.sender) returns (bool) {
