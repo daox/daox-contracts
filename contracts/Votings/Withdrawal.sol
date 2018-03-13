@@ -11,7 +11,7 @@ contract Withdrawal is VotingFields {
     bool public dxt;
 
     function Withdrawal(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _sum, address _withdrawalWallet, bool _dxt) {
-        require(_sum > 0 && VotingLib.isValidWithdrawal(ICrowdsaleDAO(_dao), _sum, _dxt));
+        require(_sum > 0 && VotingLib.isValidWithdrawal(_dao, _sum, _dxt));
         baseVoting = _baseVoting;
         votingType = "Withdrawal";
         VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 0);
