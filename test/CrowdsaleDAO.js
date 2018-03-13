@@ -37,7 +37,7 @@ contract("CrowdsaleDAO", accounts => {
         return helper.handleErrorTransaction(() => dao.initBonuses([serviceAccount, unknownAccount], [5, 10], [date], [10, 20], [100, 200], [holdTime, holdTime]))
     });
 
-    it("Should not initiate bonuses when periods and rates count mismatch", async () => {
+    it("Should not initiate bonuses when periods and dxt rates count mismatch", async () => {
         const block = await helper.getLatestBlock(web3);
         const date = block.timestamp;
         const holdTime = 60 * 60 * 24;
@@ -60,8 +60,6 @@ contract("CrowdsaleDAO", accounts => {
 
         return helper.handleErrorTransaction(() => dao.initBonuses([serviceAccount, unknownAccount], [5, 10], [date, date + 60], [10, 20], [100, 200], [holdTime]))
     });
-
-
 
     it("Should not be able to initiate bonus periods and token bonuses for team twice", async () => {
         await helper.initBonuses(dao, accounts, web3);
