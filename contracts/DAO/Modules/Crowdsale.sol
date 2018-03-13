@@ -8,7 +8,7 @@ import "../Owned.sol";
 contract Crowdsale is CrowdsaleDAOFields {
 	address public owner;
 
-	function handlePayment(address _sender, bool commission) external payable CrowdsaleStarted validEtherPurchase(msg.value) {
+	function handlePayment(address _sender, bool commission) external payable CrowdsaleIsOngoing validEtherPurchase(msg.value) {
 		require(_sender != 0x0);
 
 		uint weiAmount = msg.value;
@@ -25,11 +25,11 @@ contract Crowdsale is CrowdsaleDAOFields {
 		token.mint(_sender, tokensAmount);
 	}
 
-	function handleDXTPayment(address _from, uint _dxtAmount) external CrowdsaleStarted validDXTPurchase(_dxtAmount) onlyDXT {
+	function handleDXTPayment(address _from, uint _dxtAmount) external CrowdsaleIsOngoing validDXTPurchase(_dxtAmount) onlyDXT {
 		DXTRaised += _dxtAmount;
 		depositedDXT[_from] += _dxtAmount;
 
-		uint tokensAmount = DAOLib.countTokens(_dxtAmount, bonusPeriods, bonusDXTRates, DXTRate);
+		uint tokensAmount = DAOLib.countTokens(_dxtAmount, bonusPeriods, bonusDXTRates, DXTRate * 1 ether);
 		tokenMintedByDXT += tokensAmount;
 
 		token.mint(_from, tokensAmount);
@@ -54,8 +54,9 @@ contract Crowdsale is CrowdsaleDAOFields {
 		require((block.timestamp >= endTime || weiRaised == hardCap) && !crowdsaleFinished);
 
 		crowdsaleFinished = true;
+		uint fundsRaised = weiRaised + (DXT.balanceOf(this) * 1 ether) / (etherRate / DXTRate);
 
-		if(weiRaised >= softCap) {
+		if(fundsRaised >= softCap) {
 			teamTokensAmount = DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
 		} else {
 			refundableSoftCap = true;
@@ -74,7 +75,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 			_;
 	}
 
-	modifier CrowdsaleStarted() {
+	modifier CrowdsaleIsOngoing() {
 			require(block.timestamp >= startTime && block.timestamp < endTime && !crowdsaleFinished);
 			_;
 	}

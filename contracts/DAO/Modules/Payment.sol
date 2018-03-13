@@ -30,7 +30,7 @@ contract Payment is CrowdsaleDAOFields {
     }
 
     function refundSoftCap() whenRefundableSoftCap {
-        require(depositedWei[msg.sender] != 0);
+        require(depositedWei[msg.sender] != 0 || depositedDXT[msg.sender] != 0);
 
         token.burn(msg.sender);
         uint weiAmount = depositedWei[msg.sender];

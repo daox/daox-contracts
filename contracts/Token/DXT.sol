@@ -18,6 +18,6 @@ contract DXT is MintableToken {
 
     function contributeTo(address _to, uint256 _amount) public {
         super.transfer(_to, _amount);
-        _to.call(bytes4(keccak256("handleDXTPayment(address,uint256)")), msg.sender, _amount);
+        require(_to.call(bytes4(keccak256("handleDXTPayment(address,uint256)")), msg.sender, _amount));
     }
 }

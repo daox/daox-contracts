@@ -21,6 +21,6 @@ library VotingLib {
     }
 
     function isValidWithdrawal(ICrowdsaleDAO dao, uint sum, bool dxt) constant returns(bool) {
-        return !dxt ? dao.balance >= sum  : dao.DXT().balanceOf(msg.sender) >= sum;
+        return !dxt ? dao.balance >= sum  : dao.DXT().balanceOf(address(dao)) >= sum;
     }
 }
