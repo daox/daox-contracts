@@ -35,7 +35,11 @@ contract Crowdsale is CrowdsaleDAOFields {
 		token.mint(_from, tokensAmount);
 	}
 
-	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXTRate, uint _startTime, uint _endTime) external onlyOwner(msg.sender) canInit {
+	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXTRate, uint _startTime, uint _endTime, bool _dxtPayments)
+		external
+		onlyOwner(msg.sender)
+		canInit
+	{
 		require(_softCap != 0 && _hardCap != 0 && _etherRate != 0 && _DXTRate != 0 && _startTime != 0 && _endTime != 0);
 		require(_softCap < _hardCap && _startTime > block.timestamp);
 		softCap = _softCap * 1 ether;
@@ -44,6 +48,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 		startTime = _startTime;
 		endTime = _endTime;
 
+		dxtPayments = _dxtPayments;
 		etherRate = _etherRate;
 		DXTRate = _DXTRate;
 
@@ -86,7 +91,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 	}
 
 	modifier validDXTPurchase(uint value) {
-		require(weiRaised + (value) / (etherRate / DXTRate) <= hardCap);
+		require(dxtPayments && (weiRaised + (value) / (etherRate / DXTRate) <= hardCap));
 		_;
 	}
 

@@ -37,8 +37,18 @@ library DAOProxy {
         require(votingDecisionModule.delegatecall(bytes4(keccak256("holdTokens(address,uint256)")), _address, duration));
     }
 
-    function delegatedInitCrowdsaleParameters(address crowdsaleModule, uint _softCap, uint _hardCap, uint _etherRate, uint _DXTRate, uint _startTime, uint _endTime) {
-        require(crowdsaleModule.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256,uint256)")), _softCap, _hardCap, _etherRate, _DXTRate, _startTime, _endTime));
+    function delegatedInitCrowdsaleParameters(
+        address crowdsaleModule,
+        uint _softCap,
+        uint _hardCap,
+        uint _etherRate,
+        uint _DXTRate,
+        uint _startTime,
+        uint _endTime,
+        bool _dxtPayments
+    ) {
+        require(crowdsaleModule.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256,uint256,bool)"))
+        , _softCap, _hardCap, _etherRate, _DXTRate, _startTime, _endTime, _dxtPayments));
     }
 
     function delegatedFinish(address crowdsaleModule) {

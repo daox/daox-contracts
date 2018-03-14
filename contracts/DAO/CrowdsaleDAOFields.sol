@@ -48,4 +48,5 @@ contract CrowdsaleDAOFields {
     TokenInterface public DXT;
     uint public tokenMintedByEther;
     uint public tokenMintedByDXT;
+    bool public dxtPayments;
 }

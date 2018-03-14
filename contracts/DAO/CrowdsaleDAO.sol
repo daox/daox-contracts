@@ -68,8 +68,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedHoldState(stateModule, _tokenHoldTime);
     }
 
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXTRate, uint _startTime, uint _endTime) public {
-        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _DXTRate, _startTime, _endTime);
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXTRate, uint _startTime, uint _endTime, bool _dxtPayments) public {
+        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _DXTRate, _startTime, _endTime, _dxtPayments);
     }
 
     function addProposal(string _description, uint _duration, bytes32[] _options) public {
