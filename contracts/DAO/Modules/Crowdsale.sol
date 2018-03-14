@@ -29,7 +29,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 		DXTRaised += _dxtAmount;
 		depositedDXT[_from] += _dxtAmount;
 
-		uint tokensAmount = DAOLib.countTokens(_dxtAmount, bonusPeriods, bonusDXTRates, DXTRate * 1 ether);
+		uint tokensAmount = DAOLib.countTokens(_dxtAmount, bonusPeriods, bonusDXTRates, DXTRate);
 		tokenMintedByDXT += tokensAmount;
 
 		token.mint(_from, tokensAmount);
@@ -54,7 +54,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 		require((block.timestamp >= endTime || weiRaised == hardCap) && !crowdsaleFinished);
 
 		crowdsaleFinished = true;
-		uint fundsRaised = weiRaised + (DXT.balanceOf(this) * 1 ether) / (etherRate / DXTRate);
+		uint fundsRaised = weiRaised + (DXT.balanceOf(this)) / (etherRate / DXTRate);
 
 		if(fundsRaised >= softCap) {
 			teamTokensAmount = DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
@@ -86,7 +86,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 	}
 
 	modifier validDXTPurchase(uint value) {
-		require(weiRaised + (value * 1 ether) / (etherRate / DXTRate) <= hardCap);
+		require(weiRaised + (value) / (etherRate / DXTRate) <= hardCap);
 		_;
 	}
 
