@@ -38,11 +38,11 @@ const createCrowdsaleDAO = async (cdf, accounts, data = null) => {
     return CrowdsaleDAO.at(logs[0]);
 };
 
-const initCrowdsaleParameters = async (dao, account, _web3, data = null) => {
+const initCrowdsaleParameters = async (dao, account, _web3, dxtPayments = true, data = null) => {
     const latestBlock = await getLatestBlock(_web3);
     const [softCap, hardCap, etherRate, DXTRate, startTime, endTime] = data || [10, 20, 1000, 500, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
 
-    await dao.initCrowdsaleParameters.sendTransaction(softCap, hardCap, etherRate, DXTRate, startTime, endTime, {
+    await dao.initCrowdsaleParameters.sendTransaction(softCap, hardCap, etherRate, DXTRate, startTime, endTime, dxtPayments, {
         from: account
     });
 
@@ -105,10 +105,10 @@ const initState = async (cdf, dao, account, tokenName = "TEST TOKEN", tokenSymbo
     return Promise.resolve([daoxAddress, votingFactoryAddress, token]);
 };
 
-const startCrowdsale = async (_web3, cdf, dao, serviceAccount) => {
+const startCrowdsale = async (_web3, cdf, dao, serviceAccount, dxtPayments = true) => {
     const [, crowdsaleParams] = await Promise.all([
         initState(cdf, dao, serviceAccount),
-        initCrowdsaleParameters(dao, serviceAccount, _web3)
+        initCrowdsaleParameters(dao, serviceAccount, _web3, dxtPayments)
     ]);
     await rpcCall(_web3, "evm_increaseTime", [60]);
     await rpcCall(_web3, "evm_mine", null);
@@ -143,7 +143,10 @@ const makeCrowdsale = async (_web3, cdf, dao, accounts, successful = true) => {
 
 const makeCrowdsaleNew = async (_web3, cdf, dao, serviceAccount, backers, shiftTime = 60) => {
     await startCrowdsale(_web3, cdf, dao, serviceAccount);
-    await Promise.all(Object.keys(backers).map(address => dao.sendTransaction({from: address, value: backers[address]})));
+    await Promise.all(Object.keys(backers).map(address => dao.sendTransaction({
+        from: address,
+        value: backers[address]
+    })));
     await rpcCall(_web3, "evm_increaseTime", [shiftTime]);
     await rpcCall(_web3, "evm_mine", null);
 
@@ -163,19 +166,19 @@ const finishVoting = async (shiftTime, finish, duration, voting, _web3) => {
     }
 };
 
-const makeWithdrawal = async (backersToOptions, finish=true, shiftTime=false, withdrawal, duration, _web3) => {
+const makeWithdrawal = async (backersToOptions, finish = true, shiftTime = false, withdrawal, duration, _web3) => {
     await Promise.all(Object.keys(backersToOptions).map(key => withdrawal.addVote.sendTransaction(backersToOptions[key], {from: key})));
 
     return finishVoting(shiftTime, finish, duration, withdrawal, _web3);
 };
 
-const makeModule = async (backersToOptions, finish=true, shiftTime=false, module, duration, _web3) => {
+const makeModule = async (backersToOptions, finish = true, shiftTime = false, module, duration, _web3) => {
     await Promise.all(Object.keys(backersToOptions).map(key => module.addVote.sendTransaction(backersToOptions[key], {from: key})));
 
     return finishVoting(shiftTime, finish, duration, module, _web3);
 };
 
-const makeProposal = async (backersToOptions, finish = true, shiftTime=false, proposal, duration, _web3) => {
+const makeProposal = async (backersToOptions, finish = true, shiftTime = false, proposal, duration, _web3) => {
     await Promise.all(Object.keys(backersToOptions).map(key => proposal.addVote.sendTransaction(backersToOptions[key], {from: key})));
 
     return finishVoting(shiftTime, finish, duration, proposal, _web3);

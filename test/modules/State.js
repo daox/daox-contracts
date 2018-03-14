@@ -5,7 +5,7 @@ const DXT = artifacts.require("./Token/DXT.sol");
 contract("State", accounts => {
     const serviceAccount = accounts[0];
     const unknownAccount = accounts[1];
-    const [daoName, daoDescription, tokenName, tokenSymbol] = ["DAO NAME", "THIS IS A DESCRIPTION", "TEST TOKEN", "TTK"];
+    const [daoName, daoDescription] = ["DAO NAME", "THIS IS A DESCRIPTION"];
 
     let cdf, dao = [null, null];
 

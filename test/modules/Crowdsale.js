@@ -32,7 +32,7 @@ contract("Crowdsale", accounts => {
         const latestBlock = await helper.getLatestBlock(web3);
         const data = [100, 200, 1000, 5000, latestBlock.timestamp - 1, latestBlock.timestamp + 120];
 
-        return helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, serviceAccount, web3, data));
+        return helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, serviceAccount, web3, true, data));
     });
 
     it("Should not be able to set parameters for crowdsale twice", async () => {
@@ -45,7 +45,7 @@ contract("Crowdsale", accounts => {
         const latestBlock = await helper.getLatestBlock(web3);
         const data = [200, 100, 1000, 5000, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
 
-        return helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, serviceAccount, web3, data));
+        return helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, serviceAccount, web3, true, data));
     });
 
     it("Should deposit ether and mint tokens", async () => {
@@ -63,42 +63,46 @@ contract("Crowdsale", accounts => {
     });
 
     it("Should deposit DXT and mint tokens", async () => {
-        const DXTAmount = 1;
+        const DXTAmount = web3.toWei(1);
         await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
         await helper.mintDXT(unknownAccount, DXTAmount);
         const dxt = DXT.at(DXT.address);
-        await dxt.contributeTo.sendTransaction(dao.address, 1, {from: unknownAccount});
+        await dxt.contributeTo.sendTransaction(dao.address, DXTAmount, {from: unknownAccount});
 
         const token = Token.at(await dao.token.call());
         assert.equal(DXTAmount, await dao.DXTRaised.call());
         assert.equal(DXTAmount, await dao.depositedDXT.call(unknownAccount));
-        assert.equal(DXTAmount * await dao.DXTRate.call(), web3.fromWei(await token.balanceOf.call(unknownAccount)));
-        assert.equal(DXTAmount * await dao.DXTRate.call(), web3.fromWei(await dao.tokenMintedByDXT.call()));
-        assert.equal(DXTAmount * await dao.DXTRate.call(), web3.fromWei(await token.totalSupply.call()));
+        assert.equal(DXTAmount * await dao.DXTRate.call(),await token.balanceOf.call(unknownAccount));
+        assert.equal(DXTAmount * await dao.DXTRate.call(), await dao.tokenMintedByDXT.call());
+        assert.equal(DXTAmount * await dao.DXTRate.call(), await token.totalSupply.call());
         assert.equal(DXTAmount, await dxt.balanceOf.call(dao.address));
         assert.equal(0, await dxt.balanceOf.call(unknownAccount));
     });
 
     it("Should deposit DXT/ether and mint tokens", async () => {
-        const DXTAmount = 1;
+        const DXTAmount = web3.toWei(1);
         const etherAmount = 1;
         const weiAmount = web3.toWei(etherAmount);
         await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
         const dxt = await helper.mintDXT(unknownAccount, DXTAmount);
         await Promise.all([
-            dxt.contributeTo.sendTransaction(dao.address, 1, {from: unknownAccount}),
+            dxt.contributeTo.sendTransaction(dao.address, DXTAmount, {from: unknownAccount}),
             dao.sendTransaction({from: unknownAccount, value: weiAmount})
         ]);
 
         const token = Token.at(await dao.token.call());
+
+        console.log(parseInt(etherAmount * await dao.etherRate.call()) + parseInt(web3.fromWei(DXTAmount * await dao.DXTRate.call())));
+
+        const fundsRaised = parseInt(etherAmount * await dao.etherRate.call()) + parseInt(web3.fromWei(DXTAmount * await dao.DXTRate.call()));
         assert.equal(weiAmount, await dao.weiRaised.call());
         assert.equal(weiAmount, await dao.depositedWei.call(unknownAccount));
-        assert.equal(etherAmount * await dao.etherRate.call() + DXTAmount * await dao.DXTRate.call(), web3.fromWei(await token.balanceOf.call(unknownAccount)));
-        assert.equal(etherAmount * await dao.etherRate.call() + DXTAmount * await dao.DXTRate.call(), web3.fromWei(await token.totalSupply.call()));
+        assert.equal(fundsRaised, web3.fromWei(await token.balanceOf.call(unknownAccount)));
+        assert.equal(fundsRaised, web3.fromWei(await token.totalSupply.call()));
         assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await dao.tokenMintedByEther.call()));
         assert.equal(DXTAmount, await dao.DXTRaised.call());
         assert.equal(DXTAmount, await dao.depositedDXT.call(unknownAccount));
-        assert.equal(DXTAmount * await dao.DXTRate.call(), web3.fromWei(await dao.tokenMintedByDXT.call()));
+        assert.equal(DXTAmount * await dao.DXTRate.call(), await dao.tokenMintedByDXT.call());
         assert.equal(DXTAmount, await dxt.balanceOf.call(dao.address));
         assert.equal(0, await dxt.balanceOf.call(unknownAccount));
     });
@@ -201,13 +205,13 @@ contract("Crowdsale", accounts => {
     it("Should not let send more DXT than hardCap", async () => {
         const etherAmount = 20;
         const weiAmount = web3.toWei(etherAmount);
-        const DXTAmount = 1;
+        const DXTAmount = web3.toWei(1);
         const dxt = await helper.mintDXT(unknownAccount, DXTAmount);
 
         await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
         await dao.sendTransaction({from: accounts[2], value: weiAmount});
 
-        return helper.handleErrorTransaction(() => dxt.contributeTo.sendTransaction(dao.address, 1, {from: unknownAccount}));
+        return helper.handleErrorTransaction(() => dxt.contributeTo.sendTransaction(dao.address, DXTAmount, {from: unknownAccount}));
     });
 
     it("Should not let send ether after the end of crowdsale", async () => {
@@ -266,7 +270,7 @@ contract("Crowdsale", accounts => {
     });
 
     it("Should finish crowdsale with softCap which was achieved via DXT", async () => {
-        const DXTAmount = 21;
+        const DXTAmount = web3.toWei(21);
         const dxt = await helper.mintDXT(accounts[2], DXTAmount);
 
         const [, holdTime] = await helper.initBonuses(dao, accounts, web3);
@@ -360,5 +364,13 @@ contract("Crowdsale", accounts => {
         await dao.finish.sendTransaction({from: unknownAccount});
 
         return helper.handleErrorTransaction(() => dao.finish.sendTransaction({from: unknownAccount}));
+    });
+
+    it("Should not let invest with DXT when dxt payments are off", async () => {
+        const DXTAmount = 19;
+        const dxt = await helper.mintDXT(accounts[2], DXTAmount);
+        await helper.startCrowdsale(web3, cdf, dao, serviceAccount, false);
+
+        return helper.handleErrorTransaction(() => dxt.contributeTo.sendTransaction(dao.address, DXTAmount, {from: accounts[2]}));
     });
 });
