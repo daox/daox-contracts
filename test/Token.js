@@ -2,7 +2,6 @@
 const Token = artifacts.require("./Token/Token.sol");
 const helper = require("./helpers/helper");
 let token = null;
-let callID = 0;
 
 contract("Token", accounts => {
     const [owner, user1, user2, user3] = [accounts[0], accounts[1], accounts[2], accounts[3]];
@@ -106,15 +105,5 @@ contract("Token", accounts => {
 
         return helper.handleErrorTransaction(() => token.allowAndTransfer.sendTransaction(user1, {from : user1}));
     });
-
-    it("Should allow by service account", async () => {
-        await token.mint.sendTransaction(user1, tokensAmount2, {from: owner});
-        assert.equal(tokensAmount2, await token.balanceOf.call(user1), "User1 didn't receive tokens");
-        assert.equal(tokensAmount2, await token.totalSupply.call(), "Total supply was not changed after minting");
-
-        await token.allowAndTransfer.sendTransaction(user1, owner, tokensAmount2, {from : owner});
-
-        assert.equal(tokensAmount2, await token.balanceOf.call(owner));
-        assert.equal(0, await token.balanceOf.call(user1));
-    });
+    
 });

@@ -43,7 +43,8 @@ const initCrowdsaleParameters = async (dao, account, _web3, dxtPayments = true, 
     const [softCap, hardCap, etherRate, DXTRate, startTime, endTime] = data || [10, 20, 1000, 500, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
 
     await dao.initCrowdsaleParameters.sendTransaction(softCap, hardCap, etherRate, DXTRate, startTime, endTime, dxtPayments, {
-        from: account
+        from: account,
+        gasPrice: 0
     });
 
     return [softCap, hardCap, etherRate, DXTRate, startTime, endTime];

@@ -92,8 +92,6 @@ contract("Crowdsale", accounts => {
 
         const token = Token.at(await dao.token.call());
 
-        console.log(parseInt(etherAmount * await dao.etherRate.call()) + parseInt(web3.fromWei(DXTAmount * await dao.DXTRate.call())));
-
         const fundsRaised = parseInt(etherAmount * await dao.etherRate.call()) + parseInt(web3.fromWei(DXTAmount * await dao.DXTRate.call()));
         assert.equal(weiAmount, await dao.weiRaised.call());
         assert.equal(weiAmount, await dao.depositedWei.call(unknownAccount));
