@@ -22,7 +22,7 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         modules = _modules;
 
         require(votingFactoryContractAddress.call(bytes4(keccak256("setDaoFactory(address)")), this));
-        require(serviceContractAddress.call(bytes4(keccak256("setDaoFactory(address,address)")), this, msg.sender));
+        require(serviceContractAddress.call(bytes4(keccak256("setDaoFactory(address)")), this));
     }
 
     function exists(address _address) external constant returns (bool) {
