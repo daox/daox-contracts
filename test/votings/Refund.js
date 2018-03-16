@@ -9,7 +9,7 @@ contract("Refund", accounts => {
     const team = [teamPerson1, teamPerson2, teamPerson3, teamPerson4];
     const [backer1, backer2, backer3, backer4] = [accounts[6], accounts[7], accounts[8], accounts[9]];
     const teamBonuses = [2, 2, 2, 5];
-    const refundDuration = 300;
+    const minimalDurationPeriod = 60 * 60 * 24 * 7;
 
     let refund, dao, cdf, timestamp;
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
@@ -21,7 +21,7 @@ contract("Refund", accounts => {
     const makeDAOAndCreateRefund = async (backersToWei, backersToOptions, refundCreator, finish = true, shiftTime = false) => {
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
-        const tx = await dao.addRefund('Test description', refundDuration, {from : refundCreator});
+        const tx = await dao.addRefund('Test description', minimalDurationPeriod, {from : refundCreator});
         const logs = helper.decodeVotingParameters(tx);
         refund = Refund.at(logs[0]);
 
@@ -33,7 +33,7 @@ contract("Refund", accounts => {
         await Promise.all(Object.keys(backersToOptions).map(key => refund.addVote.sendTransaction(backersToOptions[key], {from: key})));
 
         if (shiftTime) {
-            await helper.rpcCall(web3, "evm_increaseTime", [refundDuration]);
+            await helper.rpcCall(web3, "evm_increaseTime", [minimalDurationPeriod]);
             await helper.rpcCall(web3, "evm_mine", null);
         }
         if (finish) {
@@ -63,10 +63,10 @@ contract("Refund", accounts => {
         ]);
 
         assert.deepEqual(option1[0], option2[0], "Votes amount doesn't equal");
-        assert.equal(timestamp + refundDuration, holdTime1.toNumber(), "Hold time was not calculated correct");
+        assert.equal(timestamp + minimalDurationPeriod, holdTime1.toNumber(), "Hold time was not calculated correct");
         assert.deepEqual(holdTime1, holdTime2, "Tokens amount doesn't equal");
         assert.isNotTrue(isFinished, "Refund was cancelled");
-        assert.equal(refundDuration, duration, "Refund duration is not correct");
+        assert.equal(minimalDurationPeriod, duration, "Refund duration is not correct");
     });
 
     it("Should not create refund from unknown account", async () => {

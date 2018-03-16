@@ -9,7 +9,7 @@ contract("Module", accounts => {
     const [teamPerson1, teamPerson2] = [accounts[4], accounts[5]];
     const teamBonuses = [5, 5];
     const [backer1, backer2, backer3, backer4] = [accounts[6], accounts[7], accounts[8], accounts[9]];
-    const moduleDuration = 300;
+    const minimalDurationPeriod = 60 * 60 * 24 * 7;
     const Modules = {
         State: 0,
         Payment: 1,
@@ -27,7 +27,7 @@ contract("Module", accounts => {
     const makeDAOAndCreateModule = async (backersToWei, backersToOptions, creator, moduleName, newModuleAddress, finish = true, shiftTime = false) => {
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
-        const tx = await dao.addModule("Test description", moduleDuration, moduleName, newModuleAddress, {from: creator});
+        const tx = await dao.addModule("Test description", minimalDurationPeriod, moduleName, newModuleAddress, {from: creator});
         const logs = helper.decodeVotingParameters(tx);
         module = Module.at(logs[0]);
 
@@ -39,7 +39,7 @@ contract("Module", accounts => {
         await Promise.all(Object.keys(backersToOptions).map(key => module.addVote.sendTransaction(backersToOptions[key], {from: key})));
 
         if (shiftTime) {
-            await helper.rpcCall(web3, "evm_increaseTime", [moduleDuration]);
+            await helper.rpcCall(web3, "evm_increaseTime", [minimalDurationPeriod]);
             await helper.rpcCall(web3, "evm_mine", null);
         }
         if (finish) {
@@ -69,10 +69,10 @@ contract("Module", accounts => {
         ]);
 
         assert.deepEqual(option1[0], option2[0], "Votes amount doesn't equal");
-        assert.equal(timestamp + moduleDuration, holdTime1.toNumber(), "Hold time was not calculated correct");
+        assert.equal(timestamp + minimalDurationPeriod, holdTime1.toNumber(), "Hold time was not calculated correct");
         assert.deepEqual(holdTime1, holdTime2, "Tokens amount doesn't equal");
         assert.isTrue(isFinished, "Module was not cancelled");
-        assert.equal(moduleDuration, duration, "Module duration is not correct");
+        assert.equal(minimalDurationPeriod, duration, "Module duration is not correct");
     });
 
     it("Should not create module from unknown account", async () => {

@@ -10,7 +10,7 @@ contract("Withdrawal", accounts => {
     const team = [teamPerson1, teamPerson2];
     const [backer1, backer2, backer3, backer4] = [accounts[6], accounts[7], accounts[8], accounts[9]];
     const teamBonuses = [8, 9];
-    const withdrawalDuration = 300;
+    const minimalDurationPeriod = 60 * 60 * 24 * 7;
     let withdrawalSum = 1;
 
     let withdrawal, dao, cdf, timestamp;
@@ -24,7 +24,7 @@ contract("Withdrawal", accounts => {
     const makeDAOAndCreateWithdrawal = async (backersToWei, backersToOptions, withdrawalCreator, whiteListAddress, finish = true, shiftTime = false) => {
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
-        const tx = await dao.addWithdrawal("Test description", withdrawalDuration, web3.toWei(withdrawalSum), whiteListAddress, false, {from : withdrawalCreator});
+        const tx = await dao.addWithdrawal("Test description", minimalDurationPeriod, web3.toWei(withdrawalSum), whiteListAddress, false, {from : withdrawalCreator});
         const logs = helper.decodeVotingParameters(tx);
         withdrawal = Withdrawal.at(logs[0]);
 
@@ -36,7 +36,7 @@ contract("Withdrawal", accounts => {
         await Promise.all(Object.keys(backersToOptions).map(key => withdrawal.addVote.sendTransaction(backersToOptions[key], {from: key})));
 
         if (shiftTime) {
-            await helper.rpcCall(web3, "evm_increaseTime", [withdrawalDuration]);
+            await helper.rpcCall(web3, "evm_increaseTime", [minimalDurationPeriod]);
             await helper.rpcCall(web3, "evm_mine", null);
         }
         if (finish) {
@@ -66,10 +66,10 @@ contract("Withdrawal", accounts => {
         ]);
 
         assert.deepEqual(option1[0], option2[0], "Votes amount doesn't equal");
-        assert.equal(timestamp + withdrawalDuration, holdTime1.toNumber(), "Hold time was not calculated correct");
+        assert.equal(timestamp + minimalDurationPeriod, holdTime1.toNumber(), "Hold time was not calculated correct");
         assert.deepEqual(holdTime1, holdTime2, "Tokens amount doesn't equal");
         assert.isTrue(isFinished, "Withdrawal was not cancelled");
-        assert.equal(withdrawalDuration, duration, "Withdrawal duration is not correct");
+        assert.equal(minimalDurationPeriod, duration, "Withdrawal duration is not correct");
     });
 
     it("Should not create withdrawal from unknown account", async () => {
