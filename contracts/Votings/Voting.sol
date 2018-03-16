@@ -6,7 +6,7 @@ import "../Common.sol";
 
 contract Voting is VotingFields {
 
-    function create(address _dao, bytes32 _description, uint _duration, uint _quorum) external succeededCrowdsale(ICrowdsaleDAO(_dao)) {
+    function create(address _dao, bytes32 _description, uint _duration, uint _quorum) external succeededCrowdsale(ICrowdsaleDAO(_dao)) correctDuration(_duration) {
         dao = ICrowdsaleDAO(_dao);
         description = _description;
         duration = _duration;
@@ -73,6 +73,11 @@ contract Voting is VotingFields {
 
     modifier correctOption(uint optionID) {
         require(options[optionID].description != 0x0);
+        _;
+    }
+
+    modifier correctDuration(uint _duration) {
+        require(_duration >= minimalDuration);
         _;
     }
 }
