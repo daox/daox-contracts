@@ -36,9 +36,9 @@ contract Crowdsale is CrowdsaleDAOFields {
 	}
 
 	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXTRate, uint _startTime, uint _endTime, bool _dxtPayments)
-		external
-		onlyOwner(msg.sender)
-		canInit
+	external
+	onlyOwner(msg.sender)
+	canInit
 	{
 		require(_softCap != 0 && _hardCap != 0 && _etherRate != 0 && _DXTRate != 0 && _startTime != 0 && _endTime != 0);
 		require(_softCap < _hardCap && _startTime > block.timestamp);
@@ -61,7 +61,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 		crowdsaleFinished = true;
 		uint fundsRaised = weiRaised + (DXT.balanceOf(this)) / (etherRate / DXTRate);
 
-		if(fundsRaised >= softCap) {
+		if (fundsRaised >= softCap) {
 			teamTokensAmount = DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
 		} else {
 			refundableSoftCap = true;
@@ -71,27 +71,29 @@ contract Crowdsale is CrowdsaleDAOFields {
 	}
 
 	modifier canInit() {
-			require(canInitCrowdsaleParameters);
-			_;
+		require(canInitCrowdsaleParameters);
+		_;
 	}
 
 	modifier onlyCommission() {
-			require(commissionContract == msg.sender);
-			_;
+		require(commissionContract == msg.sender);
+		_;
 	}
 
 	modifier CrowdsaleIsOngoing() {
-			require(block.timestamp >= startTime && block.timestamp < endTime && !crowdsaleFinished);
-			_;
+		require(block.timestamp >= startTime && block.timestamp < endTime && !crowdsaleFinished);
+		_;
 	}
 
 	modifier validEtherPurchase(uint value) {
-			require(weiRaised + value <= hardCap);
-			_;
+		require(DXTRate != 0 ?
+			hardCap - DXTRaised / (etherRate / DXTRate) >= weiRaised + value :
+			hardCap >= weiRaised + value);
+		_;
 	}
 
 	modifier validDXTPurchase(uint value) {
-		require(dxtPayments && (weiRaised + (value) / (etherRate / DXTRate) <= hardCap));
+		require(dxtPayments && (hardCap - weiRaised >= (value + DXTRaised) / (etherRate / DXTRate)));
 		_;
 	}
 
@@ -101,7 +103,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 	}
 
 	modifier onlyOwner(address _sender) {
-			require(_sender == owner);
-			_;
+		require(_sender == owner);
+		_;
 	}
 }
