@@ -189,7 +189,9 @@ contract("Crowdsale", accounts => {
     });
 
     it("Should not let send more ether than hardCap", async () => {
-        const etherAmount = 20.1;
+        const DXTAmount = web3.toWei(38);
+        const dxt = await helper.mintDXT(unknownAccount, DXTAmount);
+        const etherAmount = 2;
         const weiAmount = web3.toWei(etherAmount);
 
         await helper.initState(cdf, dao, serviceAccount);
@@ -197,19 +199,23 @@ contract("Crowdsale", accounts => {
         await helper.rpcCall(web3, "evm_increaseTime", [70]);
         await helper.rpcCall(web3, "evm_mine", null);
 
-        return helper.handleErrorTransaction(() => dao.sendTransaction({from: accounts[2], value: weiAmount}));
+        await dao.sendTransaction({from: accounts[2], value: weiAmount / 2});
+        await dxt.contributeTo.sendTransaction(dao.address, DXTAmount, {from: unknownAccount});
+
+        return helper.handleErrorTransaction(() => dao.sendTransaction({from: accounts[2], value: weiAmount / 2}));
     });
 
     it("Should not let send more DXT than hardCap", async () => {
-        const etherAmount = 20;
+        const etherAmount = 19;
         const weiAmount = web3.toWei(etherAmount);
-        const DXTAmount = web3.toWei(1);
+        const DXTAmount = web3.toWei(4);
         const dxt = await helper.mintDXT(unknownAccount, DXTAmount);
 
         await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
         await dao.sendTransaction({from: accounts[2], value: weiAmount});
+        await dxt.contributeTo.sendTransaction(dao.address, DXTAmount/2, {from: unknownAccount});
 
-        return helper.handleErrorTransaction(() => dxt.contributeTo.sendTransaction(dao.address, DXTAmount, {from: unknownAccount}));
+        return helper.handleErrorTransaction(() => dxt.contributeTo.sendTransaction(dao.address, DXTAmount/2, {from: unknownAccount}));
     });
 
     it("Should not let send ether after the end of crowdsale", async () => {
