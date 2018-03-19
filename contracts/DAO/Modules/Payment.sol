@@ -12,8 +12,7 @@ contract Payment is CrowdsaleDAOFields {
         assert(serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint256)")), msg.sender, depositedWithCommissionAmount));
     }
 
-    function refund() whenRefundable {
-        require(teamBonuses[msg.sender] == 0);
+    function refund() whenRefundable notTeamMember {
         uint multiplier = 100;
 
         uint etherPerDXTRate = tokenMintedByEther * multiplier / (tokenMintedByEther + tokenMintedByDXT);
@@ -61,6 +60,11 @@ contract Payment is CrowdsaleDAOFields {
 
     modifier succeededCrowdsale() {
         require(crowdsaleFinished && weiRaised >= softCap);
+        _;
+    }
+
+    modifier notTeamMember() {
+        require(teamBonuses[msg.sender] == 0);
         _;
     }
 }
