@@ -191,10 +191,10 @@ const makeRefund = async (backersToOptions, finish, shiftTime, refund, duration,
     return finishVoting(shiftTime, finish, duration, refund, _web3);
 };
 
-const getBalance = async (_web3, address) => {
+const getBalance = async (_web3, address, convertToWei = true) => {
     const rpcResponse = await rpcCall(_web3, "eth_getBalance", [address]);
 
-    return _web3.fromWei(rpcResponse.result);
+    return convertToWei ? _web3.fromWei(rpcResponse.result) : rpcResponse.result;
 };
 
 const mintDXT = async (to, amount = 1) => {
