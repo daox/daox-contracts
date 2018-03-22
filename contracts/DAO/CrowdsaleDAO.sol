@@ -104,10 +104,11 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedFinish(crowdsaleModule);
     }
 
-    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusEtherRates, uint[] _bonusDXTRates, uint[] _teamHold) public onlyOwner(msg.sender) {
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusEtherRates, uint[] _bonusDXTRates, uint[] _teamHold, bool[] service) public onlyOwner(msg.sender) {
         require(
 			_team.length == tokenPercents.length &&
 			_team.length == _teamHold.length &&
+			_team.length == service.length &&
 			_bonusPeriods.length == _bonusEtherRates.length &&
             _bonusPeriods.length == _bonusDXTRates.length &&
 			canInitBonuses &&
@@ -117,6 +118,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         team = _team;
         teamHold = _teamHold;
         teamBonusesArr = tokenPercents;
+        teamServiceMember = service;
 
         for(uint i = 0; i < _team.length; i++) {
             teamBonuses[_team[i]] = tokenPercents[i];

@@ -28,6 +28,7 @@ contract CrowdsaleDAOFields {
     uint[] public teamBonusesArr;
     address[] public team;
     uint[] public teamHold;
+    bool[] public teamServiceMember;
     TokenInterface public token;
     VotingFactoryInterface public votingFactory;
     address public commissionContract;
