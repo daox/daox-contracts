@@ -637,9 +637,9 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 			_team.length == _teamHold.length &&
 			_team.length == service.length &&
 			_bonusPeriods.length == _bonusEtherRates.length &&
-			_bonusPeriods.length == _bonusDXTRates.length &&
-		canInitBonuses &&
-		(block.timestamp < startTime || canInitCrowdsaleParameters)
+			(_bonusDXTRates.length == 0 || _bonusPeriods.length == _bonusDXTRates.length) &&
+			canInitBonuses &&
+			(block.timestamp < startTime || canInitCrowdsaleParameters)
 		);
 
 		team = _team;
@@ -670,8 +670,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 	}
 
 	/*
-    Modifiers
-    */
+	Modifiers
+	*/
 
 	modifier canSetModule(address module) {
 		require(votings[msg.sender] || (module == 0x0 && msg.sender == owner));
