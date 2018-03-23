@@ -110,7 +110,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 			_team.length == _teamHold.length &&
 			_team.length == service.length &&
 			_bonusPeriods.length == _bonusEtherRates.length &&
-            _bonusPeriods.length == _bonusDXCRates.length &&
+            (_bonusDXCRates.length == 0 || _bonusPeriods.length == _bonusDXCRates.length) &&
 			canInitBonuses &&
 			(block.timestamp < startTime || canInitCrowdsaleParameters)
         );
