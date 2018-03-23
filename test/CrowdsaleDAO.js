@@ -50,7 +50,7 @@ contract("CrowdsaleDAO", accounts => {
         const date = block.timestamp;
         const holdTime = 60 * 60 * 24;
 
-        await dao.initBonuses([serviceAccount, unknownAccount], [5, 10], [date, date + 60], [10, 20], [], [holdTime, holdTime]);
+        await dao.initBonuses([serviceAccount, unknownAccount], [5, 10], [date, date + 60], [10, 20], [], [holdTime, holdTime], [false, false]);
     });
 
     it("Should not initiate bonuses when team members and team bonuses count mismatch", async () => {

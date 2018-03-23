@@ -21,7 +21,7 @@ contract("Module", accounts => {
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
     beforeEach(async () => {
         dao = await helper.createCrowdsaleDAO(cdf);
-        await dao.initBonuses.sendTransaction([teamPerson1, teamPerson2], teamBonuses, [], [], [], [10000, 10000]);
+        await dao.initBonuses.sendTransaction([teamPerson1, teamPerson2], teamBonuses, [], [], [], [10000, 10000], [false, false]);
     });
 
     const makeDAOAndCreateModule = async (backersToWei, backersToOptions, creator, moduleName, newModuleAddress, finish = true, shiftTime = false) => {
