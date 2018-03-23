@@ -39,10 +39,10 @@ library DAOLib {
         return _votingAddress;
     }
 
-    function delegatedCreateWithdrawal(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, uint _sum, address withdrawalWallet, bool dxt, address _dao)
+    function delegatedCreateWithdrawal(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, uint _sum, address withdrawalWallet, bool dxc, address _dao)
         returns (address)
     {
-        address _votingAddress = _votingFactory.createWithdrawal(msg.sender, _description, _duration, _sum, withdrawalWallet, dxt);
+        address _votingAddress = _votingFactory.createWithdrawal(msg.sender, _description, _duration, _sum, withdrawalWallet, dxc);
         VotingCreated(_votingAddress, "Withdrawal", _dao, _description, _duration, msg.sender);
 
         return _votingAddress;

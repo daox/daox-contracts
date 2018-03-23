@@ -5,7 +5,7 @@ import "../Votings/VotingFactoryInterface.sol";
 
 contract CrowdsaleDAOFields {
     uint public etherRate;
-    uint public DXTRate;
+    uint public DXCRate;
     uint public softCap;
     uint public hardCap;
     uint public startTime;
@@ -16,14 +16,14 @@ contract CrowdsaleDAOFields {
     bool public canSetWhiteList = true;
     uint public commissionRaised = 0;
     uint public weiRaised = 0;
-    uint public DXTRaised = 0;
+    uint public DXCRaised = 0;
     mapping(address => uint) public depositedWei;
-    mapping(address => uint) public depositedDXT;
+    mapping(address => uint) public depositedDXC;
     mapping(address => uint) public depositedWithCommission;
     bool public crowdsaleFinished;
     bool public refundableSoftCap = false;
     uint public newEtherRate = 0;
-    uint public newDXTRate = 0;
+    uint public newDXCRate = 0;
     address public serviceContract;
     uint[] public teamBonusesArr;
     address[] public team;
@@ -43,12 +43,12 @@ contract CrowdsaleDAOFields {
     mapping(address => uint) public teamBonuses;
     uint[] public bonusPeriods;
     uint[] public bonusEtherRates;
-    uint[] public bonusDXTRates;
+    uint[] public bonusDXCRates;
     uint public teamTokensAmount;
     uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;
-    TokenInterface public DXT;
+    TokenInterface public DXC;
     uint public tokenMintedByEther;
-    uint public tokenMintedByDXT;
-    bool public dxtPayments;
+    uint public tokenMintedByDXC;
+    bool public dxcPayments;
     uint internal constant multiplier = 100000;
 }

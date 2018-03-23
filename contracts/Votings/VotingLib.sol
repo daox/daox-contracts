@@ -20,7 +20,7 @@ library VotingLib {
         require(_v.delegatecall(bytes4(keccak256("finish()"))));
     }
 
-    function isValidWithdrawal(address _dao, uint _sum, bool _dxt) constant returns(bool) {
-        return !_dxt ? _dao.balance >= _sum  : ICrowdsaleDAO(_dao).DXT().balanceOf(_dao) >= _sum;
+    function isValidWithdrawal(address _dao, uint _sum, bool _dxc) constant returns(bool) {
+        return !_dxc ? _dao.balance >= _sum  : ICrowdsaleDAO(_dao).DXC().balanceOf(_dao) >= _sum;
     }
 }

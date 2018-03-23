@@ -1,8 +1,8 @@
 pragma solidity ^0.4.0;
 
 library DAOProxy {
-    function delegatedInitState(address stateModule, address _tokenAddress, address _votingFactory, address _serviceContract, address _DXT) {
-        require(stateModule.delegatecall(bytes4(keccak256("initState(address,address,address,address)")), _tokenAddress, _votingFactory, _serviceContract, _DXT));
+    function delegatedInitState(address stateModule, address _tokenAddress, address _votingFactory, address _serviceContract, address _DXC) {
+        require(stateModule.delegatecall(bytes4(keccak256("initState(address,address,address,address)")), _tokenAddress, _votingFactory, _serviceContract, _DXC));
     }
 
     function delegatedHoldState(address stateModule, uint _tokenHoldTime) {
@@ -21,8 +21,8 @@ library DAOProxy {
         require(paymentModule.delegatecall(bytes4(keccak256("refundSoftCap()"))));
     }
 
-    function delegatedWithdrawal(address votingDecisionModule, address _address, uint withdrawalSum, bool dxt) {
-        require(votingDecisionModule.delegatecall(bytes4(keccak256("withdrawal(address,uint256,bool)")), _address, withdrawalSum, dxt));
+    function delegatedWithdrawal(address votingDecisionModule, address _address, uint withdrawalSum, bool dxc) {
+        require(votingDecisionModule.delegatecall(bytes4(keccak256("withdrawal(address,uint256,bool)")), _address, withdrawalSum, dxc));
     }
 
     function delegatedMakeRefundableByUser(address votingDecisionModule) {
@@ -42,13 +42,13 @@ library DAOProxy {
         uint _softCap,
         uint _hardCap,
         uint _etherRate,
-        uint _DXTRate,
+        uint _DXCRate,
         uint _startTime,
         uint _endTime,
-        bool _dxtPayments
+        bool _dxcPayments
     ) {
         require(crowdsaleModule.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256,uint256,bool)"))
-        , _softCap, _hardCap, _etherRate, _DXTRate, _startTime, _endTime, _dxtPayments));
+        , _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments));
     }
 
     function delegatedFinish(address crowdsaleModule) {
@@ -59,7 +59,7 @@ library DAOProxy {
         require(crowdsaleModule.delegatecall(bytes4(keccak256("handlePayment(address,bool)")), _sender, _commission));
     }
 
-    function delegatedHandleDXTPayment(address crowdsaleModule, address _from, uint _amount) {
-        require(crowdsaleModule.delegatecall(bytes4(keccak256("handleDXTPayment(address,uint256)")), _from, _amount));
+    function delegatedHandleDXCPayment(address crowdsaleModule, address _from, uint _amount) {
+        require(crowdsaleModule.delegatecall(bytes4(keccak256("handleDXCPayment(address,uint256)")), _from, _amount));
     }
 }

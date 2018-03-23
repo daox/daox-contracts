@@ -24,12 +24,12 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedHandlePayment(crowdsaleModule, _sender, true);
     }
 
-    function handleDXTPayment(address _from, uint _amount) {
-        DAOProxy.delegatedHandleDXTPayment(crowdsaleModule, _from, _amount);
+    function handleDXCPayment(address _from, uint _amount) {
+        DAOProxy.delegatedHandleDXCPayment(crowdsaleModule, _from, _amount);
     }
 
-    function withdrawal(address _address, uint withdrawalSum, bool dxt) external {
-        DAOProxy.delegatedWithdrawal(votingDecisionModule,_address, withdrawalSum, dxt);
+    function withdrawal(address _address, uint withdrawalSum, bool dxc) external {
+        DAOProxy.delegatedWithdrawal(votingDecisionModule,_address, withdrawalSum, dxc);
     }
 
     function makeRefundableByVotingDecision() external {
@@ -60,24 +60,24 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         return token.balanceOf(_participantAddress) > 0;
     }
 
-    function initState(address _tokenAddress, address _votingFactory, address _serviceContract, address _DXT) public {
-        DAOProxy.delegatedInitState(stateModule, _tokenAddress, _votingFactory, _serviceContract, _DXT);
+    function initState(address _tokenAddress, address _votingFactory, address _serviceContract, address _DXC) public {
+        DAOProxy.delegatedInitState(stateModule, _tokenAddress, _votingFactory, _serviceContract, _DXC);
     }
 
     function initHold(uint _tokenHoldTime) public {
         DAOProxy.delegatedHoldState(stateModule, _tokenHoldTime);
     }
 
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXTRate, uint _startTime, uint _endTime, bool _dxtPayments) public {
-        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _DXTRate, _startTime, _endTime, _dxtPayments);
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXCRate, uint _startTime, uint _endTime, bool _dxcPayments) public {
+        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments);
     }
 
     function addProposal(string _description, uint _duration, bytes32[] _options) public {
         votings[DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this)] = true;
     }
 
-    function addWithdrawal(string _description, uint _duration, uint _sum, address withdrawalWallet, bool dxt) public {
-        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, withdrawalWallet, dxt, this)] = true;
+    function addWithdrawal(string _description, uint _duration, uint _sum, address withdrawalWallet, bool dxc) public {
+        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, withdrawalWallet, dxc, this)] = true;
     }
 
     function addRefund(string _description, uint _duration) public {
@@ -104,13 +104,13 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedFinish(crowdsaleModule);
     }
 
-    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusEtherRates, uint[] _bonusDXTRates, uint[] _teamHold, bool[] service) public onlyOwner(msg.sender) {
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusEtherRates, uint[] _bonusDXCRates, uint[] _teamHold, bool[] service) public onlyOwner(msg.sender) {
         require(
 			_team.length == tokenPercents.length &&
 			_team.length == _teamHold.length &&
 			_team.length == service.length &&
 			_bonusPeriods.length == _bonusEtherRates.length &&
-            _bonusPeriods.length == _bonusDXTRates.length &&
+            _bonusPeriods.length == _bonusDXCRates.length &&
 			canInitBonuses &&
 			(block.timestamp < startTime || canInitCrowdsaleParameters)
         );
@@ -126,7 +126,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
         bonusPeriods = _bonusPeriods;
         bonusEtherRates = _bonusEtherRates;
-        bonusDXTRates = _bonusDXTRates;
+        bonusDXCRates = _bonusDXCRates;
 
         canInitBonuses = false;
     }

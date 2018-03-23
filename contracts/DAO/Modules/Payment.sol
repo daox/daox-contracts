@@ -13,31 +13,31 @@ contract Payment is CrowdsaleDAOFields {
     }
 
     function refund() whenRefundable notTeamMember {
-        uint etherPerDXTRate = tokenMintedByEther * multiplier / (tokenMintedByEther + tokenMintedByDXT);
-        uint dxtPerEtherRate = tokenMintedByDXT * multiplier / (tokenMintedByEther + tokenMintedByDXT);
+        uint etherPerDXCRate = tokenMintedByEther * multiplier / (tokenMintedByEther + tokenMintedByDXC);
+        uint dxcPerEtherRate = tokenMintedByDXC * multiplier / (tokenMintedByEther + tokenMintedByDXC);
 
         uint tokensAmount = token.balanceOf(msg.sender);
         token.burn(msg.sender);
 
-        if (etherPerDXTRate != 0)
-            msg.sender.transfer(DAOLib.countRefundSum(etherPerDXTRate * tokensAmount, etherRate, newEtherRate, multiplier));
+        if (etherPerDXCRate != 0)
+            msg.sender.transfer(DAOLib.countRefundSum(etherPerDXCRate * tokensAmount, etherRate, newEtherRate, multiplier));
 
-        if (dxtPerEtherRate != 0)
-            DXT.transfer(msg.sender, DAOLib.countRefundSum(dxtPerEtherRate * tokensAmount, DXTRate, newDXTRate, multiplier));
+        if (dxcPerEtherRate != 0)
+            DXC.transfer(msg.sender, DAOLib.countRefundSum(dxcPerEtherRate * tokensAmount, DXCRate, newDXCRate, multiplier));
     }
 
     function refundSoftCap() whenRefundableSoftCap {
-        require(depositedWei[msg.sender] != 0 || depositedDXT[msg.sender] != 0);
+        require(depositedWei[msg.sender] != 0 || depositedDXC[msg.sender] != 0);
 
         token.burn(msg.sender);
         uint weiAmount = depositedWei[msg.sender];
-        uint tokensAmount = depositedDXT[msg.sender];
+        uint tokensAmount = depositedDXC[msg.sender];
 
         delete depositedWei[msg.sender];
         delete depositedWithCommission[msg.sender];
-        delete depositedDXT[msg.sender];
+        delete depositedDXC[msg.sender];
 
-        DXT.transfer(msg.sender, tokensAmount);
+        DXC.transfer(msg.sender, tokensAmount);
         msg.sender.transfer(weiAmount);
     }
 
