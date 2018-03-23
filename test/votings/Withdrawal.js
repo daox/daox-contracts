@@ -17,7 +17,7 @@ contract("Withdrawal", accounts => {
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
     beforeEach(async () => {
         dao = await helper.createCrowdsaleDAO(cdf);
-        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000]);
+        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000], [false, false]);
         await dao.setWhiteList.sendTransaction([whiteListAddress1, whiteListAddress2]);
     });
 

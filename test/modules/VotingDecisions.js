@@ -70,7 +70,7 @@ contract("VotingDecisions", accounts => {
         DXT = DXTToken.at(DXTToken.address);
         await DXT.mint(backer1, web3.toWei(2));
 
-        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000], {gasPrice: 0});
+        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000], [false, false], {gasPrice: 0});
         await dao.setWhiteList.sendTransaction([whiteListAddress1], {gasPrice: 0});
         await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
         await Promise.all(Object.keys(backersToWei).map(address => dao.sendTransaction({
@@ -393,7 +393,7 @@ contract("VotingDecisions", accounts => {
     it("Make refundable by user#1: should not become refundable when soft cap reached", async () => {
         const cdf = await helper.createCrowdsaleDAOFactory();
         const dao = await helper.createCrowdsaleDAO(cdf, accounts);
-        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000]);
+        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000], [false, false]);
         await dao.setWhiteList.sendTransaction([whiteListAddress1]);
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
@@ -405,7 +405,7 @@ contract("VotingDecisions", accounts => {
     it("Make refundable by user#2: should become refundable when last withdrawal was >= 4 months ago", async () => {
         const cdf = await helper.createCrowdsaleDAOFactory();
         const dao = await helper.createCrowdsaleDAO(cdf, accounts);
-        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000]);
+        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000], [false, false]);
         await dao.setWhiteList.sendTransaction([whiteListAddress1]);
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
