@@ -23,7 +23,6 @@ contract VotingDecisions is CrowdsaleDAOFields {
 
     function makeRefundable() private {
         require(!refundable);
-        uint multiplier = 100000;
         refundable = true;
         newEtherRate = this.balance * etherRate * multiplier / tokenMintedByEther;
         newDXTRate = tokenMintedByDXT != 0 ? DXT.balanceOf(this) * DXTRate * multiplier / tokenMintedByDXT : 0;

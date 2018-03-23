@@ -50,4 +50,5 @@ contract CrowdsaleDAOFields {
     uint public tokenMintedByEther;
     uint public tokenMintedByDXT;
     bool public dxtPayments;
+    uint internal constant multiplier = 100000;
 }
