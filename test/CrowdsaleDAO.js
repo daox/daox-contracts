@@ -24,8 +24,8 @@ contract("CrowdsaleDAO", accounts => {
 
         assert.equal(10, (await dao.bonusEtherRates.call(0)).toNumber());
         assert.equal(20, (await dao.bonusEtherRates.call(1)).toNumber());
-        assert.equal(100, (await dao.bonusDXTRates.call(0)).toNumber());
-        assert.equal(200, (await dao.bonusDXTRates.call(1)).toNumber());
+        assert.equal(100, (await dao.bonusDXCRates.call(0)).toNumber());
+        assert.equal(200, (await dao.bonusDXCRates.call(1)).toNumber());
         assert.equal(false, await dao.canInitBonuses.call());
     });
 

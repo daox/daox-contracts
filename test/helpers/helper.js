@@ -14,7 +14,7 @@ const Crowdsale = artifacts.require("./DAO/Modules/Crowdsale.sol");
 CrowdsaleDAOFactory.link(DAOProxy);
 CrowdsaleDAOFactory.link(DAOLib);
 const DAOJson = require("../../build/contracts/CrowdsaleDAO");
-const DXT = artifacts.require("./Token/DXT.sol");
+const DXC = artifacts.require("./Token/DXC.sol");
 const Web3 = require("web3");
 const web3 = new Web3();
 
@@ -40,14 +40,14 @@ const createCrowdsaleDAO = async (cdf, accounts, data = null) => {
 
 const initCrowdsaleParameters = async (dao, account, _web3, dxtPayments = true, data = null) => {
     const latestBlock = await getLatestBlock(_web3);
-    const [softCap, hardCap, etherRate, DXTRate, startTime, endTime] = data || [10, 20, 1000, 500, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
+    const [softCap, hardCap, etherRate, DXCRate, startTime, endTime] = data || [10, 20, 1000, 500, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
 
-    await dao.initCrowdsaleParameters.sendTransaction(softCap, hardCap, etherRate, DXTRate, startTime, endTime, dxtPayments, {
+    await dao.initCrowdsaleParameters.sendTransaction(softCap, hardCap, etherRate, DXCRate, startTime, endTime, dxtPayments, {
         from: account,
         gasPrice: 0
     });
 
-    return [softCap, hardCap, etherRate, DXTRate, startTime, endTime];
+    return [softCap, hardCap, etherRate, DXCRate, startTime, endTime];
 };
 
 const createToken = (tokenName, tokenSymbol) => Token.new(tokenName, tokenSymbol);
@@ -100,7 +100,7 @@ const getParametersForInitState = (cdf, tokenName, tokenSymbol) =>
 
 const initState = async (cdf, dao, account, tokenName = "TEST TOKEN", tokenSymbol = "TTK") => {
     const [daoxAddress, votingFactoryAddress, token] = await getParametersForInitState(cdf, tokenName, tokenSymbol);
-    await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, DXT.address, {from: account});
+    await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, DXC.address, {from: account});
     await token.transferOwnership.sendTransaction(dao.address, {from: account});
 
     return Promise.resolve([daoxAddress, votingFactoryAddress, token]);
@@ -197,8 +197,8 @@ const getBalance = async (_web3, address, convertToWei = true) => {
     return convertToWei ? _web3.fromWei(rpcResponse.result) : rpcResponse.result;
 };
 
-const mintDXT = async (to, amount = 1) => {
-    const token = DXT.at(DXT.address);
+const mintDXC = async (to, amount = 1) => {
+    const token = DXC.at(DXC.address);
     await token.mint(to, amount);
 
     return token;
@@ -212,7 +212,7 @@ const doesApproximatelyEqual = (a, b) =>
 module.exports = {
     getLatestBlock, rpcCall, fillZeros, makeCrowdsale,
     handleErrorTransaction, createCrowdsaleDAOFactory,
-    createCrowdsaleDAO, decodeVotingParameters, mintDXT,
+    createCrowdsaleDAO, decodeVotingParameters, mintDXC,
     initCrowdsaleParameters, initState, initBonuses, startCrowdsale, makeCrowdsaleNew,
     makeWithdrawal, makeModule, makeProposal, makeRefund, getBalance, doesApproximatelyEqual
 };

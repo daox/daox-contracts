@@ -1,6 +1,6 @@
 "use strict";
 const helper = require('../helpers/helper.js');
-const DXT = artifacts.require("./Token/DXT.sol");
+const DXC = artifacts.require("./Token/DXC.sol");
 
 contract("State", accounts => {
     const serviceAccount = accounts[0];
@@ -26,7 +26,7 @@ contract("State", accounts => {
         assert.equal(daoxAddress, await dao.serviceContract.call());
         assert.equal(votingFactoryAddress, await dao.votingFactory.call());
         assert.equal(token.address, await dao.token.call());
-        assert.equal(DXT.address, await dao.DXT.call());
+        assert.equal(DXC.address, await dao.DXC.call());
         assert.equal(false, await dao.canInitStateParameters.call(), "`canInitState` variable was not changed");
         assert.isDefined(await dao.commissionContract.call(), "Commission contract was not created");
     });

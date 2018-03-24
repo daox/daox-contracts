@@ -6,7 +6,7 @@ contract("Payment", accounts => {
     const unknownAccount = accounts[1];
 
     const [daoName, daoDescription] = ["DAO NAME", "THIS IS A DESCRIPTION"];
-    let softCap, hardCap, etherRate, DXTRate, startTime, endTime;
+    let softCap, hardCap, etherRate, DXCRate, startTime, endTime;
     let cdf, dao;
     const shiftTime = 20000;
 
@@ -15,26 +15,26 @@ contract("Payment", accounts => {
     beforeEach(async () => {
         dao = await helper.createCrowdsaleDAO(cdf, accounts, [daoName, daoDescription]);
 
-        [softCap, hardCap, etherRate, DXTRate, startTime, endTime] = await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
+        [softCap, hardCap, etherRate, DXCRate, startTime, endTime] = await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
     });
 
     it("Should refund when soft cap was not reached", async () => {
-        const DXTAmount = 5;
-        const dxt = await helper.mintDXT(accounts[2], DXTAmount);
+        const DXCAmount = 5;
+        const dxt = await helper.mintDXC(accounts[2], DXCAmount);
         await dao.sendTransaction({from: accounts[2], value: web3.toWei(softCap / 2), gasPrice: 0});
-        await dxt.contributeTo.sendTransaction(dao.address, DXTAmount, {from: accounts[2], gasPrice: 0});
+        await dxt.contributeTo.sendTransaction(dao.address, DXCAmount, {from: accounts[2], gasPrice: 0});
 
         await helper.rpcCall(web3, "evm_increaseTime", [shiftTime]);
         await helper.rpcCall(web3, "evm_mine", null);
 
         await dao.finish.sendTransaction({from: accounts[2], gasPrice: 0});
 
-        const fundsRaised = (await dao.weiRaised.call()).toNumber() + web3.toWei(DXTAmount) / (etherRate / DXTRate);
+        const fundsRaised = (await dao.weiRaised.call()).toNumber() + web3.toWei(DXCAmount) / (etherRate / DXCRate);
         assert.isTrue(await dao.crowdsaleFinished.call(), "Crowdsale was not finished");
         assert.isTrue(await dao.refundableSoftCap.call(), "Crowdsale is not refundable");
         assert.isNotTrue(fundsRaised > (await dao.softCap.call()).toNumber(), "Funds raised should be less than soft cap");
         assert.equal(web3.toWei(softCap / 2), (await dao.weiRaised.call()).toNumber(), "Wei raised calculated not correct");
-        assert.equal(DXTAmount, (await dao.DXTRaised.call()).toNumber(), "DXT raised calculated not correct");
+        assert.equal(DXCAmount, (await dao.DXCRaised.call()).toNumber(), "DXC raised calculated not correct");
 
         let rpcResponse = await helper.rpcCall(web3, "eth_getBalance", [accounts[2]]);
         const balanceBefore = web3.fromWei(rpcResponse.result);

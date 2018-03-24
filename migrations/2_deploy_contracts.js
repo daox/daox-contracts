@@ -11,7 +11,7 @@ const Crowdsale = artifacts.require("./DAO/Modules/Crowdsale.sol");
 const Voting = artifacts.require("./DAO/Votings/Voting.sol");
 const DAODeployer = artifacts.require("./DAO/DAODeployer.sol");
 const DAOProxy = artifacts.require("./DAO/DAOProxy.sol");
-const DXT = artifacts.require("./Token/DXT.sol");
+const DXC = artifacts.require("./Token/DXC.sol");
 
 module.exports = (deployer) => {
     const deployVotingFactory = () =>
@@ -22,8 +22,8 @@ module.exports = (deployer) => {
     const deployDAOx = () =>
         deployer.deploy(DAOx);
 
-    const deployDXT = () =>
-        deployer.deploy(DXT, "DAOX token", "DXT");
+    const deployDXC = () =>
+        deployer.deploy(DXC, "DAOX token", "DXC");
 
     const deployModules = () =>
         deployer.deploy(DAOLib)
@@ -48,7 +48,7 @@ module.exports = (deployer) => {
     Version with `Promise.all()` doesn't work properly
     */
     deployVotingFactory()
-        .then(() => deployDXT())
+        .then(() => deployDXC())
         .then(() => deployDAOx())
         .then(() => deployModules())
         .then(() => deployCrowdsaleDAOFactory());

@@ -5,7 +5,7 @@ const Module = artifacts.require('./Votings/Module.sol');
 const Proposal = artifacts.require('./Votings/Proposal.sol');
 const Refund = artifacts.require('./Votings/Refund.sol');
 const Token = artifacts.require('./Token/Token.sol');
-const DXTToken = artifacts.require("./Token/DXT.sol");
+const DXCToken = artifacts.require("./Token/DXC.sol");
 
 
 contract("VotingDecisions", accounts => {
@@ -26,7 +26,7 @@ contract("VotingDecisions", accounts => {
         Crowdsale: 3
     };
 
-    let withdrawal, dao, cdf, timestamp, token, DXT;
+    let withdrawal, dao, cdf, timestamp, token, DXC;
     const backersToWei = {};
     backersToWei[backers[1]] = web3.toWei(2);
     backersToWei[backers[2]] = web3.toWei(3);
@@ -67,8 +67,8 @@ contract("VotingDecisions", accounts => {
         cdf = await helper.createCrowdsaleDAOFactory();
         dao = await helper.createCrowdsaleDAO(cdf, accounts);
 
-        DXT = DXTToken.at(DXTToken.address);
-        await DXT.mint(backer1, web3.toWei(2));
+        DXC = DXCToken.at(DXCToken.address);
+        await DXC.mint(backer1, web3.toWei(2));
 
         await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000], [false, false], {gasPrice: 0});
         await dao.setWhiteList.sendTransaction([whiteListAddress1], {gasPrice: 0});
@@ -79,7 +79,7 @@ contract("VotingDecisions", accounts => {
             gasPrice: 0
         })));
 
-        await DXT.contributeTo.sendTransaction(dao.address, web3.toWei(2), {from: backer1, gasPrice: 0});
+        await DXC.contributeTo.sendTransaction(dao.address, web3.toWei(2), {from: backer1, gasPrice: 0});
 
         await helper.rpcCall(web3, "evm_increaseTime", [60]);
         await helper.rpcCall(web3, "evm_mine", null);
@@ -277,7 +277,7 @@ contract("VotingDecisions", accounts => {
         assert.equal(balanceBefore - web3.fromWei(withdrawalSum), balanceAfter);
     });
 
-    it("Withdrawal#3: should be accepted when >=50% votes for option#1. Withdrawal in DXT", async () => {
+    it("Withdrawal#3: should be accepted when >=50% votes for option#1. Withdrawal in DXC", async () => {
         const withdrawalSum = 2; //2 dxt tokens
         const tx = await dao.addWithdrawal("Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, true, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
@@ -288,15 +288,15 @@ contract("VotingDecisions", accounts => {
         backersToOption[backers[1]] = 1;
 
         const [daoBalanceBefore, whiteListBalanceBefore] = await Promise.all([
-            DXT.balanceOf.call(dao.address),
-            DXT.balanceOf.call(whiteListAddress1)
+            DXC.balanceOf.call(dao.address),
+            DXC.balanceOf.call(whiteListAddress1)
         ]);
 
         await helper.makeWithdrawal(backersToOption, true, true, withdrawal, minimalDurationPeriod, web3);
 
         const [daoBalanceAfter, whiteListBalanceAfter] = await Promise.all([
-            DXT.balanceOf.call(dao.address),
-            DXT.balanceOf.call(whiteListAddress1)
+            DXC.balanceOf.call(dao.address),
+            DXC.balanceOf.call(whiteListAddress1)
         ]);
 
         assert.isTrue(await withdrawal.finished.call());
@@ -325,7 +325,7 @@ contract("VotingDecisions", accounts => {
         const tx = await dao.addRefund("Test description", minimalDurationPeriod, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const refund = Refund.at(logs[0]);
-        const DXTRate = 500;
+        const DXCRate = 500;
 
         const backersToOption = {};
         backersToOption[backers[0]] = 1;
@@ -340,7 +340,7 @@ contract("VotingDecisions", accounts => {
         ]);
 
         const newEtherRate = (await dao.newEtherRate.call()).toNumber() / 100000;
-        const newDXTRate = await dao.newDXTRate.call();
+        const newDXCRate = await dao.newDXCRate.call();
         assert.isTrue(await refund.finished.call());
         assert.deepEqual(await refund.options.call(1), await refund.result.call());
         assert.isTrue(await dao.refundable.call());
@@ -369,25 +369,25 @@ contract("VotingDecisions", accounts => {
             dao.refund.sendTransaction({from: backer5, gasPrice: 0})
         ]);
 
-        const [tokenMintedByEther, tokenMintedByDXT] = await Promise.all([
+        const [tokenMintedByEther, tokenMintedByDXC] = await Promise.all([
             dao.tokenMintedByEther.call(),
-            dao.tokenMintedByDXT.call()
+            dao.tokenMintedByDXC.call()
         ]);
 
-        const etherPerDXTRate = tokenMintedByEther.toNumber() / (tokenMintedByEther.toNumber() + tokenMintedByDXT.toNumber());
-        const dxtPerEtherRate = tokenMintedByDXT.toNumber() / (tokenMintedByEther.toNumber() + tokenMintedByDXT.toNumber());
+        const etherPerDXCRate = tokenMintedByEther.toNumber() / (tokenMintedByEther.toNumber() + tokenMintedByDXC.toNumber());
+        const dxtPerEtherRate = tokenMintedByDXC.toNumber() / (tokenMintedByEther.toNumber() + tokenMintedByDXC.toNumber());
 
-        assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer1EtherBalanceBefore) + parseFloat(newEtherRate * etherPerDXTRate), parseFloat(await helper.getBalance(web3, backer1))));
-        assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer2EtherBalanceBefore) + web3.fromWei(backersToWei[backer2]) * newEtherRate * etherPerDXTRate, parseFloat(await helper.getBalance(web3, backer2))));
-        assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer3EtherBalanceBefore) + web3.fromWei(backersToWei[backer3]) * newEtherRate * etherPerDXTRate, parseFloat(await helper.getBalance(web3, backer3))));
-        assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer4EtherBalanceBefore) + web3.fromWei(backersToWei[backer4]) * newEtherRate * etherPerDXTRate, parseFloat(await helper.getBalance(web3, backer4))));
-        assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer5EtherBalanceBefore) + web3.fromWei(backersToWei[backer5]) * newEtherRate * etherPerDXTRate, parseFloat(await helper.getBalance(web3, backer5))));
+        assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer1EtherBalanceBefore) + parseFloat(newEtherRate * etherPerDXCRate), parseFloat(await helper.getBalance(web3, backer1))));
+        assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer2EtherBalanceBefore) + web3.fromWei(backersToWei[backer2]) * newEtherRate * etherPerDXCRate, parseFloat(await helper.getBalance(web3, backer2))));
+        assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer3EtherBalanceBefore) + web3.fromWei(backersToWei[backer3]) * newEtherRate * etherPerDXCRate, parseFloat(await helper.getBalance(web3, backer3))));
+        assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer4EtherBalanceBefore) + web3.fromWei(backersToWei[backer4]) * newEtherRate * etherPerDXCRate, parseFloat(await helper.getBalance(web3, backer4))));
+        assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer5EtherBalanceBefore) + web3.fromWei(backersToWei[backer5]) * newEtherRate * etherPerDXCRate, parseFloat(await helper.getBalance(web3, backer5))));
 
-        assert.equal(parseFloat(web3.fromWei( backer1Tokens * dxtPerEtherRate * newDXTRate / (100000 * DXTRate))).toFixed(6), web3.fromWei(await DXT.balanceOf.call(backer1)).toNumber().toFixed(6));
-        assert.equal(parseFloat(web3.fromWei( backer2Tokens * dxtPerEtherRate * newDXTRate / (100000 * DXTRate))).toFixed(6), web3.fromWei(await DXT.balanceOf.call(backer2)).toNumber().toFixed(6));
-        assert.equal(parseFloat(web3.fromWei( backer3Tokens * dxtPerEtherRate * newDXTRate / (100000 * DXTRate))).toFixed(6), web3.fromWei(await DXT.balanceOf.call(backer3)).toNumber().toFixed(6));
-        assert.equal(parseFloat(web3.fromWei( backer4Tokens * dxtPerEtherRate * newDXTRate / (100000 * DXTRate))).toFixed(6), web3.fromWei(await DXT.balanceOf.call(backer4)).toNumber().toFixed(6));
-        assert.equal(parseFloat(web3.fromWei( backer5Tokens * dxtPerEtherRate * newDXTRate / (100000 * DXTRate))).toFixed(6), web3.fromWei(await DXT.balanceOf.call(backer5)).toNumber().toFixed(6));
+        assert.equal(parseFloat(web3.fromWei( backer1Tokens * dxtPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer1)).toNumber().toFixed(6));
+        assert.equal(parseFloat(web3.fromWei( backer2Tokens * dxtPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer2)).toNumber().toFixed(6));
+        assert.equal(parseFloat(web3.fromWei( backer3Tokens * dxtPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer3)).toNumber().toFixed(6));
+        assert.equal(parseFloat(web3.fromWei( backer4Tokens * dxtPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer4)).toNumber().toFixed(6));
+        assert.equal(parseFloat(web3.fromWei( backer5Tokens * dxtPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer5)).toNumber().toFixed(6));
     });
 
     it("Make refundable by user#1: should not become refundable when soft cap reached", async () => {
