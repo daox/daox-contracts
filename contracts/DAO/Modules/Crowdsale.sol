@@ -59,7 +59,9 @@ contract Crowdsale is CrowdsaleDAOFields {
 		require((block.timestamp >= endTime || weiRaised == hardCap) && !crowdsaleFinished);
 
 		crowdsaleFinished = true;
-		uint fundsRaised = weiRaised + (DXC.balanceOf(this)) / (etherRate / DXCRate);
+		uint fundsRaised = DXCRate != 0 ?
+			weiRaised + (DXC.balanceOf(this)) / (etherRate / DXCRate) :
+			weiRaised;
 
 		if (fundsRaised >= softCap) {
 			teamTokensAmount = DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
