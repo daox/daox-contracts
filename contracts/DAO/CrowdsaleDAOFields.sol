@@ -51,4 +51,5 @@ contract CrowdsaleDAOFields {
     uint public tokenMintedByDXC;
     bool public dxcPayments;
     uint internal constant multiplier = 100000;
+    uint internal constant percentMultiplier = 100;
 }
