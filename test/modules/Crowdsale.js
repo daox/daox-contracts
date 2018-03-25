@@ -334,7 +334,7 @@ contract("Crowdsale", accounts => {
         assert.equal(true, await token.mintingFinished.call());
     });
 
-    it("Should finish crowdsale with achieved hardCap before it's end", async () => {
+    it("Should finish crowdsale with achieved hardCap before it's end with only ether deposit", async () => {
         const etherAmount = 20;
         const weiAmount = web3.toWei(etherAmount, "ether");
 
@@ -378,5 +378,54 @@ contract("Crowdsale", accounts => {
         return helper.handleErrorTransaction(() => dxc.contributeTo.sendTransaction(dao.address, DXCAmount, {from: accounts[2]}));
     });
 
+    it("Should finish crowdsale with achieved hardCap before it's end with only DXT deposit", async () => {
+        const dxcAmount = web3.toBigNumber(web3.toWei(40));
+        const dxc = await helper.mintDXC(accounts[2], dxcAmount.toNumber());
 
+        await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
+        await dxc.contributeTo(dao.address, dxcAmount.toNumber(), {from: accounts[2]});
+
+        const token = Token.at(await dao.token.call());
+        await dao.finish.sendTransaction({from: unknownAccount});
+
+        assert.equal(true, await dao.crowdsaleFinished.call());
+        assert.equal(false, await dao.refundableSoftCap.call());
+        assert.equal(true, await token.mintingFinished.call());
+        assert.deepEqual(dxcAmount.times(500), await dao.tokenMintedByDXC());
+    });
+
+    it("Should not send DXC when hardCap was achieved", async () => {
+        const dxcAmount1 = web3.toBigNumber(web3.toWei(40));
+        const dxcAmount2 = web3.toBigNumber(web3.toWei(1));
+        const dxc = await helper.mintDXC(accounts[4], dxcAmount1.toNumber());
+        await helper.mintDXC(accounts[3], dxcAmount2.toNumber());
+
+        assert.deepEqual(dxcAmount1, await dxc.balanceOf(accounts[4]));
+        assert.deepEqual(dxcAmount2, await dxc.balanceOf(accounts[3]));
+
+        await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
+        await dxc.contributeTo(dao.address, dxcAmount1.toNumber(), {from: accounts[4]});
+
+        return helper.handleErrorTransaction(() => dxc.contributeTo(dao.address, dxcAmount2.toNumber(), {from: accounts[3]}));
+    });
+
+    it("Should finish crowdsale with achieved hardCap before it's end with ether and DXT deposit", async () => {
+        const dxcAmount = web3.toBigNumber(web3.toWei(20));
+        const etherAmount = web3.toBigNumber(web3.toWei(10));
+        const dxc = await helper.mintDXC(accounts[4], dxcAmount.toNumber());
+
+        assert.deepEqual(dxcAmount, await dxc.balanceOf(accounts[4]));
+
+        await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
+        await dxc.contributeTo(dao.address, dxcAmount.toNumber(), {from: accounts[4]});
+        await dao.sendTransaction({from: accounts[2], value: etherAmount.toNumber()});
+
+        await helper.handleErrorTransaction(() => dao.sendTransaction({from: accounts[2], value: 1}));
+
+        await dao.finish();
+
+        assert.isFalse(await dao.refundable());
+        assert.isTrue(await dao.crowdsaleFinished());
+        assert.deepEqual(await dao.tokenMintedByEther(), await dao.tokenMintedByDXC());
+    });
 });
