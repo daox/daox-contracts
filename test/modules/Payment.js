@@ -20,9 +20,9 @@ contract("Payment", accounts => {
 
     it("Should refund when soft cap was not reached", async () => {
         const DXCAmount = 5;
-        const dxt = await helper.mintDXC(accounts[2], DXCAmount);
+        const dxc = await helper.mintDXC(accounts[2], DXCAmount);
         await dao.sendTransaction({from: accounts[2], value: web3.toWei(softCap / 2), gasPrice: 0});
-        await dxt.contributeTo.sendTransaction(dao.address, DXCAmount, {from: accounts[2], gasPrice: 0});
+        await dxc.contributeTo.sendTransaction(dao.address, DXCAmount, {from: accounts[2], gasPrice: 0});
 
         await helper.rpcCall(web3, "evm_increaseTime", [shiftTime]);
         await helper.rpcCall(web3, "evm_mine", null);

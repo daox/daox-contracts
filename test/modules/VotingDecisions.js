@@ -278,7 +278,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Withdrawal#3: should be accepted when >=50% votes for option#1. Withdrawal in DXC", async () => {
-        const withdrawalSum = 2; //2 dxt tokens
+        const withdrawalSum = 2; //2 dxc tokens
         const tx = await dao.addWithdrawal("Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, true, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
@@ -375,7 +375,7 @@ contract("VotingDecisions", accounts => {
         ]);
 
         const etherPerDXCRate = tokenMintedByEther.toNumber() / (tokenMintedByEther.toNumber() + tokenMintedByDXC.toNumber());
-        const dxtPerEtherRate = tokenMintedByDXC.toNumber() / (tokenMintedByEther.toNumber() + tokenMintedByDXC.toNumber());
+        const dxcPerEtherRate = tokenMintedByDXC.toNumber() / (tokenMintedByEther.toNumber() + tokenMintedByDXC.toNumber());
 
         assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer1EtherBalanceBefore) + parseFloat(newEtherRate * etherPerDXCRate), parseFloat(await helper.getBalance(web3, backer1))));
         assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer2EtherBalanceBefore) + web3.fromWei(backersToWei[backer2]) * newEtherRate * etherPerDXCRate, parseFloat(await helper.getBalance(web3, backer2))));
@@ -383,11 +383,11 @@ contract("VotingDecisions", accounts => {
         assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer4EtherBalanceBefore) + web3.fromWei(backersToWei[backer4]) * newEtherRate * etherPerDXCRate, parseFloat(await helper.getBalance(web3, backer4))));
         assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer5EtherBalanceBefore) + web3.fromWei(backersToWei[backer5]) * newEtherRate * etherPerDXCRate, parseFloat(await helper.getBalance(web3, backer5))));
 
-        assert.equal(parseFloat(web3.fromWei( backer1Tokens * dxtPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer1)).toNumber().toFixed(6));
-        assert.equal(parseFloat(web3.fromWei( backer2Tokens * dxtPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer2)).toNumber().toFixed(6));
-        assert.equal(parseFloat(web3.fromWei( backer3Tokens * dxtPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer3)).toNumber().toFixed(6));
-        assert.equal(parseFloat(web3.fromWei( backer4Tokens * dxtPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer4)).toNumber().toFixed(6));
-        assert.equal(parseFloat(web3.fromWei( backer5Tokens * dxtPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer5)).toNumber().toFixed(6));
+        assert.equal(parseFloat(web3.fromWei( backer1Tokens * dxcPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer1)).toNumber().toFixed(6));
+        assert.equal(parseFloat(web3.fromWei( backer2Tokens * dxcPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer2)).toNumber().toFixed(6));
+        assert.equal(parseFloat(web3.fromWei( backer3Tokens * dxcPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer3)).toNumber().toFixed(6));
+        assert.equal(parseFloat(web3.fromWei( backer4Tokens * dxcPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer4)).toNumber().toFixed(6));
+        assert.equal(parseFloat(web3.fromWei( backer5Tokens * dxcPerEtherRate * newDXCRate / (100000 * DXCRate))).toFixed(6), web3.fromWei(await DXC.balanceOf.call(backer5)).toNumber().toFixed(6));
     });
 
     it("Make refundable by user#1: should not become refundable when soft cap reached", async () => {
