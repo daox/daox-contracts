@@ -44,8 +44,8 @@ contract Voting is VotingFields {
     function finish() external notFinished {
         require(block.timestamp - duration >= created_at);
         finished = true;
-        if (keccak256(votingType) == keccak256(bytes32("Withdrawal"))) return finishNotProposal();
-        if (keccak256(votingType) == keccak256(bytes32("Proposal"))) return finishProposal();
+        if (keccak256(votingType) == keccak256("Withdrawal")) return finishNotProposal();
+        if (keccak256(votingType) == keccak256("Proposal")) return finishProposal();
 
         //Other two cases of votings (`Module` and `Refund`) requires quorum
         if (Common.percent(options[1].votes, dao.token().totalSupply() - dao.teamTokensAmount(), 2) >= quorum) {

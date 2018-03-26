@@ -56,9 +56,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 	}
 
 	function finish() external {
-		uint fundsRaised = DXCRate != 0 ?
-		weiRaised + (DXC.balanceOf(this)) / (etherRate / DXCRate) :
-		weiRaised;
+		uint fundsRaised = DXCRate != 0 ? weiRaised + (DXC.balanceOf(this)) / (etherRate / DXCRate) : weiRaised;
 
 		require((block.timestamp >= endTime || fundsRaised == hardCap) && !crowdsaleFinished);
 
