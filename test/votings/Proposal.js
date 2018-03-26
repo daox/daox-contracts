@@ -6,6 +6,7 @@ const Token = artifacts.require('./Token/Token.sol');
 contract("Proposal", accounts => {
     const [serviceAccount, unknownAccount] = [accounts[0], accounts[1]];
     const minimalDurationPeriod = 60 * 60 * 24 * 7;
+    const name = "Voting name";
 
     let proposal, dao, token;
     before(async () => {
@@ -19,7 +20,7 @@ contract("Proposal", accounts => {
     });
 
     beforeEach(async () => {
-        const tx = await dao.addProposal('Test description', minimalDurationPeriod, ['yes', 'no', 'maybe']);
+        const tx = await dao.addProposal(name, 'Test description', minimalDurationPeriod, ['yes', 'no', 'maybe']);
         const logs = helper.decodeVotingParameters(tx);
         proposal = Proposal.at(logs[0]);
     });

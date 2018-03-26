@@ -17,7 +17,7 @@ contract("State", accounts => {
 
         assert.equal(true, result, "Created crowdsale DAO should exist");
         assert.equal(daoName, await dao.name.call(), "DAO's name doesn't correspond to the expected");
-        assert.equal(helper.fillZeros(web3.toHex(daoDescription)), await dao.description.call(), "DAO's description doesn't correspond to the expected");
+        assert.equal(daoDescription, await dao.description.call(), "DAO's description doesn't correspond to the expected");
     });
 
     it("Should correct init state from service account", async () => {

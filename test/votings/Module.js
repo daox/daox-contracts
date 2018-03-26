@@ -17,6 +17,7 @@ contract("Module", accounts => {
         Crowdsale: 3
     };
 
+    const name = "Change Module voting";
     let module, dao, cdf, timestamp;
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
     beforeEach(async () => {
@@ -27,7 +28,7 @@ contract("Module", accounts => {
     const makeDAOAndCreateModule = async (backersToWei, backersToOptions, creator, moduleName, newModuleAddress, finish = true, shiftTime = false) => {
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
-        const tx = await dao.addModule("Test description", minimalDurationPeriod, moduleName, newModuleAddress, {from: creator});
+        const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, moduleName, newModuleAddress, {from: creator});
         const logs = helper.decodeVotingParameters(tx);
         module = Module.at(logs[0]);
 

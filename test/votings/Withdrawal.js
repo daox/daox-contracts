@@ -12,6 +12,7 @@ contract("Withdrawal", accounts => {
     const teamBonuses = [8, 9];
     const minimalDurationPeriod = 60 * 60 * 24 * 7;
     let withdrawalSum = 1;
+    const withdrawalName = "Funds for salary";
 
     let withdrawal, dao, cdf, timestamp;
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
@@ -24,7 +25,7 @@ contract("Withdrawal", accounts => {
     const makeDAOAndCreateWithdrawal = async (backersToWei, backersToOptions, withdrawalCreator, whiteListAddress, finish = true, shiftTime = false) => {
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
-        const tx = await dao.addWithdrawal("Test description", minimalDurationPeriod, web3.toWei(withdrawalSum), whiteListAddress, false, {from : withdrawalCreator});
+        const tx = await dao.addWithdrawal(withdrawalName, "Test description", minimalDurationPeriod, web3.toWei(withdrawalSum), whiteListAddress, false, {from : withdrawalCreator});
         const logs = helper.decodeVotingParameters(tx);
         withdrawal = Withdrawal.at(logs[0]);
 
@@ -162,7 +163,11 @@ contract("Withdrawal", accounts => {
             backersToOption[`${backers[i]}`] = i % 2 === 0 ? 1 : 2; // 10 eth (in tokens) for "yes" and 10 eth (in tokens) for "no"
         }
 
+        const balanceBefore = await helper.getBalance(web3, whiteListAddress2);
+
         await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, true, true);
+
+        const balanceAfter = await helper.getBalance(web3, whiteListAddress2);
 
         const [option1, option2, isFinished, result] = await Promise.all([
             withdrawal.options.call(1),

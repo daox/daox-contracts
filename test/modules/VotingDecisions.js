@@ -18,6 +18,7 @@ contract("VotingDecisions", accounts => {
     const teamBonuses = [9, 9];
     const minimalDurationPeriod = 60 * 60 * 24 * 7;
     const FOUR_MONTHS = 120 * 24 * 60 * 60;
+    const name = "Voting name";
 
     const Modules = {
         State: 0,
@@ -34,7 +35,7 @@ contract("VotingDecisions", accounts => {
     backersToWei[backers[4]] = web3.toWei(10);
 
     const revertVotingDecisions = async (oldVotingDecisionsModule) => {
-        const tx = await dao.addModule("Test description", minimalDurationPeriod, Modules.VotingDecisions, oldVotingDecisionsModule, {from: backer2});
+        const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.VotingDecisions, oldVotingDecisionsModule, {from: backer2});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
 
@@ -49,7 +50,7 @@ contract("VotingDecisions", accounts => {
     };
 
     const revertPayment = async (oldPayment) => {
-        const tx = await dao.addModule("Test description", minimalDurationPeriod, Modules.Payment, oldPayment, {from: backer2});
+        const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.Payment, oldPayment, {from: backer2});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
 
@@ -90,7 +91,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Proposal#1: equal votes for 2 options", async () => {
-        const tx = await dao.addProposal("Test description", minimalDurationPeriod, ["Option1", "Option2"], {from: backer1});
+        const tx = await dao.addProposal(name, "Test description", minimalDurationPeriod, ["Option1", "Option2"], {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const proposal = Proposal.at(logs[0]);
 
@@ -108,7 +109,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Proposal#2: 0 votes white entire voting", async () => {
-        const tx = await dao.addProposal("Test description", minimalDurationPeriod, ["Option1", "Option2"], {from: backer1});
+        const tx = await dao.addProposal(name, "Test description", minimalDurationPeriod, ["Option1", "Option2"], {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const proposal = Proposal.at(logs[0]);
 
@@ -121,7 +122,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Proposal#3: usual voting process", async () => {
-        const tx = await dao.addProposal("Test description", minimalDurationPeriod, ["Option1", "Option2", "Option3"], {from: backer1});
+        const tx = await dao.addProposal(name, "Test description", minimalDurationPeriod, ["Option1", "Option2", "Option3"], {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const proposal = Proposal.at(logs[0]);
 
@@ -138,7 +139,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Module#1: should not accept module changing when amount of votes for option#1 < 80%", async () => {
-        const tx = await dao.addModule("Test description", minimalDurationPeriod, Modules.State, "0x1", {from: backer1});
+        const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.State, "0x1", {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
 
@@ -154,10 +155,10 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Module#2: should not create module with invalid module name", async () =>
-        helper.handleErrorTransaction(() => dao.addModule("Test description", minimalDurationPeriod, 4, "0x1", {from: backer1})));
+        helper.handleErrorTransaction(() => dao.addModule(name, "Test description", minimalDurationPeriod, 4, "0x1", {from: backer1})));
 
     it("Module#3: should change state address when amount of votes for option#1 >= 80%", async () => {
-        const tx = await dao.addModule("Test description", minimalDurationPeriod, Modules.State, unknownAccount, {from: backer1});
+        const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.State, unknownAccount, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
 
@@ -173,7 +174,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Module#4: should change crowdsale address when amount of votes for option#1 >= 80%", async () => {
-        const tx = await dao.addModule("Test description", minimalDurationPeriod, Modules.Crowdsale, unknownAccount, {from: backer1});
+        const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.Crowdsale, unknownAccount, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
 
@@ -192,7 +193,7 @@ contract("VotingDecisions", accounts => {
 
     it("Module#5: should change voting decisions address when amount of votes for option#1 >= 80%", async () => {
         const oldVotingDecisionsModule = await dao.votingDecisionModule.call();
-        const tx = await dao.addModule("Test description", minimalDurationPeriod, Modules.VotingDecisions, unknownAccount, {from: backer2});
+        const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.VotingDecisions, unknownAccount, {from: backer2});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
 
@@ -213,7 +214,7 @@ contract("VotingDecisions", accounts => {
 
     it("Module#6: should change payment address when amount of votes for option#1 >= 80%", async () => {
         const oldPaymentModule = await dao.paymentModule.call();
-        const tx = await dao.addModule("Test description", minimalDurationPeriod, Modules.Payment, unknownAccount, {from: backer2});
+        const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.Payment, unknownAccount, {from: backer2});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
 
@@ -234,7 +235,7 @@ contract("VotingDecisions", accounts => {
 
     it("Withdrawal#1: should not be accepted when equal votes for 2 options. Withdrawal in eth", async () => {
         const withdrawalSum = web3.toWei(1);
-        const tx = await dao.addWithdrawal("Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, false, {from: backer1});
+        const tx = await dao.addWithdrawal(name, "Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, false, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 
@@ -258,7 +259,7 @@ contract("VotingDecisions", accounts => {
 
     it("Withdrawal#2: should be accepted when >=50% votes for option#1. Withdrawal in eth", async () => {
         const withdrawalSum = web3.toWei(1);
-        const tx = await dao.addWithdrawal("Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, false, {from: backer1});
+        const tx = await dao.addWithdrawal(name, "Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, false, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 
@@ -279,7 +280,7 @@ contract("VotingDecisions", accounts => {
 
     it("Withdrawal#3: should be accepted when >=50% votes for option#1. Withdrawal in DXC", async () => {
         const withdrawalSum = 2; //2 dxc tokens
-        const tx = await dao.addWithdrawal("Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, true, {from: backer1});
+        const tx = await dao.addWithdrawal(name, "Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, true, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 
@@ -307,7 +308,7 @@ contract("VotingDecisions", accounts => {
 
     it("Refund#1: should be not accepted when <90% votes for option#1", async () => {
         const withdrawalSum = web3.toWei(1);
-        const tx = await dao.addRefund("Test description", minimalDurationPeriod, {from: backer1});
+        const tx = await dao.addRefund(name, "Test description", minimalDurationPeriod, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const refund = Refund.at(logs[0]);
 
@@ -322,7 +323,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Refund#2: should be accepted when >=90% votes for option#1", async () => {
-        const tx = await dao.addRefund("Test description", minimalDurationPeriod, {from: backer1});
+        const tx = await dao.addRefund(name, "Test description", minimalDurationPeriod, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const refund = Refund.at(logs[0]);
         const DXCRate = 500;

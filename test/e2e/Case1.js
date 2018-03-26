@@ -2,7 +2,7 @@
 const helper = require('../helpers/helper.js');
 const Token = artifacts.require("./Token/Token.sol");
 const Commission = artifacts.require("./Commission.sol");
-const DXTToken = artifacts.require("./Token/DXT.sol");
+const DXCToken = artifacts.require("./Token/DXC.sol");
 const daoxContract = artifacts.require("./DAOX.sol");
 const Withdrawal = artifacts.require('./Votings/Withdrawal.sol');
 const Refund = artifacts.require('./Votings/Refund.sol');
@@ -15,8 +15,8 @@ contract("Case#1", accounts => {
     const teamBonuses = [4, 5];
     const [whiteListAddress1] = [accounts[4]];
     const [backer1, backer2, backer3, backer4, backer5, backer6] = [accounts[5], accounts[6], accounts[7], accounts[8], accounts[9], accounts[1]];
-    const [softCap, hardCap, etherRate, DXTRate, dxtPayment, commissionRate] = [1, 20, web3.toBigNumber(1000), 1, true, 0.04];
-    const [dxtAmount1, dxtAmount2] = [
+    const [softCap, hardCap, etherRate, DXCRate, dxcPayment, commissionRate] = [1, 20, web3.toBigNumber(1000), 1, true, 0.04];
+    const [dxcAmount1, dxcAmount2] = [
         web3.toBigNumber(web3.toWei(4100)),
         web3.toBigNumber(web3.toWei(3198))
     ];
@@ -27,21 +27,21 @@ contract("Case#1", accounts => {
         web3.toBigNumber(web3.toWei(10.1))
     ];
     const weiDeposited = etherAmount1.plus(etherAmount2).plus(etherAmount3).plus(etherAmount4);
-    const dxtDeposited = dxtAmount1.plus(dxtAmount2);
+    const dxcDeposited = dxcAmount1.plus(dxcAmount2);
 
-    let dao, cdf, token, DXT, DAOX, newEtherRate, newDXTRate;
+    let dao, cdf, token, DXC, DAOX, newEtherRate, newDXCRate;
 
     before(async () => {
-        DXT = DXTToken.at(DXTToken.address);
+        DXC = DXCToken.at(DXCToken.address);
         await Promise.all([
-            DXT.mint(backer5, dxtAmount1),
-            DXT.mint(backer6, dxtAmount2)
+            DXC.mint(backer5, dxcAmount1),
+            DXC.mint(backer6, dxcAmount2)
         ]);
 
         cdf = await helper.createCrowdsaleDAOFactory();
         dao = await helper.createCrowdsaleDAO(cdf, accounts);
 
-        await dao.initBonuses(team, teamBonuses, [], [], [], [10000, 10000]);
+        await dao.initBonuses(team, teamBonuses, [], [], [], [10000, 10000], [false, false]);
         await dao.setWhiteList([whiteListAddress1]);
         await helper.initState(cdf, dao, serviceAccount);
         await helper.initCrowdsaleParameters(dao, serviceAccount, web3, true,
@@ -49,10 +49,10 @@ contract("Case#1", accounts => {
                 softCap,
                 hardCap,
                 etherRate.toNumber(),
-                DXTRate,
+                DXCRate,
                 (await helper.getLatestBlock(web3)).timestamp + 60,
                 (await helper.getLatestBlock(web3)).timestamp + 120,
-                dxtPayment
+                dxcPayment
             ]);
 
         const commissionContract = Commission.at(await dao.commissionContract());
@@ -68,8 +68,8 @@ contract("Case#1", accounts => {
         ]);
 
         await Promise.all([
-            DXT.contributeTo(dao.address, dxtAmount1, {from: backer5}),
-            DXT.contributeTo(dao.address, dxtAmount2, {from: backer6}),
+            DXC.contributeTo(dao.address, dxcAmount1, {from: backer5}),
+            DXC.contributeTo(dao.address, dxcAmount2, {from: backer6}),
         ]);
 
         await helper.rpcCall(web3, "evm_increaseTime", [60]);
@@ -87,17 +87,17 @@ contract("Case#1", accounts => {
         assert.deepEqual(etherAmount3.times(etherRate), await token.balanceOf(backer3));
         assert.deepEqual(etherAmount4.times(etherRate), await token.balanceOf(backer4));
 
-        assert.deepEqual(dxtAmount1.times(DXTRate), await token.balanceOf(backer5));
-        assert.deepEqual(dxtAmount2.times(DXTRate), await token.balanceOf(backer6));
+        assert.deepEqual(dxcAmount1.times(DXCRate), await token.balanceOf(backer5));
+        assert.deepEqual(dxcAmount2.times(DXCRate), await token.balanceOf(backer6));
 
         const tokenShouldBeMintedByEther = weiDeposited.times(etherRate);
-        const tokenShouldBeMintedByDXT = dxtDeposited.times(DXTRate);
+        const tokenShouldBeMintedByDXC = dxcDeposited.times(DXCRate);
 
         assert.deepEqual(tokenShouldBeMintedByEther, await dao.tokenMintedByEther());
-        assert.deepEqual(tokenShouldBeMintedByDXT, await dao.tokenMintedByDXT());
+        assert.deepEqual(tokenShouldBeMintedByDXC, await dao.tokenMintedByDXC());
 
-        assert.deepEqual(tokenShouldBeMintedByEther.plus(tokenShouldBeMintedByDXT).times(teamBonuses[0] / 100), await token.balanceOf(teamPerson1));
-        assert.deepEqual(tokenShouldBeMintedByEther.plus(tokenShouldBeMintedByDXT).times(teamBonuses[1] / 100), await token.balanceOf(teamPerson2));
+        assert.deepEqual(tokenShouldBeMintedByEther.plus(tokenShouldBeMintedByDXC).times(teamBonuses[0] / 100), await token.balanceOf(teamPerson1));
+        assert.deepEqual(tokenShouldBeMintedByEther.plus(tokenShouldBeMintedByDXC).times(teamBonuses[1] / 100), await token.balanceOf(teamPerson2));
     });
 
     it("Commission should be calculated correct", async () => {
@@ -123,7 +123,7 @@ contract("Case#1", accounts => {
         const withdrawalSum = web3.toBigNumber(web3.toWei(8.99));
         const daoBalanceBefore = web3.toBigNumber(web3.toWei(await helper.getBalance(web3, dao.address)));
 
-        const tx = await dao.addWithdrawal("Salary withdrawal", withdrawalDuration.toNumber(), withdrawalSum.toNumber(), whiteListAddress1, false, {from: backer1});
+        const tx = await dao.addWithdrawal("Withdrawal#1", "Salary withdrawal", withdrawalDuration.toNumber(), withdrawalSum.toNumber(), whiteListAddress1, false, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 
@@ -154,8 +154,8 @@ contract("Case#1", accounts => {
         const daoBalanceAfter = web3.toBigNumber(web3.toWei(await helper.getBalance(web3, dao.address)));
 
         assert.deepEqual(etherAmount1.times(etherRate), (await withdrawal.options(1))[0]);
-        assert.deepEqual(weiDeposited.minus(etherAmount1).times(etherRate).plus(dxtDeposited.times(DXTRate)), (await withdrawal.options(2))[0]);
-        assert.deepEqual(weiDeposited.minus(etherAmount1).times(etherRate).plus(dxtDeposited.times(DXTRate)), (await withdrawal.result())[0]);
+        assert.deepEqual(weiDeposited.minus(etherAmount1).times(etherRate).plus(dxcDeposited.times(DXCRate)), (await withdrawal.options(2))[0]);
+        assert.deepEqual(weiDeposited.minus(etherAmount1).times(etherRate).plus(dxcDeposited.times(DXCRate)), (await withdrawal.result())[0]);
         assert.deepEqual(daoBalanceBefore, daoBalanceAfter);
     });
 
@@ -165,7 +165,7 @@ contract("Case#1", accounts => {
         const daoBalanceBefore = web3.toBigNumber(web3.toWei(await helper.getBalance(web3, dao.address)));
         const whiteListBalanceBefore = web3.toBigNumber(web3.toWei(await helper.getBalance(web3, whiteListAddress1)));
 
-        const tx = await dao.addWithdrawal("Salary withdrawal2", withdrawalDuration.toNumber(), withdrawalSum.toNumber(), whiteListAddress1, false, {from: backer1});
+        const tx = await dao.addWithdrawal("Withdrawal#2", "Salary withdrawal2", withdrawalDuration.toNumber(), withdrawalSum.toNumber(), whiteListAddress1, false, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 
@@ -204,19 +204,19 @@ contract("Case#1", accounts => {
         const whiteListBalanceAfter = web3.toBigNumber(web3.toWei(await helper.getBalance(web3, whiteListAddress1)));
 
         assert.deepEqual(weiDeposited.times(etherRate), (await withdrawal.options(1))[0]);
-        assert.deepEqual(dxtDeposited.times(DXTRate), (await withdrawal.options(2))[0]);
+        assert.deepEqual(dxcDeposited.times(DXCRate), (await withdrawal.options(2))[0]);
         assert.deepEqual(weiDeposited.times(etherRate), (await withdrawal.result())[0]);
         assert.deepEqual(daoBalanceBefore.minus(withdrawalSum), daoBalanceAfter);
         assert.deepEqual(whiteListBalanceBefore.plus(withdrawalSum), whiteListBalanceAfter);
     });
 
-    it("Should accept withdraw in dxt", async () => {
+    it("Should accept withdraw in dxc", async () => {
         const withdrawalDuration = web3.toBigNumber(14 * 24 * 60 * 60);
-        const withdrawalSum = dxtAmount2;
-        const daoBalanceBefore = await DXT.balanceOf(dao.address);
-        const whiteListBalanceBefore = await DXT.balanceOf(whiteListAddress1);
+        const withdrawalSum = dxcAmount2;
+        const daoBalanceBefore = await DXC.balanceOf(dao.address);
+        const whiteListBalanceBefore = await DXC.balanceOf(whiteListAddress1);
 
-        const tx = await dao.addWithdrawal("Salary withdrawal3", withdrawalDuration.toNumber(), withdrawalSum.toNumber(), whiteListAddress1, true, {from: backer1});
+        const tx = await dao.addWithdrawal("Withdrawal#3", "Salary withdrawal3", withdrawalDuration.toNumber(), withdrawalSum.toNumber(), whiteListAddress1, true, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 
@@ -230,7 +230,7 @@ contract("Case#1", accounts => {
 
         await withdrawal.finish();
 
-        const daoBalanceAfter = await DXT.balanceOf(dao.address);
+        const daoBalanceAfter = await DXC.balanceOf(dao.address);
 
         assert.deepEqual(await token.balanceOf(backer1), (await withdrawal.result())[0]);
         assert.deepEqual(daoBalanceBefore.minus(withdrawalSum), daoBalanceAfter);
@@ -239,7 +239,7 @@ contract("Case#1", accounts => {
 
     it("Should not accept refund when amount of positive votes <= 90%", async () => {
         const withdrawalDuration = web3.toBigNumber(14 * 24 * 60 * 60);
-        const tx = await dao.addRefund("Project could be not implemented", withdrawalDuration.toNumber(), {from: backer1});
+        const tx = await dao.addRefund("Refund#1", "Project could be not implemented", withdrawalDuration.toNumber(), {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const refund = Refund.at(logs[0]);
 
@@ -272,9 +272,9 @@ contract("Case#1", accounts => {
 
     it("Should accept refund when amount of positive votes >= 90%", async () => {
         const daoEtherBalance = web3.toBigNumber(web3.toWei(await helper.getBalance(web3, dao.address)));
-        const daoDXTBalance = web3.toBigNumber(web3.toWei(await DXT.balanceOf(dao.address)));
+        const daoDXCBalance = web3.toBigNumber(web3.toWei(await DXC.balanceOf(dao.address)));
         const withdrawalDuration = web3.toBigNumber(7 * 24 * 60 * 60);
-        const tx = await dao.addRefund("Project could be not implemented#2", withdrawalDuration.toNumber(), {from: backer1});
+        const tx = await dao.addRefund("Refund#2", "Project could be not implemented#2", withdrawalDuration.toNumber(), {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const refund = Refund.at(logs[0]);
 
@@ -303,7 +303,7 @@ contract("Case#1", accounts => {
         const tokensVotedForOption1 = tokenAmount1.plus(tokenAmount3).plus(tokenAmount4).plus(tokenAmount5).plus(tokenAmount6);
         const tokensVotedForOption2 = tokenAmount2;
         newEtherRate = daoEtherBalance.times(etherRate).times(web3.toBigNumber(100000)).dividedBy(weiDeposited.times(web3.toBigNumber(etherRate))).round();
-        newDXTRate = daoDXTBalance.times(DXTRate).times(web3.toBigNumber(100000)).dividedBy(dxtDeposited.times(web3.toBigNumber(DXTRate))).round()
+        newDXCRate = daoDXCBalance.times(DXCRate).times(web3.toBigNumber(100000)).dividedBy(dxcDeposited.times(web3.toBigNumber(DXCRate))).round()
             .dividedBy(web3.toBigNumber(Math.pow(10, 18))).round();
 
         assert.deepEqual(tokensVotedForOption1, (await refund.options(1))[0]);
@@ -311,15 +311,15 @@ contract("Case#1", accounts => {
         assert.deepEqual(tokensVotedForOption1, (await refund.result())[0]);
         assert.isTrue(await dao.refundable());
         assert.deepEqual(newEtherRate, await dao.newEtherRate());
-        assert.deepEqual(newDXTRate, await dao.newDXTRate());
+        assert.deepEqual(newDXCRate, await dao.newDXCRate());
     });
 
-    it("All token holders should refund correct amount of ether/dxt", async () => {
+    it("All token holders should refund correct amount of ether/dxc", async () => {
         /*
-        All dxt balances equal 0 before refund
+        All dxc balances equal 0 before refund
          */
-        const dxtDAOBalanceBefore = await DXT.balanceOf(dao.address);
-        const etherDAOBalanceBefore = web3.toBigNumber(await helper.getBalance(web3, dao.address, false));
+        const dxcDAOBalanceBefore = await DXC.balanceOf(dao.address); // 4.1e+21
+        const etherDAOBalanceBefore = await helper.getBalance(web3, dao.address); //6.62452
 
         const [etherBalanceBefore1, etherBalanceBefore2, etherBalanceBefore3, etherBalanceBefore4, etherBalanceBefore5, etherBalanceBefore6] = await Promise.all([
             helper.getBalance(web3, backer1),
@@ -341,39 +341,72 @@ contract("Case#1", accounts => {
 
 
         await dao.refund({from: backer1});
-        const [etherBalanceAfter1, dxtBalanceAfter1] = await Promise.all([
-            helper.getBalance(web3, backer1), //0,42030805
-            DXT.balanceOf(backer1)
+        const [etherBalanceAfter1, dxcBalanceAfter1] = await Promise.all([
+            helper.getBalance(web3, backer1), // 0.42009844999999757
+            DXC.balanceOf(backer1) // 0.26291772
         ]);
+
+
+        const refundSum1 = etherBalanceAfter1 - etherBalanceBefore1 + parseFloat(web3.fromWei(dxcBalanceAfter1 / 1000));
+        //0,7496642283 should be
+        //0,68301617 actual
 
         await dao.refund({from: backer2});
-        const [etherBalanceAfter2, dxtBalanceAfter2] = await Promise.all([
-            helper.getBalance(web3, backer2),
-            DXT.balanceOf(backer2)
+        const [etherBalanceAfter2, dxcBalanceAfter2] = await Promise.all([
+            helper.getBalance(web3, backer2), // 0.3066091474999979
+            DXC.balanceOf(backer2) // 0.193143402
         ]);
+
+        const refundSum2 = etherBalanceAfter2 - etherBalanceBefore2 + parseFloat(web3.fromWei(dxcBalanceAfter2 / 1000));
+        //0,5507148754 should be
+        //0,4997525495 actual
 
         await dao.refund({from: backer3});
-        const [etherBalanceAfter3, dxtBalanceAfter3] = await Promise.all([
-            helper.getBalance(web3, backer3),
-            DXT.balanceOf(backer3)
+        const [etherBalanceAfter3, dxcBalanceAfter3] = await Promise.all([
+            helper.getBalance(web3, backer3), // 0.10167049400000394
+            DXC.balanceOf(backer3) // 0.0671451408
         ]);
+
+        const refundSum3 = etherBalanceAfter3 - etherBalanceBefore3 + parseFloat(web3.fromWei(dxcBalanceAfter3 / 1000));
+        //0,1914527106 should be
+        //0,1688156348 actual
 
         await dao.refund({from: backer4});
-        const [etherBalanceAfter4, dxtBalanceAfter4] = await Promise.all([
-            helper.getBalance(web3, backer4),
-            DXT.balanceOf(backer4)
+        const [etherBalanceAfter4, dxcBalanceAfter4] = await Promise.all([
+            helper.getBalance(web3, backer4), // 3.3148980499999965
+            DXC.balanceOf(backer4) // 2.04266844
         ]);
+
+        const refundSum4 = etherBalanceAfter4 - etherBalanceBefore4 + parseFloat(web3.fromWei(dxcBalanceAfter4 / 1000));
+        //5,8243143891 should be
+        //5,35756649 actual
 
         await dao.refund({from: backer5});
-        const [etherBalanceAfter5, dxtBalanceAfter5] = await Promise.all([
-            helper.getBalance(web3, backer5),
-            DXT.balanceOf(backer5)
+        const [etherBalanceAfter5, dxcBalanceAfter5] = await Promise.all([
+            helper.getBalance(web3, backer5), // 1.3411710499999998
+            DXC.balanceOf(backer5) // 0.8292020400000001
         ]);
 
+        const refundSum5 = etherBalanceAfter5 - etherBalanceBefore5 + parseFloat(web3.fromWei(dxcBalanceAfter5 / 1000));
+        //2,3643256431 should be
+        //2,17037309 actual
+
         await dao.refund({from: backer6});
-        const [etherBalanceAfter6, dxtBalanceAfter6] = await Promise.all([
-            helper.getBalance(web3, backer6),
-            DXT.balanceOf(backer6)
+        const [etherBalanceAfter6, dxcBalanceAfter6] = await Promise.all([
+            helper.getBalance(web3, backer6), // 1.0444540910000057
+            DXC.balanceOf(backer6) // 0.6467775912
         ]);
+
+        const refundSum6 = etherBalanceAfter6 - etherBalanceBefore6 + parseFloat(web3.fromWei(dxcBalanceAfter6 / 1000));
+        //1,8441740016 should be
+        //1,6912316822 actual
+
+
+
+        //0.0503643175 dao ether balance
+        //0.058145666 dao dxc balance
+        //0,1085099835 left
+
+        //10,6792656 left + refunded
     });
 });

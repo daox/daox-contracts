@@ -7,7 +7,7 @@ const daoxContract = artifacts.require("./DAOX.sol");
 const Withdrawal = artifacts.require('./Votings/Withdrawal.sol');
 const Refund = artifacts.require('./Votings/Refund.sol');
 
-contract("Case#2", account => {
+contract("Case#2", accounts => {
     const [serviceAccount] = [accounts[0]];
     const [teamPerson1, teamPerson2, teamPerson3, teamPerson4] = [accounts[2], accounts[3], accounts[4], accounts[5]];
     const team = [teamPerson1, teamPerson2, teamPerson3, teamPerson4];

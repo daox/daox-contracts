@@ -9,6 +9,7 @@ const VotingFactory = artifacts.require('./Votings/VotingFactory.sol');
 contract("VotingFactory", accounts => {
     const [serviceAccount, unknownAccount] = [accounts[0], accounts[1]];
     const minimalDurationPeriod = 60 * 60 * 24 * 7;
+    const name = "Voting name";
 
     let cdf, dao;
     before(async () => {
@@ -20,7 +21,7 @@ contract("VotingFactory", accounts => {
 
     it("Should create proposal", async () => {
         const description = 'Test Description';
-        const tx = await dao.addProposal(description, minimalDurationPeriod, ['yes', 'no', 'maybe']);
+        const tx = await dao.addProposal(name, description, minimalDurationPeriod, ['yes', 'no', 'maybe']);
         const logs = helper.decodeVotingParameters(tx);
         const proposal = Proposal.at(logs[0]);
 
@@ -30,7 +31,7 @@ contract("VotingFactory", accounts => {
             proposal.options.call(3)
         ]);
 
-        assert.equal(helper.fillZeros(web3.toHex(description)), await proposal.description.call());
+        assert.equal(description, await proposal.description.call());
         assert.equal(helper.fillZeros(web3.toHex('yes')), option1[1]);
         assert.equal(helper.fillZeros(web3.toHex('no')), option2[1]);
         assert.equal(helper.fillZeros(web3.toHex('maybe')), option3[1]);
@@ -40,7 +41,7 @@ contract("VotingFactory", accounts => {
 
     it("Should create withdrawal", async () => {
         const description = 'Test Description';
-        const tx = await dao.addWithdrawal(description, minimalDurationPeriod, web3.toWei(1), serviceAccount, false);
+        const tx = await dao.addWithdrawal(name, description, minimalDurationPeriod, web3.toWei(1), serviceAccount, false);
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 
@@ -49,7 +50,7 @@ contract("VotingFactory", accounts => {
             withdrawal.options.call(2)
         ]);
 
-        assert.equal(helper.fillZeros(web3.toHex(description)), await withdrawal.description.call());
+        assert.equal(description, await withdrawal.description.call());
         assert.equal(helper.fillZeros(web3.toHex('yes')), option1[1]);
         assert.equal(helper.fillZeros(web3.toHex('no')), option2[1]);
         assert.equal(minimalDurationPeriod, await withdrawal.duration.call());
@@ -60,7 +61,7 @@ contract("VotingFactory", accounts => {
 
     it("Should create refund", async () => {
         const description = 'Test Description';
-        const tx = await dao.addRefund(description, minimalDurationPeriod);
+        const tx = await dao.addRefund(name, description, minimalDurationPeriod);
         const logs = helper.decodeVotingParameters(tx);
         const refund = Refund.at(logs[0]);
 
@@ -69,7 +70,7 @@ contract("VotingFactory", accounts => {
             refund.options.call(2),
         ]);
 
-        assert.equal(helper.fillZeros(web3.toHex(description)), await refund.description.call());
+        assert.equal(description, await refund.description.call());
         assert.equal(helper.fillZeros(web3.toHex('yes')), option1[1]);
         assert.equal(helper.fillZeros(web3.toHex('no')), option2[1]);
         assert.equal(minimalDurationPeriod, await refund.duration.call());
@@ -78,7 +79,7 @@ contract("VotingFactory", accounts => {
 
     it("Should create module", async () => {
         const description = 'Test Description';
-        const tx = await dao.addModule(description, minimalDurationPeriod, 1, unknownAccount);
+        const tx = await dao.addModule(name, description, minimalDurationPeriod, 1, unknownAccount);
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
 
@@ -87,7 +88,7 @@ contract("VotingFactory", accounts => {
             module.options.call(2),
         ]);
 
-        assert.equal(helper.fillZeros(web3.toHex(description)), await module.description.call());
+        assert.equal(description, await module.description.call());
         assert.equal(helper.fillZeros(web3.toHex('yes')), option1[1]);
         assert.equal(helper.fillZeros(web3.toHex('no')), option2[1]);
         assert.equal(minimalDurationPeriod, await module.duration.call());
@@ -100,10 +101,10 @@ contract("VotingFactory", accounts => {
         const description = 'Test Description';
 
         return Promise.all([
-            helper.handleErrorTransaction(() => dao.addModule(description, minimalDurationPeriod, 1, unknownAccount, {from: accounts[2]})),
-            helper.handleErrorTransaction(() => dao.addRefund(description, minimalDurationPeriod, {from: accounts[2]})),
-            helper.handleErrorTransaction(() => dao.addWithdrawal(description, minimalDurationPeriod, 1, serviceAccount, {from: accounts[2]})),
-            helper.handleErrorTransaction(() => dao.addProposal(description, minimalDurationPeriod, ['yes', 'no', 'maybe'], {from: accounts[2]})),
+            helper.handleErrorTransaction(() => dao.addModule(name, description, minimalDurationPeriod, 1, unknownAccount, {from: accounts[2]})),
+            helper.handleErrorTransaction(() => dao.addRefund(name, description, minimalDurationPeriod, {from: accounts[2]})),
+            helper.handleErrorTransaction(() => dao.addWithdrawal(name, description, minimalDurationPeriod, 1, serviceAccount, {from: accounts[2]})),
+            helper.handleErrorTransaction(() => dao.addProposal(name, description, minimalDurationPeriod, ['yes', 'no', 'maybe'], {from: accounts[2]})),
         ]);
     });
 
@@ -112,35 +113,35 @@ contract("VotingFactory", accounts => {
         const votingFactory = VotingFactory.at(await dao.votingFactory.call());
 
         return Promise.all([
-            helper.handleErrorTransaction(async () => await votingFactory.addModule(serviceAccount, description, minimalDurationPeriod, 1, unknownAccount)),
-            helper.handleErrorTransaction(async () => await votingFactory.addRefund(serviceAccount, description, minimalDurationPeriod)),
-            helper.handleErrorTransaction(async () => await votingFactory.addWithdrawal(serviceAccount, description, minimalDurationPeriod, 1, serviceAccount)),
-            helper.handleErrorTransaction(async () => await votingFactory.addProposal(serviceAccount, description, minimalDurationPeriod, ['yes', 'no', 'maybe'])),
+            helper.handleErrorTransaction(() => votingFactory.addModule(serviceAccount, name, description, minimalDurationPeriod, 1, unknownAccount)),
+            helper.handleErrorTransaction(() => votingFactory.addRefund(serviceAccount, name, description, minimalDurationPeriod)),
+            helper.handleErrorTransaction(() => votingFactory.addWithdrawal(serviceAccount, name, description, minimalDurationPeriod, 1, serviceAccount)),
+            helper.handleErrorTransaction(() => votingFactory.addProposal(serviceAccount, name, description, minimalDurationPeriod, ['yes', 'no', 'maybe'])),
         ]);
     });
 
     it("Should not be able to create withdrawal with wallet which is not in white list", async () => {
         const description = 'Test Description';
 
-        return helper.handleErrorTransaction(() => dao.addWithdrawal(description, minimalDurationPeriod, 1, unknownAccount));
+        return helper.handleErrorTransaction(() => dao.addWithdrawal(name, description, minimalDurationPeriod, 1, unknownAccount));
     });
 
     it("Should not be able to create withdrawal with zero sum", async () => {
         const description = 'Test Description';
 
-        helper.handleErrorTransaction(() => dao.addWithdrawal(description, minimalDurationPeriod, 0, serviceAccount));
+        helper.handleErrorTransaction(() => dao.addWithdrawal(name, description, minimalDurationPeriod, 0, serviceAccount));
     });
 
     it("Should not be able to create withdrawal with sum more than dao balance", async () => {
         const description = 'Test Description';
 
-        return helper.handleErrorTransaction(() => dao.addWithdrawal(description, minimalDurationPeriod, web3.toWei(12), serviceAccount));
+        return helper.handleErrorTransaction(() => dao.addWithdrawal(name, description, minimalDurationPeriod, web3.toWei(12), serviceAccount));
     });
 
     it("Should not be able to create proposal with less than 2 options", async () => {
         const description = 'Test Description';
 
-        return helper.handleErrorTransaction(() => dao.addProposal(description, minimalDurationPeriod, ['yes']));
+        return helper.handleErrorTransaction(() => dao.addProposal(name, description, minimalDurationPeriod, ['yes']));
     });
 
     it("Should not be able to create withdrawal with more than 10 options", async () => {
@@ -158,10 +159,10 @@ contract("VotingFactory", accounts => {
         await helper.makeCrowdsale(web3, cdf, daoTest, accounts, false);
 
         return Promise.all([
-            helper.handleErrorTransaction(() => daoTest.addModule(description, minimalDurationPeriod, 1, unknownAccount)),
-            helper.handleErrorTransaction(() => daoTest.addRefund(description, minimalDurationPeriod)),
-            helper.handleErrorTransaction(() => daoTest.addWithdrawal(description, minimalDurationPeriod, 1, serviceAccount)),
-            helper.handleErrorTransaction(() => daoTest.addProposal(description, minimalDurationPeriod, ['yes', 'no', 'maybe'])),
+            helper.handleErrorTransaction(() => daoTest.addModule(name, description, minimalDurationPeriod, 1, unknownAccount)),
+            helper.handleErrorTransaction(() => daoTest.addRefund(name, description, minimalDurationPeriod)),
+            helper.handleErrorTransaction(() => daoTest.addWithdrawal(name, description, minimalDurationPeriod, 1, serviceAccount)),
+            helper.handleErrorTransaction(() => daoTest.addProposal(name, description, minimalDurationPeriod, ['yes', 'no', 'maybe'])),
         ]);
     });
 });
