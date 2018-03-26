@@ -5,7 +5,8 @@ import "../DAO/ICrowdsaleDAO.sol";
 
 contract VotingFields {
     ICrowdsaleDAO dao;
-    bytes32 public description;
+    string public name;
+    string public description;
     VotingLib.Option[11] public options;
     mapping (address => uint) public voted;
     VotingLib.Option public result;
@@ -14,6 +15,6 @@ contract VotingFields {
     uint public created_at = now;
     bool public finished = false;
     uint public quorum;
-    bytes32 public votingType;
-    uint public constant minimalDuration = 60 * 60 * 24 * 7; // 7 days
+    string public votingType;
+    uint public minimalDuration = 60 * 60 * 24 * 7; // 7 days
 }

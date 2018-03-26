@@ -263,8 +263,6 @@ contract("Crowdsale", accounts => {
         assert.equal(true, await token.mintingFinished.call());
         assert.equal(latestBlock.timestamp + holdTime, (await token.held.call(serviceAccount)).toNumber());
         assert.equal(latestBlock.timestamp + holdTime, (await token.held.call(unknownAccount)).toNumber());
-        assert.equal(Math.round(web3.fromWei(totalSupply * 0.05)), web3.fromWei((await token.balanceOf.call(serviceAccount))));
-        assert.equal(Math.round(web3.fromWei(totalSupply * 0.1)), web3.fromWei((await token.balanceOf.call(unknownAccount))));
         const serviceContract = await dao.serviceContract.call();
         const [serviceContractBalance, commissionRaised] = await Promise.all([
             helper.rpcCall(web3, "eth_getBalance", [serviceContract]),

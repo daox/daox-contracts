@@ -12,7 +12,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     address public votingDecisionModule;
     address public crowdsaleModule;
 
-    function CrowdsaleDAO(string _name, bytes32 _description) Owned(msg.sender) {
+    function CrowdsaleDAO(string _name, bytes32 _description)
+	Owned(msg.sender) {
         (name, description) = (_name, _description);
     }
 
@@ -72,20 +73,20 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments);
     }
 
-    function addProposal(string _description, uint _duration, bytes32[] _options) public {
-        votings[DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this)] = true;
+    function addProposal(string _name, string _description, uint _duration, bytes32[] _options) public {
+        votings[DAOLib.delegatedCreateProposal(votingFactory, _name, _description, _duration, _options, this)] = true;
     }
 
-    function addWithdrawal(string _description, uint _duration, uint _sum, address withdrawalWallet, bool dxc) public {
-        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, withdrawalWallet, dxc, this)] = true;
+    function addWithdrawal(string _name, string _description, uint _duration, uint _sum, address withdrawalWallet, bool dxc) public {
+        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, _name, _description, _duration, _sum, withdrawalWallet, dxc, this)] = true;
     }
 
-    function addRefund(string _description, uint _duration) public {
-        votings[DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this)] = true;
+    function addRefund(string _name, string _description, uint _duration) public {
+        votings[DAOLib.delegatedCreateRefund(votingFactory, _name, _description, _duration, this)] = true;
     }
 
-    function addModule(string _description, uint _duration, uint _module, address _newAddress) public {
-        votings[DAOLib.delegatedCreateModule(votingFactory, Common.stringToBytes32(_description), _duration, _module, _newAddress, this)] = true;
+    function addModule(string _name, string _description, uint _duration, uint _module, address _newAddress) public {
+        votings[DAOLib.delegatedCreateModule(votingFactory, _name, _description, _duration, _module, _newAddress, this)] = true;
     }
 
     function makeRefundableByUser() public {

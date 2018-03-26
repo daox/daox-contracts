@@ -33,8 +33,8 @@ contract CrowdsaleDAOFields {
     VotingFactoryInterface public votingFactory;
     address public commissionContract;
     string public name;
+	string public description;
     uint public created_at = now; // UNIX time
-    bytes32 public description;
     mapping(address => bool) public votings;
     bool public refundable = false;
     uint public lastWithdrawalTimestamp = 0;
