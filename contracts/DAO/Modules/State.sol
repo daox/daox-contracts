@@ -9,8 +9,13 @@ contract State is CrowdsaleDAOFields {
 
     event State(address _comission);
 
-    function initState(address _tokenAddress, address _votingFactory, address _serviceContract) external onlyOwner(msg.sender) canInit crowdsaleNotStarted {
-        require(_tokenAddress != 0x0 && _votingFactory != 0x0 && _serviceContract != 0x0);
+    function initState(address _tokenAddress, address _votingFactory, address _serviceContract, address _DXC)
+        external
+        onlyOwner(msg.sender)
+        canInit
+        crowdsaleNotStarted
+    {
+        require(_tokenAddress != 0x0 && _votingFactory != 0x0 && _serviceContract != 0x0 && _DXC != 0x0);
 
         token = TokenInterface(_tokenAddress);
         votingFactory = VotingFactoryInterface(_votingFactory);
@@ -18,6 +23,7 @@ contract State is CrowdsaleDAOFields {
 
         serviceContract = _serviceContract;
         commissionContract = new Commission(this);
+        DXC = TokenInterface(_DXC);
 
         canInitStateParameters = false;
 

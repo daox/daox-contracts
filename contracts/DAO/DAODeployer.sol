@@ -3,7 +3,7 @@ pragma solidity ^0.4.0;
 import "./CrowdsaleDAO.sol";
 
 library DAODeployer {
-    function deployCrowdsaleDAO(string _name,  bytes32 _description) returns(CrowdsaleDAO dao) {
+    function deployCrowdsaleDAO(string _name,  string _description) returns(CrowdsaleDAO dao) {
         dao = new CrowdsaleDAO(_name, _description);
     }
 

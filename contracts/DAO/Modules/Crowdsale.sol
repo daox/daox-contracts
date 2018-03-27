@@ -6,75 +6,105 @@ import "../../Commission.sol";
 import "../Owned.sol";
 
 contract Crowdsale is CrowdsaleDAOFields {
-    address public owner;
+	address public owner;
 
-    function handlePayment(address _sender, bool commission) external payable CrowdsaleStarted validPurchase(msg.value) {
-        require(_sender != 0x0);
+	function handlePayment(address _sender, bool commission) external payable CrowdsaleIsOngoing validEtherPurchase(msg.value) {
+		require(_sender != 0x0);
 
-        uint weiAmount = msg.value;
-        if (commission) {
-            commissionRaised = commissionRaised + weiAmount;
-            depositedWithCommission[_sender] += weiAmount;
-        }
+		uint weiAmount = msg.value;
+		if (commission) {
+			commissionRaised = commissionRaised + weiAmount;
+			depositedWithCommission[_sender] += weiAmount;
+		}
 
-        weiRaised += weiAmount;
-        depositedWei[_sender] += weiAmount;
+		weiRaised += weiAmount;
+		depositedWei[_sender] += weiAmount;
 
-        uint tokensAmount = DAOLib.countTokens(weiAmount, bonusPeriods, bonusRates, rate);
-        token.mint(_sender, tokensAmount);
-    }
+		uint tokensAmount = DAOLib.countTokens(weiAmount, bonusPeriods, bonusEtherRates, etherRate);
+		tokenMintedByEther += tokensAmount;
+		token.mint(_sender, tokensAmount);
+	}
 
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startTime, uint _endTime) external onlyOwner(msg.sender) canInit {
-        require(_softCap != 0 && _hardCap != 0 && _rate != 0 && _startTime != 0 && _endTime != 0);
-        require(_softCap < _hardCap && _startTime > block.timestamp);
-        softCap = _softCap * 1 ether;
-        hardCap = _hardCap * 1 ether;
+	function handleDXCPayment(address _from, uint _dxcAmount) external CrowdsaleIsOngoing validDXCPurchase(_dxcAmount) onlyDXC {
+		DXCRaised += _dxcAmount;
+		depositedDXC[_from] += _dxcAmount;
 
-        startTime = _startTime;
-        endTime = _endTime;
+		uint tokensAmount = DAOLib.countTokens(_dxcAmount, bonusPeriods, bonusDXCRates, DXCRate);
+		tokenMintedByDXC += tokensAmount;
 
-        rate = _rate;
+		token.mint(_from, tokensAmount);
+	}
 
-        canInitCrowdsaleParameters = false;
-    }
+	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXCRate, uint _startTime, uint _endTime, bool _dxcPayments)
+	external
+	onlyOwner(msg.sender)
+	canInit
+	{
+		require(_softCap != 0 && _hardCap != 0 && _etherRate != 0 && _DXCRate != 0 && _startTime != 0 && _endTime != 0);
+		require(_softCap < _hardCap && _startTime > block.timestamp);
+		softCap = _softCap * 1 ether;
+		hardCap = _hardCap * 1 ether;
 
-    function finish() external {
-        require((block.timestamp >= endTime || weiRaised == hardCap) && !crowdsaleFinished);
+		startTime = _startTime;
+		endTime = _endTime;
 
-        crowdsaleFinished = true;
-        newRate = rate;
+		dxcPayments = _dxcPayments;
+		etherRate = _etherRate;
+		DXCRate = _DXCRate;
 
-        if(weiRaised >= softCap) {
-            teamTokensAmount = DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
-        } else {
-            refundableSoftCap = true;
-        }
+		canInitCrowdsaleParameters = false;
+	}
 
-        token.finishMinting();
-    }
+	function finish() external {
+		uint fundsRaised = DXCRate != 0 ? weiRaised + (DXC.balanceOf(this)) / (etherRate / DXCRate) : weiRaised;
 
-    modifier canInit() {
-        require(canInitCrowdsaleParameters);
-        _;
-    }
+		require((block.timestamp >= endTime || fundsRaised == hardCap) && !crowdsaleFinished);
 
-    modifier onlyCommission() {
-        require(commissionContract == msg.sender);
-        _;
-    }
+		crowdsaleFinished = true;
 
-    modifier CrowdsaleStarted() {
-        require(block.timestamp >= startTime && block.timestamp < endTime && !crowdsaleFinished);
-        _;
-    }
+		if (fundsRaised >= softCap) {
+			teamTokensAmount = DAOLib.handleFinishedCrowdsale(token, commissionRaised, serviceContract, teamBonusesArr, team, teamHold);
+		} else {
+			refundableSoftCap = true;
+		}
 
-    modifier validPurchase(uint value) {
-        require(weiRaised + value <= hardCap);
-        _;
-    }
+		token.finishMinting();
+	}
 
-    modifier onlyOwner(address _sender) {
-        require(_sender == owner);
-        _;
-    }
+	modifier canInit() {
+		require(canInitCrowdsaleParameters);
+		_;
+	}
+
+	modifier onlyCommission() {
+		require(commissionContract == msg.sender);
+		_;
+	}
+
+	modifier CrowdsaleIsOngoing() {
+		require(block.timestamp >= startTime && block.timestamp < endTime && !crowdsaleFinished);
+		_;
+	}
+
+	modifier validEtherPurchase(uint value) {
+		require(DXCRate != 0 ?
+			hardCap - DXCRaised / (etherRate / DXCRate) >= weiRaised + value :
+			hardCap >= weiRaised + value);
+		_;
+	}
+
+	modifier validDXCPurchase(uint value) {
+		require(dxcPayments && (hardCap - weiRaised >= (value + DXCRaised) / (etherRate / DXCRate)));
+		_;
+	}
+
+	modifier onlyDXC() {
+		require(msg.sender == address(DXC));
+		_;
+	}
+
+	modifier onlyOwner(address _sender) {
+		require(_sender == owner);
+		_;
+	}
 }

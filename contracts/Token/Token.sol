@@ -31,11 +31,11 @@ contract Token is MintableToken {
     }
 
     function transfer(address to, uint256 value) public notHolded(msg.sender) returns (bool) {
-        super.transfer(to, value);
+        return super.transfer(to, value);
     }
 
     function transferFrom(address from, address to, uint256 value) public notHolded(from) returns (bool) {
-        super.transferFrom(from, to, value);
+        return super.transferFrom(from, to, value);
     }
 
     modifier notHolded(address _address) {

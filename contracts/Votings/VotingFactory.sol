@@ -16,36 +16,36 @@ contract VotingFactory is VotingFactoryInterface {
         baseVoting = _baseVoting;
     }
 
-    function createProposal(address _creator, bytes32 _description, uint _duration, bytes32[] _options)
+    function createProposal(address _creator, string _name, string _description, uint _duration, bytes32[] _options)
         external
         onlyDAO
         onlyParticipant(_creator)
         returns (address)
     {
-        return new Proposal(baseVoting, msg.sender, _description, _duration, _options);
+        return new Proposal(baseVoting, msg.sender, _name, _description, _duration, _options);
     }
 
-    function createWithdrawal(address _creator, bytes32 _description, uint _duration, uint _sum, address withdrawalWallet)
+    function createWithdrawal(address _creator, string _name, string _description, uint _duration, uint _sum, address withdrawalWallet, bool _dxc)
         external
         onlyParticipant(_creator)
         onlyDAO
         onlyWhiteList(withdrawalWallet)
         returns (address)
     {
-        return new Withdrawal(baseVoting, msg.sender, _description, _duration, _sum, withdrawalWallet);
+        return new Withdrawal(baseVoting, msg.sender, _name, _description, _duration, _sum, withdrawalWallet, _dxc);
     }
 
-    function createRefund(address _creator, bytes32 _description, uint _duration) onlyDAO onlyParticipant(_creator) external returns (address) {
-        return new Refund(baseVoting, msg.sender, _description, _duration);
+    function createRefund(address _creator, string _name, string _description, uint _duration) onlyDAO onlyParticipant(_creator) external returns (address) {
+        return new Refund(baseVoting, msg.sender, _name, _description, _duration);
     }
 
-    function createModule(address _creator, bytes32 _description, uint _duration, uint _module, address _newAddress)
+    function createModule(address _creator, string _name, string _description, uint _duration, uint _module, address _newAddress)
         external
         onlyDAO
         onlyParticipant(_creator)
         returns (address)
     {
-        return new Module(baseVoting, msg.sender, _description, _duration, _module, _newAddress);
+        return new Module(baseVoting, msg.sender, _name, _description, _duration, _module, _newAddress);
     }
 
     function setDaoFactory(address _dao) external {

@@ -1,98 +1,45 @@
 const Payment = artifacts.require("./DAO/Modules/Payment.sol");
-const Commission = artifacts.require("./Commission.sol");
-const DAOX = artifacts.require("./DAOx.sol");
-const Token = artifacts.require("./Token/Token.sol");
-
 const helper = require('../helpers/helper.js');
 
 contract("Payment", accounts => {
     const serviceAccount = accounts[0];
     const unknownAccount = accounts[1];
 
-    const [daoName, daoDescription, tokenName, tokenSymbol] = ["DAO NAME", "THIS IS A DESCRIPTION", "TEST TOKEN", "TTK"];
-    let softCap, hardCap, rate, startTime, endTime;
-    let cdf, dao, crowdsaleParameters;
-    const shiftTime1 = 10000;
-    const shiftTime2 = 20000;
-    let callID = 0;
+    const [daoName, daoDescription] = ["DAO NAME", "THIS IS A DESCRIPTION"];
+    let softCap, hardCap, etherRate, DXCRate, startTime, endTime;
+    let cdf, dao;
+    const shiftTime = 20000;
 
     before(async () => cdf = await helper.createCrowdsaleDAOFactory(accounts));
 
     beforeEach(async () => {
         dao = await helper.createCrowdsaleDAO(cdf, accounts, [daoName, daoDescription]);
 
-        const block = await helper.getLatestBlock(web3);
-
-        [softCap, hardCap, rate, startTime, endTime] = [3, 10, 5000, block.timestamp + shiftTime1, block.timestamp + shiftTime2];
-        crowdsaleParameters = [softCap, hardCap, rate, startTime, endTime];
-
-        //Initialize transaction
-        await Promise.all([
-            helper.initState(cdf, dao, serviceAccount),
-            helper.initCrowdsaleParameters(dao, serviceAccount, web3, crowdsaleParameters)
-        ]);
-
-        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime1]);
-        await helper.rpcCall(web3, "evm_mine", null);
-    });
-
-    it("Should send commission tokens", async () => {
-        const commissionContractAddress = await dao.commissionContract.call();
-        const commissionContract = Commission.at(commissionContractAddress);
-
-        await commissionContract.sendTransaction({
-            from: unknownAccount,
-            value: web3.toWei(softCap, "ether")
-        });
-
-        assert.equal(web3.toWei(softCap, "ether"), await dao.commissionRaised.call(), "Commission raised variable is not correct");
-        assert.equal(web3.toWei(softCap, "ether"), await dao.depositedWithCommission.call(unknownAccount), "Deposited with commission was not calculated correct");
-
-        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2]);
-        await helper.rpcCall(web3, "evm_mine", null);
-
-        await dao.finish.sendTransaction({
-            from: unknownAccount
-        });
-
-        await dao.getCommissionTokens.sendTransaction({
-            from: unknownAccount
-        });
-
-        const daox = DAOX.at(await dao.serviceContract.call());
-        const daoXToken = Token.at(await daox.token.call());
-        const balance = await daoXToken.balanceOf.call(unknownAccount);
-
-        assert.equal(web3.toWei(softCap, "ether") * 100, balance, "Received invalid amount of DAOx tokens");
+        [softCap, hardCap, etherRate, DXCRate, startTime, endTime] = await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
     });
 
     it("Should refund when soft cap was not reached", async () => {
-        await dao.sendTransaction({
-            from: accounts[2],
-            value: web3.toWei(softCap / 2, "ether"),
-            gasPrice: 0
-        });
+        const DXCAmount = 5;
+        const dxc = await helper.mintDXC(accounts[2], DXCAmount);
+        await dao.sendTransaction({from: accounts[2], value: web3.toWei(softCap / 2), gasPrice: 0});
+        await dxc.contributeTo.sendTransaction(dao.address, DXCAmount, {from: accounts[2], gasPrice: 0});
 
-        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2]);
+        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime]);
         await helper.rpcCall(web3, "evm_mine", null);
 
-        await dao.finish.sendTransaction({
-            from: accounts[2],
-            gasPrice: 0
-        });
+        await dao.finish.sendTransaction({from: accounts[2], gasPrice: 0});
 
+        const fundsRaised = (await dao.weiRaised.call()).toNumber() + web3.toWei(DXCAmount) / (etherRate / DXCRate);
         assert.isTrue(await dao.crowdsaleFinished.call(), "Crowdsale was not finished");
         assert.isTrue(await dao.refundableSoftCap.call(), "Crowdsale is not refundable");
-        assert.isNotTrue(await dao.weiRaised.call() > await dao.softCap.call(), "Wei raised should be less than soft cap");
+        assert.isNotTrue(fundsRaised > (await dao.softCap.call()).toNumber(), "Funds raised should be less than soft cap");
         assert.equal(web3.toWei(softCap / 2), (await dao.weiRaised.call()).toNumber(), "Wei raised calculated not correct");
+        assert.equal(DXCAmount, (await dao.DXCRaised.call()).toNumber(), "DXC raised calculated not correct");
 
         let rpcResponse = await helper.rpcCall(web3, "eth_getBalance", [accounts[2]]);
         const balanceBefore = web3.fromWei(rpcResponse.result);
 
-        await dao.refundSoftCap.sendTransaction({
-            from: accounts[2],
-            gasPrice: 0
-        });
+        await dao.refundSoftCap.sendTransaction({from: accounts[2], gasPrice: 0});
 
         rpcResponse = await helper.rpcCall(web3, "eth_getBalance", [accounts[2]]);
         const balanceAfter = web3.fromWei(rpcResponse.result);
@@ -107,7 +54,7 @@ contract("Payment", accounts => {
             gasPrice: 0
         });
 
-        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2]);
+        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime]);
         await helper.rpcCall(web3, "evm_mine", null);
 
         await dao.finish.sendTransaction({
@@ -132,7 +79,7 @@ contract("Payment", accounts => {
             gasPrice: 0
         });
 
-        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime2]);
+        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime]);
         await helper.rpcCall(web3, "evm_mine", null);
 
         await dao.finish.sendTransaction({

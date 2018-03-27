@@ -19,7 +19,7 @@ contract ICrowdsaleDAO is IDAO {
 
     function makeRefundableByVotingDecision();
 
-    function withdrawal(address _address, uint withdrawalSum);
+    function withdrawal(address _address, uint withdrawalSum, bool dxc);
 
     function setStateModule(address _stateModule);
 
@@ -29,7 +29,9 @@ contract ICrowdsaleDAO is IDAO {
 
     function setCrowdsaleModule(address _crowdsaleModule);
 
-    function teamBonuses(address _address) returns (uint);
+    function teamBonuses(address _address) constant returns (uint);
 
-    function token() returns (TokenInterface);
+    function token() constant returns (TokenInterface);
+
+    function DXC() constant returns(TokenInterface);
 }

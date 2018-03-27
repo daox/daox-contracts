@@ -10,21 +10,22 @@ contract("Withdrawal", accounts => {
     const team = [teamPerson1, teamPerson2];
     const [backer1, backer2, backer3, backer4] = [accounts[6], accounts[7], accounts[8], accounts[9]];
     const teamBonuses = [8, 9];
-    const withdrawalDuration = 300;
+    const minimalDurationPeriod = 60 * 60 * 24 * 7;
     let withdrawalSum = 1;
+    const withdrawalName = "Funds for salary";
 
     let withdrawal, dao, cdf, timestamp;
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
     beforeEach(async () => {
         dao = await helper.createCrowdsaleDAO(cdf);
-        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [10000, 10000]);
+        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000], [false, false]);
         await dao.setWhiteList.sendTransaction([whiteListAddress1, whiteListAddress2]);
     });
 
     const makeDAOAndCreateWithdrawal = async (backersToWei, backersToOptions, withdrawalCreator, whiteListAddress, finish = true, shiftTime = false) => {
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
-        const tx = await dao.addWithdrawal("Test description", withdrawalDuration, web3.toWei(withdrawalSum), whiteListAddress, {from : withdrawalCreator});
+        const tx = await dao.addWithdrawal(withdrawalName, "Test description", minimalDurationPeriod, web3.toWei(withdrawalSum), whiteListAddress, false, {from : withdrawalCreator});
         const logs = helper.decodeVotingParameters(tx);
         withdrawal = Withdrawal.at(logs[0]);
 
@@ -36,7 +37,7 @@ contract("Withdrawal", accounts => {
         await Promise.all(Object.keys(backersToOptions).map(key => withdrawal.addVote.sendTransaction(backersToOptions[key], {from: key})));
 
         if (shiftTime) {
-            await helper.rpcCall(web3, "evm_increaseTime", [withdrawalDuration]);
+            await helper.rpcCall(web3, "evm_increaseTime", [minimalDurationPeriod]);
             await helper.rpcCall(web3, "evm_mine", null);
         }
         if (finish) {
@@ -66,10 +67,10 @@ contract("Withdrawal", accounts => {
         ]);
 
         assert.deepEqual(option1[0], option2[0], "Votes amount doesn't equal");
-        assert.equal(timestamp + withdrawalDuration, holdTime1.toNumber(), "Hold time was not calculated correct");
+        assert.equal(timestamp + minimalDurationPeriod, holdTime1.toNumber(), "Hold time was not calculated correct");
         assert.deepEqual(holdTime1, holdTime2, "Tokens amount doesn't equal");
         assert.isTrue(isFinished, "Withdrawal was not cancelled");
-        assert.equal(withdrawalDuration, duration, "Withdrawal duration is not correct");
+        assert.equal(minimalDurationPeriod, duration, "Withdrawal duration is not correct");
     });
 
     it("Should not create withdrawal from unknown account", async () => {
@@ -146,7 +147,7 @@ contract("Withdrawal", accounts => {
         const backers = [backer1, backer2, teamPerson1];
         const [backersToWei, backersToOption] = [{}, {}];
         backersToWei[`${backers[0]}`] = web3.toWei(5, "ether");
-        backersToWei[`${backers[1]}`] = web3.toWei(5, "ether")
+        backersToWei[`${backers[1]}`] = web3.toWei(5, "ether");
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 2;
         backersToOption[`${backers[2]}`] = 1;
@@ -159,10 +160,14 @@ contract("Withdrawal", accounts => {
         const [backersToWei, backersToOption] = [{}, {}];
         for (let i = 0; i < backers.length; i++) {
             backersToWei[`${backers[i]}`] = web3.toWei(5, "ether");
-            backersToOption[`${backers[i]}`] = i % 2 == 0 ? 1 : 2; // 10 eth (in tokens) for "yes" and 10 eth (in tokens) for "no"
+            backersToOption[`${backers[i]}`] = i % 2 === 0 ? 1 : 2; // 10 eth (in tokens) for "yes" and 10 eth (in tokens) for "no"
         }
 
+        const balanceBefore = await helper.getBalance(web3, whiteListAddress2);
+
         await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, true, true);
+
+        const balanceAfter = await helper.getBalance(web3, whiteListAddress2);
 
         const [option1, option2, isFinished, result] = await Promise.all([
             withdrawal.options.call(1),

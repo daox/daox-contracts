@@ -5,6 +5,8 @@ const Token = artifacts.require('./Token/Token.sol');
 
 contract("Proposal", accounts => {
     const [serviceAccount, unknownAccount] = [accounts[0], accounts[1]];
+    const minimalDurationPeriod = 60 * 60 * 24 * 7;
+    const name = "Voting name";
 
     let proposal, dao, token;
     before(async () => {
@@ -18,7 +20,7 @@ contract("Proposal", accounts => {
     });
 
     beforeEach(async () => {
-        const tx = await dao.addProposal('Test description', 100, ['yes', 'no', 'maybe']);
+        const tx = await dao.addProposal(name, 'Test description', minimalDurationPeriod, ['yes', 'no', 'maybe']);
         const logs = helper.decodeVotingParameters(tx);
         proposal = Proposal.at(logs[0]);
     });
@@ -29,7 +31,7 @@ contract("Proposal", accounts => {
             proposal.addVote(3, {from: unknownAccount}),
         ]);
 
-        await helper.rpcCall(web3, "evm_increaseTime", [110]);
+        await helper.rpcCall(web3, "evm_increaseTime", [minimalDurationPeriod]);
         await helper.rpcCall(web3, "evm_mine", null);
         if (finish) await proposal.finish();
     };
@@ -56,8 +58,8 @@ contract("Proposal", accounts => {
             Math.round(web3.fromWei(balance1.toNumber() + balance2.toNumber())),
             Math.round(web3.fromWei((await proposal.votesCount.call())))
         );
-        assert.equal(latestBlock.timestamp + 100, (await token.held.call(serviceAccount)).toNumber());
-        assert.equal(latestBlock.timestamp + 100, (await token.held.call(unknownAccount)).toNumber());
+        assert.equal(latestBlock.timestamp + minimalDurationPeriod, (await token.held.call(serviceAccount)).toNumber());
+        assert.equal(latestBlock.timestamp + minimalDurationPeriod, (await token.held.call(unknownAccount)).toNumber());
     });
 
     it("Should add vote from 3 different accounts", async () => {
@@ -87,9 +89,9 @@ contract("Proposal", accounts => {
             Math.round(web3.fromWei(balance1.toNumber() + balance2.toNumber() + balance3.toNumber())),
             Math.round(web3.fromWei((await proposal.votesCount.call())))
         );
-        assert.equal(latestBlock.timestamp + 100, (await token.held.call(serviceAccount)).toNumber());
-        assert.equal(latestBlock.timestamp + 100, (await token.held.call(accounts[9])).toNumber());
-        assert.equal(latestBlock.timestamp + 100, (await token.held.call(unknownAccount)).toNumber());
+        assert.equal(latestBlock.timestamp + minimalDurationPeriod, (await token.held.call(serviceAccount)).toNumber());
+        assert.equal(latestBlock.timestamp + minimalDurationPeriod, (await token.held.call(accounts[9])).toNumber());
+        assert.equal(latestBlock.timestamp + minimalDurationPeriod, (await token.held.call(unknownAccount)).toNumber());
     });
 
     it("Should finish voting", async () => {
@@ -106,7 +108,7 @@ contract("Proposal", accounts => {
             await proposal.addVote(3, {from: unknownAccount}),
         ]);
 
-        await helper.rpcCall(web3, "evm_increaseTime", [110]);
+        await helper.rpcCall(web3, "evm_increaseTime", [minimalDurationPeriod + 10]);
         await helper.rpcCall(web3, "evm_mine", null);
         await proposal.finish();
 

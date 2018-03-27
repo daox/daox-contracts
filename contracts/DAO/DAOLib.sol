@@ -8,7 +8,8 @@ library DAOLib {
         address voting,
         string votingType,
         address dao,
-        bytes32 description,
+		string name,
+        string description,
         uint duration,
         address sender
     );
@@ -32,36 +33,38 @@ library DAOLib {
         require(_parentAddress.delegatecall(bytes4(keccak256("remove(address)")), _participantAddress));
     }
 
-    function delegatedCreateProposal(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
-        address _votingAddress = _votingFactory.createProposal(msg.sender, _description, _duration, _options);
-        VotingCreated(_votingAddress, "Proposal", _dao, _description, _duration, msg.sender);
+    function delegatedCreateProposal(VotingFactoryInterface _votingFactory, string _name, string _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
+        address _votingAddress = _votingFactory.createProposal(msg.sender, _name, _description, _duration, _options);
+        VotingCreated(_votingAddress, "Proposal", _dao, _name, _description, _duration, msg.sender);
 
         return _votingAddress;
     }
 
-    function delegatedCreateWithdrawal(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, uint _sum, address withdrawalWallet, address _dao) returns (address) {
-        address _votingAddress = _votingFactory.createWithdrawal(msg.sender, _description, _duration, _sum, withdrawalWallet);
-        VotingCreated(_votingAddress, "Withdrawal", _dao, _description, _duration, msg.sender);
+    function delegatedCreateWithdrawal(VotingFactoryInterface _votingFactory, string _name, string _description, uint _duration, uint _sum, address withdrawalWallet, bool _dxc, address _dao)
+	returns (address)
+	{
+        address _votingAddress = _votingFactory.createWithdrawal(msg.sender, _name, _description, _duration, _sum, withdrawalWallet, _dxc);
+        VotingCreated(_votingAddress, "Withdrawal", _dao, _name, _description, _duration, msg.sender);
 
         return _votingAddress;
     }
 
-    function delegatedCreateRefund(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, address _dao) returns (address) {
-        address _votingAddress = _votingFactory.createRefund(msg.sender, _description, _duration);
-        VotingCreated(_votingAddress, "Refund", _dao, _description, _duration, msg.sender);
+    function delegatedCreateRefund(VotingFactoryInterface _votingFactory, string _name, string _description, uint _duration, address _dao) returns (address) {
+        address _votingAddress = _votingFactory.createRefund(msg.sender, _name, _description, _duration);
+        VotingCreated(_votingAddress, "Refund", _dao, _name, _description, _duration, msg.sender);
 
         return _votingAddress;
     }
 
-    function delegatedCreateModule(VotingFactoryInterface _votingFactory, bytes32 _description, uint _duration, uint _module, address _newAddress, address _dao) returns (address) {
-        address _votingAddress = _votingFactory.createModule(msg.sender, _description, _duration, _module, _newAddress);
-        VotingCreated(_votingAddress, "Module", _dao, _description, _duration, msg.sender);
+    function delegatedCreateModule(VotingFactoryInterface _votingFactory, string _name, string _description, uint _duration, uint _module, address _newAddress, address _dao) returns (address) {
+        address _votingAddress = _votingFactory.createModule(msg.sender, _name, _description, _duration, _module, _newAddress);
+        VotingCreated(_votingAddress, "Module", _dao, _name, _description, _duration, msg.sender);
 
         return _votingAddress;
     }
 
-    function delegatedInitCrowdsaleParameters(address _p, uint softCap, uint hardCap, uint rate, uint startTime, uint endTime) {
-        require(_p.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), softCap, hardCap, rate, startTime, endTime));
+    function delegatedInitCrowdsaleParameters(address _p, uint softCap, uint hardCap, uint etherRate, uint startTime, uint endTime) {
+        require(_p.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), softCap, hardCap, etherRate, startTime, endTime));
     }
 
     function delegatedCreate(address _p, address _usersAddress, uint8 _minVote, address _tokenAddress,
@@ -78,21 +81,21 @@ library DAOLib {
         require(_p.delegatecall(bytes4(keccak256("finish()"))));
     }
 
-    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint rate) constant returns (uint) {
+    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint etherRate) constant returns (uint) {
         for (uint i = 0; i < bonusPeriods.length; i++) {
             if (now < bonusPeriods[i]) {
-                rate = bonusRates[i];
+                etherRate = bonusRates[i];
                 break;
             }
         }
-        uint tokensAmount = weiAmount * rate;
+        uint tokensAmount = weiAmount * etherRate;
 
         return tokensAmount;
     }
 
-    function countRefundSum(uint tokensAmount, uint rate, uint newRate) constant returns (uint) {
-        uint multiplier = 100000;
+    function countRefundSum(uint tokensAmount, uint etherRate, uint newRate, uint multiplier) constant returns (uint) {
+        uint fromPercentDivider = 100;
 
-        return (tokensAmount * newRate) / (multiplier * rate);
+        return (tokensAmount / fromPercentDivider * newRate) / (multiplier * etherRate);
     }
 }
