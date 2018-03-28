@@ -81,14 +81,16 @@ library DAOLib {
         require(_p.delegatecall(bytes4(keccak256("finish()"))));
     }
 
-    function countTokens(uint weiAmount, uint[] bonusPeriods, uint[] bonusRates, uint etherRate) constant returns (uint) {
+    function countTokens(uint value, uint[] bonusPeriods, uint[] bonusRates, uint rate) constant returns (uint) {
+        if (bonusRates.length == 0) return value * rate; // DXC bonus rates could be empty
+
         for (uint i = 0; i < bonusPeriods.length; i++) {
             if (now < bonusPeriods[i]) {
-                etherRate = bonusRates[i];
+                rate = bonusRates[i];
                 break;
             }
         }
-        uint tokensAmount = weiAmount * etherRate;
+        uint tokensAmount = value * rate;
 
         return tokensAmount;
     }
