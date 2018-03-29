@@ -21,7 +21,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 		depositedWei[_sender] += weiAmount;
 
 		uint tokensAmount = DAOLib.countTokens(weiAmount, bonusPeriods, bonusEtherRates, etherRate);
-		tokenMintedByEther += tokensAmount;
+		tokensMintedByEther += tokensAmount;
 		token.mint(_sender, tokensAmount);
 	}
 
@@ -30,7 +30,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 		depositedDXC[_from] += _dxcAmount;
 
 		uint tokensAmount = DAOLib.countTokens(_dxcAmount, bonusPeriods, bonusDXCRates, DXCRate);
-		tokenMintedByDXC += tokensAmount;
+		tokensMintedByDXC += tokensAmount;
 
 		token.mint(_from, tokensAmount);
 	}

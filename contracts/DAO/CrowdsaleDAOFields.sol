@@ -47,8 +47,8 @@ contract CrowdsaleDAOFields {
     uint public teamTokensAmount;
     uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;
     TokenInterface public DXC;
-    uint public tokenMintedByEther;
-    uint public tokenMintedByDXC;
+    uint public tokensMintedByEther;
+    uint public tokensMintedByDXC;
     bool public dxcPayments;
     uint internal constant multiplier = 100000;
     uint internal constant percentMultiplier = 100;

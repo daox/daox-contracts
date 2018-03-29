@@ -13,8 +13,8 @@ contract Payment is CrowdsaleDAOFields {
     }
 
     function refund() whenRefundable notTeamMember {
-        uint etherPerDXCRate = tokenMintedByEther * percentMultiplier / (tokenMintedByEther + tokenMintedByDXC);
-        uint dxcPerEtherRate = tokenMintedByDXC * percentMultiplier / (tokenMintedByEther + tokenMintedByDXC);
+        uint etherPerDXCRate = tokensMintedByEther * percentMultiplier / (tokensMintedByEther + tokensMintedByDXC);
+        uint dxcPerEtherRate = tokensMintedByDXC * percentMultiplier / (tokensMintedByEther + tokensMintedByDXC);
 
         uint tokensAmount = token.balanceOf(msg.sender);
         token.burn(msg.sender);

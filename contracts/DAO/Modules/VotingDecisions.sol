@@ -24,8 +24,8 @@ contract VotingDecisions is CrowdsaleDAOFields {
     function makeRefundable() private {
         require(!refundable);
         refundable = true;
-        newEtherRate = this.balance * etherRate * multiplier / tokenMintedByEther;
-        newDXCRate = tokenMintedByDXC != 0 ? DXC.balanceOf(this) * DXCRate * multiplier / tokenMintedByDXC : 0;
+        newEtherRate = this.balance * etherRate * multiplier / tokensMintedByEther;
+        newDXCRate = tokensMintedByDXC != 0 ? DXC.balanceOf(this) * DXCRate * multiplier / tokensMintedByDXC : 0;
     }
 
     function holdTokens(address _address, uint duration) onlyVoting external {
