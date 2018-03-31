@@ -42,15 +42,13 @@ contract Crowdsale is CrowdsaleDAOFields {
 	{
 		require(_softCap != 0 && _hardCap != 0 && _etherRate != 0 && _DXCRate != 0 && _startTime != 0 && _endTime != 0);
 		require(_softCap < _hardCap && _startTime > block.timestamp);
+
 		softCap = _softCap * 1 ether;
 		hardCap = _hardCap * 1 ether;
 
-		startTime = _startTime;
-		endTime = _endTime;
+		(startTime, endTime) = (_startTime, _endTime);
 
-		dxcPayments = _dxcPayments;
-		etherRate = _etherRate;
-		DXCRate = _DXCRate;
+		(dxcPayments, etherRate, DXCRate) = (_dxcPayments, _etherRate, _DXCRate);
 
 		canInitCrowdsaleParameters = false;
 	}
