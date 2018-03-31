@@ -5,13 +5,6 @@ import "../../Token/TokenInterface.sol";
 import "../CrowdsaleDAOFields.sol";
 
 contract Payment is CrowdsaleDAOFields {
-    function getCommissionTokens() onlyParticipant succeededCrowdsale {
-        require(depositedWithCommission[msg.sender] > 0);
-        uint depositedWithCommissionAmount = depositedWithCommission[msg.sender];
-        delete depositedWithCommission[msg.sender];
-        assert(serviceContract.call(bytes4(keccak256("getCommissionTokens(address,uint256)")), msg.sender, depositedWithCommissionAmount));
-    }
-
     function refund() whenRefundable notTeamMember {
         uint etherPerDXCRate = tokensMintedByEther * percentMultiplier / (tokensMintedByEther + tokensMintedByDXC);
         uint dxcPerEtherRate = tokensMintedByDXC * percentMultiplier / (tokensMintedByEther + tokensMintedByDXC);
