@@ -19,7 +19,6 @@ contract CrowdsaleDAOFields {
     uint public DXCRaised = 0;
     mapping(address => uint) public depositedWei;
     mapping(address => uint) public depositedDXC;
-    mapping(address => uint) public depositedWithCommission;
     bool public crowdsaleFinished;
     bool public refundableSoftCap = false;
     uint public newEtherRate = 0;

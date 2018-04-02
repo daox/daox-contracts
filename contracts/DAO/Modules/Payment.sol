@@ -27,7 +27,6 @@ contract Payment is CrowdsaleDAOFields {
         uint tokensAmount = depositedDXC[msg.sender];
 
         delete depositedWei[msg.sender];
-        delete depositedWithCommission[msg.sender];
         delete depositedDXC[msg.sender];
 
         DXC.transfer(msg.sender, tokensAmount);

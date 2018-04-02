@@ -136,7 +136,6 @@ contract CrowdsaleDAOFields {
 	uint public DXCRaised = 0;
 	mapping(address => uint) public depositedWei;
 	mapping(address => uint) public depositedDXC;
-	mapping(address => uint) public depositedWithCommission;
 	bool public crowdsaleFinished;
 	bool public refundableSoftCap = false;
 	uint public newEtherRate = 0;
@@ -255,7 +254,6 @@ contract Crowdsale is CrowdsaleDAOFields {
 		uint weiAmount = msg.value;
 		if (commission) {
 			commissionRaised = commissionRaised + weiAmount;
-			depositedWithCommission[_sender] += weiAmount;
 		}
 
 		weiRaised += weiAmount;
@@ -371,7 +369,6 @@ contract Payment is CrowdsaleDAOFields {
 		uint tokensAmount = depositedDXC[msg.sender];
 
 		delete depositedWei[msg.sender];
-		delete depositedWithCommission[msg.sender];
 		delete depositedDXC[msg.sender];
 
 		DXC.transfer(msg.sender, tokensAmount);

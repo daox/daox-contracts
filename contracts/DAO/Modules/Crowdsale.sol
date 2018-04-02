@@ -14,7 +14,6 @@ contract Crowdsale is CrowdsaleDAOFields {
 		uint weiAmount = msg.value;
 		if (commission) {
 			commissionRaised = commissionRaised + weiAmount;
-			depositedWithCommission[_sender] += weiAmount;
 		}
 
 		weiRaised += weiAmount;
