@@ -3,6 +3,7 @@ pragma solidity ^0.4.11;
 import "./VotingLib.sol";
 import "./VotingFields.sol";
 import "../Common.sol";
+import "../DAO/ICrowdsaleDAO.sol";
 
 contract Voting is VotingFields {
 
@@ -69,7 +70,7 @@ contract Voting is VotingFields {
     }
 
     modifier succeededCrowdsale(ICrowdsaleDAO dao) {
-        require(dao.crowdsaleFinished() && dao.weiRaised() >= dao.softCap());
+        require(dao.crowdsaleFinished() && dao.fundsRaised() >= dao.softCap());
         _;
     }
 

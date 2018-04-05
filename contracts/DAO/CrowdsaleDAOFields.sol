@@ -17,6 +17,7 @@ contract CrowdsaleDAOFields {
     uint public commissionRaised = 0;
     uint public weiRaised = 0;
     uint public DXCRaised = 0;
+    uint public fundsRaised = 0;
     mapping(address => uint) public depositedWei;
     mapping(address => uint) public depositedDXC;
     bool public crowdsaleFinished;
