@@ -30,7 +30,7 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     }
 
     function createCrowdsaleDAO(string _name, string _description) public {
-        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description);
+        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, serviceContractAddress, votingFactoryContractAddress);
 
         require(dao.call(bytes4(keccak256("setStateModule(address)")), modules[0]));
         require(dao.call(bytes4(keccak256("setPaymentModule(address)")), modules[1]));

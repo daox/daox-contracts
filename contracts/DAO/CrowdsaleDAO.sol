@@ -12,9 +12,9 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     address public votingDecisionModule;
     address public crowdsaleModule;
 
-    function CrowdsaleDAO(string _name, string _description)
+    function CrowdsaleDAO(string _name, string _description, address _serviceContractAddress, address _votingFactoryContractAddress)
 	Owned(msg.sender) {
-        (name, description) = (_name, _description);
+        (name, description, serviceContract, votingFactory) = (_name, _description, _serviceContractAddress, VotingFactoryInterface(_votingFactoryContractAddress));
     }
 
     function() payable {
@@ -61,8 +61,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         return token.balanceOf(_participantAddress) > 0;
     }
 
-    function initState(address _tokenAddress, address _votingFactory, address _serviceContract, address _DXC) public {
-        DAOProxy.delegatedInitState(stateModule, _tokenAddress, _votingFactory, _serviceContract, _DXC);
+    function initState(address _tokenAddress, address _DXC) public {
+        DAOProxy.delegatedInitState(stateModule, _tokenAddress, _DXC);
     }
 
     function initHold(uint _tokenHoldTime) public {

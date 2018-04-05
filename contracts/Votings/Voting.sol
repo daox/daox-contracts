@@ -8,28 +8,12 @@ contract Voting is VotingFields {
 
 	function create(address _dao, bytes32 _name, bytes32 _description, uint _duration, uint _quorum) succeededCrowdsale(ICrowdsaleDAO(_dao)) correctDuration(_duration) external {
         dao = ICrowdsaleDAO(_dao);
-        name = toString(_name);
-        description = toString(_description);
+        name = Common.toString(_name);
+        description = Common.toString(_description);
         duration = _duration;
         quorum = _quorum;
     }
 
-    function toString(bytes32 _bytes) internal constant returns(string) {
-        bytes memory arrayTemp = new bytes(32);
-        uint currentLength = 0;
-
-        for (uint i = 0; i < 32; i++) {
-            arrayTemp[i] = _bytes[i];
-            if (arrayTemp[i] != 0) currentLength+=1;
-        }
-
-        bytes memory arrayRes = new bytes(currentLength);
-        for (i = 0; i < currentLength; i++) {
-            arrayRes[i] = arrayTemp[i];
-        }
-
-        return string(arrayRes);
-    }
 
     function addVote(uint optionID) external notFinished canVote correctOption(optionID) {
         require(block.timestamp - duration < created_at);
