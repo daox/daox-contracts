@@ -21,10 +21,10 @@ contract("State", accounts => {
     });
 
     it("Should correct init state from service account", async () => {
-        const [daoxAddress, votingFactoryAddress, token] = await helper.initState(cdf, dao, serviceAccount);
+        const token = await helper.initState(cdf, dao, serviceAccount);
 
-        assert.equal(daoxAddress, await dao.serviceContract.call());
-        assert.equal(votingFactoryAddress, await dao.votingFactory.call());
+        assert.equal(await cdf.serviceContractAddress(), await dao.serviceContract.call());
+        assert.equal(await cdf.votingFactoryContractAddress(), await dao.votingFactory.call());
         assert.equal(token.address, await dao.token.call());
         assert.equal(DXC.address, await dao.DXC.call());
         assert.equal(false, await dao.canInitStateParameters.call(), "`canInitState` variable was not changed");

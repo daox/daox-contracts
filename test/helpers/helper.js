@@ -92,18 +92,15 @@ const handleErrorTransaction = async (transaction) => {
 };
 
 const getParametersForInitState = (cdf, tokenName, tokenSymbol) =>
-    Promise.all([
-        cdf.serviceContractAddress.call(),
-        cdf.votingFactoryContractAddress.call(),
-        createToken(tokenName, tokenSymbol),
-    ]);
+    createToken(tokenName, tokenSymbol);
+
 
 const initState = async (cdf, dao, account, tokenName = "TEST TOKEN", tokenSymbol = "TTK") => {
-    const [daoxAddress, votingFactoryAddress, token] = await getParametersForInitState(cdf, tokenName, tokenSymbol);
-    await dao.initState.sendTransaction(token.address, votingFactoryAddress, daoxAddress, DXC.address, {from: account});
+    const token = await getParametersForInitState(cdf, tokenName, tokenSymbol);
+    await dao.initState.sendTransaction(token.address, DXC.address, {from: account});
     await token.transferOwnership.sendTransaction(dao.address, {from: account});
 
-    return Promise.resolve([daoxAddress, votingFactoryAddress, token]);
+    return Promise.resolve(token);
 };
 
 const startCrowdsale = async (_web3, cdf, dao, serviceAccount, dxcPayments = true) => {

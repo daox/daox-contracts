@@ -73,7 +73,7 @@ contract("Crowdsale", accounts => {
         assert.equal(DXCAmount, await dao.DXCRaised.call());
         assert.equal(DXCAmount, await dao.depositedDXC.call(unknownAccount));
         assert.equal(DXCAmount * await dao.DXCRate.call(),await token.balanceOf.call(unknownAccount));
-        assert.equal(DXCAmount * await dao.DXCRate.call(), await dao.tokenMintedByDXC.call());
+        assert.equal(DXCAmount * await dao.DXCRate.call(), await dao.tokensMintedByDXC.call());
         assert.equal(DXCAmount * await dao.DXCRate.call(), await token.totalSupply.call());
         assert.equal(DXCAmount, await dxc.balanceOf.call(dao.address));
         assert.equal(0, await dxc.balanceOf.call(unknownAccount));
@@ -97,10 +97,10 @@ contract("Crowdsale", accounts => {
         assert.equal(weiAmount, await dao.depositedWei.call(unknownAccount));
         assert.equal(fundsRaised, web3.fromWei(await token.balanceOf.call(unknownAccount)));
         assert.equal(fundsRaised, web3.fromWei(await token.totalSupply.call()));
-        assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await dao.tokenMintedByEther.call()));
+        assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await dao.tokensMintedByEther.call()));
         assert.equal(DXCAmount, await dao.DXCRaised.call());
         assert.equal(DXCAmount, await dao.depositedDXC.call(unknownAccount));
-        assert.equal(DXCAmount * await dao.DXCRate.call(), await dao.tokenMintedByDXC.call());
+        assert.equal(DXCAmount * await dao.DXCRate.call(), await dao.tokensMintedByDXC.call());
         assert.equal(DXCAmount, await dxc.balanceOf.call(dao.address));
         assert.equal(0, await dxc.balanceOf.call(unknownAccount));
     });
@@ -135,7 +135,6 @@ contract("Crowdsale", accounts => {
         const token = Token.at(await dao.token.call());
         assert.equal(weiAmount, await dao.weiRaised.call());
         assert.equal(weiAmount, await dao.depositedWei.call(unknownAccount));
-        assert.equal(weiAmount, await dao.depositedWithCommission.call(unknownAccount));
         assert.equal(weiAmount, await dao.commissionRaised.call());
         assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await token.balanceOf.call(unknownAccount)));
         assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await token.totalSupply.call()));
@@ -156,8 +155,6 @@ contract("Crowdsale", accounts => {
         assert.equal(weiAmount * 2, await dao.weiRaised.call());
         assert.equal(weiAmount, await dao.depositedWei.call(unknownAccount));
         assert.equal(weiAmount, await dao.depositedWei.call(serviceAccount));
-        assert.equal(weiAmount, await dao.depositedWithCommission.call(unknownAccount));
-        assert.equal(weiAmount, await dao.depositedWithCommission.call(serviceAccount));
         assert.equal(weiAmount * 2, await dao.commissionRaised.call());
         assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await token.balanceOf.call(unknownAccount)));
         assert.equal(etherAmount * await dao.etherRate.call(), web3.fromWei(await token.balanceOf.call(serviceAccount)));
@@ -389,7 +386,7 @@ contract("Crowdsale", accounts => {
         assert.equal(true, await dao.crowdsaleFinished.call());
         assert.equal(false, await dao.refundableSoftCap.call());
         assert.equal(true, await token.mintingFinished.call());
-        assert.deepEqual(dxcAmount.times(500), await dao.tokenMintedByDXC());
+        assert.deepEqual(dxcAmount.times(500), await dao.tokensMintedByDXC());
     });
 
     it("Should not send DXC when hardCap was achieved", async () => {
@@ -424,6 +421,6 @@ contract("Crowdsale", accounts => {
 
         assert.isFalse(await dao.refundable());
         assert.isTrue(await dao.crowdsaleFinished());
-        assert.deepEqual(await dao.tokenMintedByEther(), await dao.tokenMintedByDXC());
+        assert.deepEqual(await dao.tokensMintedByEther(), await dao.tokensMintedByDXC());
     });
 });

@@ -370,13 +370,13 @@ contract("VotingDecisions", accounts => {
             dao.refund.sendTransaction({from: backer5, gasPrice: 0})
         ]);
 
-        const [tokenMintedByEther, tokenMintedByDXC] = await Promise.all([
-            dao.tokenMintedByEther.call(),
-            dao.tokenMintedByDXC.call()
+        const [tokensMintedByEther, tokensMintedByDXC] = await Promise.all([
+            dao.tokensMintedByEther.call(),
+            dao.tokensMintedByDXC.call()
         ]);
 
-        const etherPerDXCRate = tokenMintedByEther.toNumber() / (tokenMintedByEther.toNumber() + tokenMintedByDXC.toNumber());
-        const dxcPerEtherRate = tokenMintedByDXC.toNumber() / (tokenMintedByEther.toNumber() + tokenMintedByDXC.toNumber());
+        const etherPerDXCRate = tokensMintedByEther.toNumber() / (tokensMintedByEther.toNumber() + tokensMintedByDXC.toNumber());
+        const dxcPerEtherRate = tokensMintedByDXC.toNumber() / (tokensMintedByEther.toNumber() + tokensMintedByDXC.toNumber());
 
         assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer1EtherBalanceBefore) + parseFloat(newEtherRate * etherPerDXCRate), parseFloat(await helper.getBalance(web3, backer1))));
         assert.isTrue(helper.doesApproximatelyEqual(parseFloat(backer2EtherBalanceBefore) + web3.fromWei(backersToWei[backer2]) * newEtherRate * etherPerDXCRate, parseFloat(await helper.getBalance(web3, backer2))));
