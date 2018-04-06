@@ -48,11 +48,6 @@ contract Payment is CrowdsaleDAOFields {
         _;
     }
 
-    modifier succeededCrowdsale() {
-        require(crowdsaleFinished && weiRaised >= softCap);
-        _;
-    }
-
     modifier notTeamMember() {
         require(teamBonuses[msg.sender] == 0);
         _;
