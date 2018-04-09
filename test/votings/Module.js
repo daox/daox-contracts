@@ -244,6 +244,21 @@ contract("Module", accounts => {
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 2;
 
-        return helper.handleErrorTransaction(() => makeDAOAndCreateModule(backersToWei, backersToOption, backer1, 4, newModuleAddress2, true, true));
+        return helper.handleErrorTransaction(() => makeDAOAndCreateModule(backersToWei, backersToOption, backer1, 5, newModuleAddress2, true, true));
+    });
+
+    it("Should change voting factory address", async () => {
+        const backers = [backer1, backer2];
+        const [backersToWei, backersToOption] = [{}, {}];
+        backersToWei[`${backers[0]}`] = web3.toWei(8, "ether");
+        backersToWei[`${backers[1]}`] = web3.toWei(2, "ether");
+        backersToOption[`${backers[0]}`] = 1;
+        backersToOption[`${backers[1]}`] = 2;
+        const oldVotingFactory = await dao.votingFactory();
+        const newVF = "0x555";
+
+        await makeDAOAndCreateModule(backersToWei, backersToOption, backer1, 4, newVF, true, true);
+
+        assert.equal(`0x${web3.padLeft(newVF.replace("0x", ""), 40)}`, await dao.votingFactory());
     });
 });

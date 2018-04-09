@@ -155,7 +155,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Module#2: should not create module with invalid module name", async () =>
-        helper.handleErrorTransaction(() => dao.addModule(name, "Test description", minimalDurationPeriod, 4, "0x1", {from: backer1})));
+        helper.handleErrorTransaction(() => dao.addModule(name, "Test description", minimalDurationPeriod, 5, "0x1", {from: backer1})));
 
     it("Module#3: should change state address when amount of votes for option#1 >= 80%", async () => {
         const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.State, unknownAccount, {from: backer1});
