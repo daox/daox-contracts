@@ -2,6 +2,7 @@ pragma solidity ^0.4.0;
 
 import "../Token/TokenInterface.sol";
 import "../Votings/VotingFactoryInterface.sol";
+import '../../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 
 library DAOLib {
     event VotingCreated(
@@ -20,7 +21,7 @@ library DAOLib {
         uint totalSupply = token.totalSupply() / 100;
         uint teamTokensAmount = 0;
         for (uint i = 0; i < team.length; i++) {
-            uint teamMemberTokensAmount = totalSupply * teamBonuses[i];
+            uint teamMemberTokensAmount = SafeMath.mul(totalSupply, teamBonuses[i]);
             teamTokensAmount += teamMemberTokensAmount;
             token.mint(team[i], teamMemberTokensAmount);
             token.hold(team[i], teamHold[i]);
@@ -90,7 +91,7 @@ library DAOLib {
                 break;
             }
         }
-        uint tokensAmount = value * rate;
+        uint tokensAmount = SafeMath.mul(value, rate);
 
         return tokensAmount;
     }

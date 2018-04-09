@@ -38,7 +38,7 @@ library DAOLib {
 		uint totalSupply = token.totalSupply() / 100;
 		uint teamTokensAmount = 0;
 		for (uint i = 0; i < team.length; i++) {
-			uint teamMemberTokensAmount = totalSupply * teamBonuses[i];
+			uint teamMemberTokensAmount = SafeMath.mul(totalSupply, teamBonuses[i]);
 			teamTokensAmount += teamMemberTokensAmount;
 			token.mint(team[i], teamMemberTokensAmount);
 			token.hold(team[i], teamHold[i]);
@@ -108,7 +108,7 @@ library DAOLib {
 				break;
 			}
 		}
-		uint tokensAmount = value * rate;
+		uint tokensAmount = SafeMath.mul(value, rate);
 
 		return tokensAmount;
 	}
@@ -260,7 +260,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 		depositedWei[_sender] += weiAmount;
 
 		uint tokensAmount = DAOLib.countTokens(weiAmount, bonusPeriods, bonusEtherRates, etherRate);
-		tokensMintedByEther += tokensAmount;
+		tokensMintedByEther += SafeMath.add(tokensMintedByEther, tokensAmount);
 		token.mint(_sender, tokensAmount);
 	}
 
@@ -269,7 +269,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 		depositedDXC[_from] += _dxcAmount;
 
 		uint tokensAmount = DAOLib.countTokens(_dxcAmount, bonusPeriods, bonusDXCRates, DXCRate);
-		tokensMintedByDXC += tokensAmount;
+		tokensMintedByDXC = SafeMath.add(tokensMintedByDXC, tokensAmount);
 
 		token.mint(_from, tokensAmount);
 	}
@@ -348,8 +348,9 @@ contract Crowdsale is CrowdsaleDAOFields {
 
 contract Payment is CrowdsaleDAOFields {
 	function refund() whenRefundable notTeamMember {
-		uint etherPerDXCRate = tokensMintedByEther * percentMultiplier / (tokensMintedByEther + tokensMintedByDXC);
-		uint dxcPerEtherRate = tokensMintedByDXC * percentMultiplier / (tokensMintedByEther + tokensMintedByDXC);
+		uint tokensMintedSum = SafeMath.add(tokensMintedByEther, tokensMintedByDXC);
+		uint etherPerDXCRate = SafeMath.mul(tokensMintedByEther, percentMultiplier) / tokensMintedSum;
+		uint dxcPerEtherRate = SafeMath.mul(tokensMintedByDXC, percentMultiplier) / tokensMintedSum;
 
 		uint tokensAmount = token.balanceOf(msg.sender);
 		token.burn(msg.sender);
@@ -421,8 +422,8 @@ contract VotingDecisions is CrowdsaleDAOFields {
 	function makeRefundable() private {
 		require(!refundable);
 		refundable = true;
-		newEtherRate = this.balance * etherRate * multiplier / tokensMintedByEther;
-		newDXCRate = tokensMintedByDXC != 0 ? DXC.balanceOf(this) * DXCRate * multiplier / tokensMintedByDXC : 0;
+		newEtherRate = SafeMath.mul(this.balance * etherRate, multiplier) / tokensMintedByEther;
+		newDXCRate = tokensMintedByDXC != 0 ? SafeMath.mul(DXC.balanceOf(this) * DXCRate, multiplier) / tokensMintedByDXC : 0;
 	}
 
 	function holdTokens(address _address, uint duration) onlyVoting external {

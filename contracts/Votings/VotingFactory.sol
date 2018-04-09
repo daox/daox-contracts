@@ -35,7 +35,7 @@ contract VotingFactory is VotingFactoryInterface {
         return new Withdrawal(baseVoting, msg.sender, _name, _description, _duration, _sum, withdrawalWallet, _dxc);
     }
 
-    function createRefund(address _creator, string _name, string _description, uint _duration) onlyDAO onlyParticipant(_creator) external returns (address) {
+    function createRefund(address _creator, string _name, string _description, uint _duration) external onlyDAO onlyParticipant(_creator) returns (address) {
         return new Refund(baseVoting, msg.sender, _name, _description, _duration);
     }
 

@@ -6,14 +6,17 @@ import "../Common.sol";
 
 contract Voting is VotingFields {
 
-	function create(address _dao, bytes32 _name, bytes32 _description, uint _duration, uint _quorum) succeededCrowdsale(ICrowdsaleDAO(_dao)) correctDuration(_duration) external {
+	function create(address _dao, bytes32 _name, bytes32 _description, uint _duration, uint _quorum)
+        succeededCrowdsale(ICrowdsaleDAO(_dao))
+        correctDuration(_duration)
+        external
+    {
         dao = ICrowdsaleDAO(_dao);
         name = Common.toString(_name);
         description = Common.toString(_description);
         duration = _duration;
         quorum = _quorum;
     }
-
 
     function addVote(uint optionID) external notFinished canVote correctOption(optionID) {
         require(block.timestamp - duration < created_at);

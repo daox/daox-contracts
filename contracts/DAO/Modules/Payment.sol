@@ -1,13 +1,15 @@
 pragma solidity ^0.4.0;
 
+import '../../../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 import "../DAOLib.sol";
 import "../../Token/TokenInterface.sol";
 import "../CrowdsaleDAOFields.sol";
 
 contract Payment is CrowdsaleDAOFields {
     function refund() whenRefundable notTeamMember {
-        uint etherPerDXCRate = tokensMintedByEther * percentMultiplier / (tokensMintedByEther + tokensMintedByDXC);
-        uint dxcPerEtherRate = tokensMintedByDXC * percentMultiplier / (tokensMintedByEther + tokensMintedByDXC);
+        uint tokensMintedSum = SafeMath.add(tokensMintedByEther, tokensMintedByDXC);
+        uint etherPerDXCRate = SafeMath.mul(tokensMintedByEther, percentMultiplier) / tokensMintedSum;
+        uint dxcPerEtherRate = SafeMath.mul(tokensMintedByDXC, percentMultiplier) / tokensMintedSum;
 
         uint tokensAmount = token.balanceOf(msg.sender);
         token.burn(msg.sender);

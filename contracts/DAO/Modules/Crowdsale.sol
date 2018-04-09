@@ -1,5 +1,6 @@
 pragma solidity ^0.4.0;
 
+import '../../../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 import "../DAOLib.sol";
 import "../CrowdsaleDAOFields.sol";
 import "../../Commission.sol";
@@ -20,7 +21,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 		depositedWei[_sender] += weiAmount;
 
 		uint tokensAmount = DAOLib.countTokens(weiAmount, bonusPeriods, bonusEtherRates, etherRate);
-		tokensMintedByEther += tokensAmount;
+		tokensMintedByEther = SafeMath.add(tokensMintedByEther, tokensAmount);
 		token.mint(_sender, tokensAmount);
 	}
 
@@ -29,7 +30,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 		depositedDXC[_from] += _dxcAmount;
 
 		uint tokensAmount = DAOLib.countTokens(_dxcAmount, bonusPeriods, bonusDXCRates, DXCRate);
-		tokensMintedByDXC += tokensAmount;
+		tokensMintedByDXC = SafeMath.add(tokensMintedByDXC, tokensAmount);
 
 		token.mint(_from, tokensAmount);
 	}

@@ -1,5 +1,6 @@
 pragma solidity ^0.4.0;
 
+import '../../../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 import "../DAOLib.sol";
 import "../../Token/TokenInterface.sol";
 import "../CrowdsaleDAOFields.sol";
@@ -24,8 +25,8 @@ contract VotingDecisions is CrowdsaleDAOFields {
     function makeRefundable() private {
         require(!refundable);
         refundable = true;
-        newEtherRate = this.balance * etherRate * multiplier / tokensMintedByEther;
-        newDXCRate = tokensMintedByDXC != 0 ? DXC.balanceOf(this) * DXCRate * multiplier / tokensMintedByDXC : 0;
+        newEtherRate = SafeMath.mul(this.balance * etherRate, multiplier) / tokensMintedByEther;
+        newDXCRate = tokensMintedByDXC != 0 ? SafeMath.mul(DXC.balanceOf(this) * DXCRate, multiplier) / tokensMintedByDXC : 0;
     }
 
     function holdTokens(address _address, uint duration) onlyVoting external {
