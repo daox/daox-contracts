@@ -57,6 +57,10 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         crowdsaleModule = _crowdsaleModule;
     }
 
+    function setVotingFactoryAddress(address _votingFactory) external onlyVoting() {
+        votingFactory = VotingFactoryInterface(_votingFactory);
+    }
+
     function isParticipant(address _participantAddress) external constant returns (bool) {
         return token.balanceOf(_participantAddress) > 0;
     }
@@ -149,6 +153,11 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     modifier canSetModule(address module) {
         require(votings[msg.sender] || (module == 0x0 && msg.sender == owner));
+        _;
+    }
+
+    modifier onlyVoting() {
+        require(votings[msg.sender]);
         _;
     }
 }

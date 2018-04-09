@@ -33,6 +33,8 @@ contract ICrowdsaleDAO is IDAO {
 
     function setCrowdsaleModule(address _crowdsaleModule);
 
+    function setVotingFactoryAddress(address _votingFactory);
+
     function teamBonuses(address _address) constant returns (uint);
 
     function token() constant returns (TokenInterface);
