@@ -6,6 +6,10 @@ import "../Token/TokenInterface.sol";
 contract ICrowdsaleDAO is IDAO {
     bool public crowdsaleFinished;
     uint public teamTokensAmount;
+    uint public endTime;
+    uint public weiRaised;
+    uint public softCap;
+    uint public fundsRaised;
 
     function addProposal(string _description, uint _duration, bytes32[] _options) external;
 
