@@ -10,7 +10,7 @@ import "../DAO/IDAO.sol";
 
 contract VotingFactory is VotingFactoryInterface {
     address baseVoting;
-    DAOFactoryInterface daoFactory;
+    DAOFactoryInterface public daoFactory;
 
     function VotingFactory(address _baseVoting) {
         baseVoting = _baseVoting;

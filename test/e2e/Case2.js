@@ -33,13 +33,12 @@ contract("Case#2", accounts => {
     let dao, cdf, token, DXC, DAOX, refund;
 
     before(async () => {
-        const block = await helper.getLatestBlock(web3);
         DXC = DXCToken.at(DXCToken.address);
         await Promise.all([
-            DXC.mint(backer1, dxcAmount1),
-            DXC.mint(backer2, dxcAmount2),
-            DXC.mint(backer3, dxcAmount3),
-            DXC.mint(backer4, dxcAmount4),
+            helper.mintDXC(backer1, dxcAmount1),
+            helper.mintDXC(backer2, dxcAmount2),
+            helper.mintDXC(backer3, dxcAmount3),
+            helper.mintDXC(backer4, dxcAmount4),
         ]);
 
         cdf = await helper.createCrowdsaleDAOFactory();
@@ -48,7 +47,7 @@ contract("Case#2", accounts => {
         await dao.initBonuses(
             team,
             teamBonuses,
-            [block.timestamp + crowdsaleStartShift + bonusShift1],
+            [(await helper.getLatestBlock(web3)).timestamp + crowdsaleStartShift + bonusShift1],
             [bonusEther1],
             [],
             [SECONDS_PER_YEAR, SECONDS_PER_YEAR, SECONDS_PER_YEAR, SECONDS_PER_YEAR],
@@ -62,8 +61,8 @@ contract("Case#2", accounts => {
                 hardCap,
                 etherRate.toNumber(),
                 DXCRate,
-                block.timestamp + crowdsaleStartShift,
-                block.timestamp + crowdsaleFinishShift,
+                (await helper.getLatestBlock(web3)).timestamp + crowdsaleStartShift,
+                (await helper.getLatestBlock(web3)).timestamp + crowdsaleFinishShift,
                 dxcPayment
             ]);
 
