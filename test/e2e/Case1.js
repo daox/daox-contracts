@@ -81,7 +81,7 @@ contract("Case#1", accounts => {
     });
 
 
-    it("Token distribution after crowdsale should be correct", async () => {
+    it("tokens distribution after crowdsale should be correct", async () => {
         assert.deepEqual(etherAmount1.times(etherRate), await token.balanceOf(backer1));
         assert.deepEqual(etherAmount2.times(etherRate), await token.balanceOf(backer2));
         assert.deepEqual(etherAmount3.times(etherRate), await token.balanceOf(backer3));
@@ -90,14 +90,14 @@ contract("Case#1", accounts => {
         assert.deepEqual(dxcAmount1.times(DXCRate), await token.balanceOf(backer5));
         assert.deepEqual(dxcAmount2.times(DXCRate), await token.balanceOf(backer6));
 
-        const tokenShouldBeMintedByEther = weiDeposited.times(etherRate);
-        const tokenShouldBeMintedByDXC = dxcDeposited.times(DXCRate);
+        const tokensShouldBeMintedByEther = weiDeposited.times(etherRate);
+        const tokensShouldBeMintedByDXC = dxcDeposited.times(DXCRate);
 
-        assert.deepEqual(tokenShouldBeMintedByEther, await dao.tokenMintedByEther());
-        assert.deepEqual(tokenShouldBeMintedByDXC, await dao.tokenMintedByDXC());
+        assert.deepEqual(tokensShouldBeMintedByEther, await dao.tokensMintedByEther());
+        assert.deepEqual(tokensShouldBeMintedByDXC, await dao.tokensMintedByDXC());
 
-        assert.deepEqual(tokenShouldBeMintedByEther.plus(tokenShouldBeMintedByDXC).times(teamBonuses[0] / 100), await token.balanceOf(teamPerson1));
-        assert.deepEqual(tokenShouldBeMintedByEther.plus(tokenShouldBeMintedByDXC).times(teamBonuses[1] / 100), await token.balanceOf(teamPerson2));
+        assert.deepEqual(tokensShouldBeMintedByEther.plus(tokensShouldBeMintedByDXC).times(teamBonuses[0] / 100), await token.balanceOf(teamPerson1));
+        assert.deepEqual(tokensShouldBeMintedByEther.plus(tokensShouldBeMintedByDXC).times(teamBonuses[1] / 100), await token.balanceOf(teamPerson2));
     });
 
     it("Commission should be calculated correct", async () => {
@@ -408,5 +408,14 @@ contract("Case#1", accounts => {
         //0,1085099835 left
 
         //10,6792656 left + refunded
+    });
+
+    it("Tokens should be burned after refund", async () => {
+        assert.deepEqual(web3.toBigNumber(0), await token.balanceOf(backer1));
+        assert.deepEqual(web3.toBigNumber(0), await token.balanceOf(backer2));
+        assert.deepEqual(web3.toBigNumber(0), await token.balanceOf(backer3));
+        assert.deepEqual(web3.toBigNumber(0), await token.balanceOf(backer4));
+        assert.deepEqual(web3.toBigNumber(0), await token.balanceOf(backer5));
+        assert.deepEqual(web3.toBigNumber(0), await token.balanceOf(backer6));
     });
 });
