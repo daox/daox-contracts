@@ -1,18 +1,20 @@
 pragma solidity ^0.4.0;
 
+import '../../../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 import "../DAOLib.sol";
 import "../../Token/TokenInterface.sol";
 import "../CrowdsaleDAOFields.sol";
 
 contract VotingDecisions is CrowdsaleDAOFields {
 
-    function withdrawal(address _address, uint withdrawalSum) onlyVoting external {
+    function withdrawal(address _address, uint _withdrawalSum, bool _dxc) onlyVoting external {
         lastWithdrawalTimestamp = block.timestamp;
-        _address.transfer(withdrawalSum);
+        _dxc ? DXC.transfer(_address, _withdrawalSum) : _address.transfer(_withdrawalSum);
     }
 
     function makeRefundableByUser() external {
-        require(lastWithdrawalTimestamp != 0 && block.timestamp >= lastWithdrawalTimestamp + withdrawalPeriod);
+        require(lastWithdrawalTimestamp == 0 && block.timestamp >= created_at + withdrawalPeriod
+        || lastWithdrawalTimestamp != 0 && block.timestamp >= lastWithdrawalTimestamp + withdrawalPeriod);
         makeRefundable();
     }
 
@@ -22,9 +24,9 @@ contract VotingDecisions is CrowdsaleDAOFields {
 
     function makeRefundable() private {
         require(!refundable);
-        uint multiplier = 100000;
         refundable = true;
-        newRate = this.balance * rate * multiplier / (token.totalSupply() - teamTokensAmount);
+        newEtherRate = SafeMath.mul(this.balance * etherRate, multiplier) / tokensMintedByEther;
+        newDXCRate = tokensMintedByDXC != 0 ? SafeMath.mul(DXC.balanceOf(this) * DXCRate, multiplier) / tokensMintedByDXC : 0;
     }
 
     function holdTokens(address _address, uint duration) onlyVoting external {

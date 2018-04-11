@@ -9,7 +9,7 @@ contract("Module", accounts => {
     const [teamPerson1, teamPerson2] = [accounts[4], accounts[5]];
     const teamBonuses = [5, 5];
     const [backer1, backer2, backer3, backer4] = [accounts[6], accounts[7], accounts[8], accounts[9]];
-    const moduleDuration = 300;
+    const minimalDurationPeriod = 60 * 60 * 24 * 7;
     const Modules = {
         State: 0,
         Payment: 1,
@@ -17,17 +17,18 @@ contract("Module", accounts => {
         Crowdsale: 3
     };
 
+    const name = "Change Module voting";
     let module, dao, cdf, timestamp;
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
     beforeEach(async () => {
         dao = await helper.createCrowdsaleDAO(cdf);
-        await dao.initBonuses.sendTransaction([teamPerson1, teamPerson2], teamBonuses, [], [], [10000, 10000]);
+        await dao.initBonuses.sendTransaction([teamPerson1, teamPerson2], teamBonuses, [], [], [], [10000, 10000], [false, false]);
     });
 
     const makeDAOAndCreateModule = async (backersToWei, backersToOptions, creator, moduleName, newModuleAddress, finish = true, shiftTime = false) => {
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
-        const tx = await dao.addModule("Test description", moduleDuration, moduleName, newModuleAddress, {from: creator});
+        const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, moduleName, newModuleAddress, {from: creator});
         const logs = helper.decodeVotingParameters(tx);
         module = Module.at(logs[0]);
 
@@ -39,7 +40,7 @@ contract("Module", accounts => {
         await Promise.all(Object.keys(backersToOptions).map(key => module.addVote.sendTransaction(backersToOptions[key], {from: key})));
 
         if (shiftTime) {
-            await helper.rpcCall(web3, "evm_increaseTime", [moduleDuration]);
+            await helper.rpcCall(web3, "evm_increaseTime", [minimalDurationPeriod]);
             await helper.rpcCall(web3, "evm_mine", null);
         }
         if (finish) {
@@ -69,10 +70,10 @@ contract("Module", accounts => {
         ]);
 
         assert.deepEqual(option1[0], option2[0], "Votes amount doesn't equal");
-        assert.equal(timestamp + moduleDuration, holdTime1.toNumber(), "Hold time was not calculated correct");
+        assert.equal(timestamp + minimalDurationPeriod, holdTime1.toNumber(), "Hold time was not calculated correct");
         assert.deepEqual(holdTime1, holdTime2, "Tokens amount doesn't equal");
         assert.isTrue(isFinished, "Module was not cancelled");
-        assert.equal(moduleDuration, duration, "Module duration is not correct");
+        assert.equal(minimalDurationPeriod, duration, "Module duration is not correct");
     });
 
     it("Should not create module from unknown account", async () => {
@@ -162,7 +163,7 @@ contract("Module", accounts => {
         const [backersToWei, backersToOption] = [{}, {}];
         for (let i = 0; i < backers.length; i++) {
             backersToWei[`${backers[i]}`] = web3.toWei(5, "ether");
-            backersToOption[`${backers[i]}`] = i % 2 == 0 ? 1 : 2; // 10 eth (in tokens) for "yes" and 10 eth (in tokens) for "no"
+            backersToOption[`${backers[i]}`] = i % 2 === 0 ? 1 : 2; // 10 eth (in tokens) for "yes" and 10 eth (in tokens) for "no"
         }
 
         await makeDAOAndCreateModule(backersToWei, backersToOption, backer1, Modules.State, newModuleAddress2, true, true);
@@ -243,6 +244,21 @@ contract("Module", accounts => {
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 2;
 
-        return helper.handleErrorTransaction(() => makeDAOAndCreateModule(backersToWei, backersToOption, backer1, 4, newModuleAddress2, true, true));
+        return helper.handleErrorTransaction(() => makeDAOAndCreateModule(backersToWei, backersToOption, backer1, 5, newModuleAddress2, true, true));
+    });
+
+    it("Should change voting factory address", async () => {
+        const backers = [backer1, backer2];
+        const [backersToWei, backersToOption] = [{}, {}];
+        backersToWei[`${backers[0]}`] = web3.toWei(8, "ether");
+        backersToWei[`${backers[1]}`] = web3.toWei(2, "ether");
+        backersToOption[`${backers[0]}`] = 1;
+        backersToOption[`${backers[1]}`] = 2;
+        const oldVotingFactory = await dao.votingFactory();
+        const newVF = "0x555";
+
+        await makeDAOAndCreateModule(backersToWei, backersToOption, backer1, 4, newVF, true, true);
+
+        assert.equal(`0x${web3.padLeft(newVF.replace("0x", ""), 40)}`, await dao.votingFactory());
     });
 });

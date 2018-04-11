@@ -5,18 +5,18 @@ import "./VotingFields.sol";
 import "../Common.sol";
 
 contract Module is VotingFields {
-    enum Modules{State, Payment, VotingDecisions, Crowdsale}
+    enum Modules{State, Payment, VotingDecisions, Crowdsale, VotingFactory}
     Modules public module;
     address public newModuleAddress;
     address baseVoting;
 
-    function Module(address _baseVoting, address _dao, bytes32 _description, uint _duration, uint _module, address _newAddress) {
-        require(_module >= 0 && _module <= 3);
+    function Module(address _baseVoting, address _dao, string _name, string _description, uint _duration, uint _module, address _newAddress) {
+        require(_module >= 0 && _module <= 4);
         baseVoting = _baseVoting;
         votingType = "Module";
         module = Modules(_module);
         newModuleAddress = _newAddress;
-        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 80);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _name, _description, _duration, 80);
         createOptions();
     }
 
@@ -37,6 +37,7 @@ contract Module is VotingFields {
         if (uint(module) == uint(Modules.Payment)) dao.setPaymentModule(newModuleAddress);
         if (uint(module) == uint(Modules.VotingDecisions)) dao.setVotingDecisionModule(newModuleAddress);
         if (uint(module) == uint(Modules.Crowdsale)) dao.setCrowdsaleModule(newModuleAddress);
+        if (uint(module) == uint(Modules.VotingFactory)) dao.setVotingFactoryAddress(newModuleAddress);
     }
 
     function createOptions() private {

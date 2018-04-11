@@ -3,12 +3,18 @@ pragma solidity ^0.4.11;
 import "./VotingLib.sol";
 import "./VotingFields.sol";
 import "../Common.sol";
+import "../DAO/ICrowdsaleDAO.sol";
 
 contract Voting is VotingFields {
 
-    function create(address _dao, bytes32 _description, uint _duration, uint _quorum) external succeededCrowdsale(ICrowdsaleDAO(_dao)) {
+	function create(address _dao, bytes32 _name, bytes32 _description, uint _duration, uint _quorum)
+        succeededCrowdsale(ICrowdsaleDAO(_dao))
+        correctDuration(_duration)
+        external
+    {
         dao = ICrowdsaleDAO(_dao);
-        description = _description;
+        name = Common.toString(_name);
+        description = Common.toString(_description);
         duration = _duration;
         quorum = _quorum;
     }
@@ -26,8 +32,8 @@ contract Voting is VotingFields {
     function finish() external notFinished {
         require(block.timestamp - duration >= created_at);
         finished = true;
-        if (keccak256(votingType) == keccak256(bytes32("Withdrawal"))) return finishNotProposal();
-        if (keccak256(votingType) == keccak256(bytes32("Proposal"))) return finishProposal();
+        if (keccak256(votingType) == keccak256("Withdrawal")) return finishNotProposal();
+        if (keccak256(votingType) == keccak256("Proposal")) return finishProposal();
 
         //Other two cases of votings (`Module` and `Refund`) requires quorum
         if (Common.percent(options[1].votes, dao.token().totalSupply() - dao.teamTokensAmount(), 2) >= quorum) {
@@ -67,12 +73,17 @@ contract Voting is VotingFields {
     }
 
     modifier succeededCrowdsale(ICrowdsaleDAO dao) {
-        require(dao.crowdsaleFinished() && dao.weiRaised() >= dao.softCap());
+        require(dao.crowdsaleFinished() && dao.fundsRaised() >= dao.softCap());
         _;
     }
 
     modifier correctOption(uint optionID) {
         require(options[optionID].description != 0x0);
+        _;
+    }
+
+    modifier correctDuration(uint _duration) {
+        require(_duration >= minimalDuration);
         _;
     }
 }

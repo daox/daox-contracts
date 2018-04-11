@@ -7,11 +7,11 @@ import "../Common.sol";
 contract Proposal is VotingFields {
     address baseVoting;
 
-    function Proposal(address _baseVoting, address _dao, bytes32 _description, uint _duration, bytes32[] _options) {
+    function Proposal(address _baseVoting, address _dao, string _name, string _description, uint _duration, bytes32[] _options){
         require(_options.length >= 2 && _options.length <= 10);
         baseVoting = _baseVoting;
         votingType = "Proposal";
-        VotingLib.delegatecallCreate(baseVoting, _dao, _description, _duration, 0);
+        VotingLib.delegatecallCreate(baseVoting, _dao, _name, _description, _duration, 0);
         createOptions(_options);
     }
 

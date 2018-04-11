@@ -12,8 +12,9 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     address public votingDecisionModule;
     address public crowdsaleModule;
 
-    function CrowdsaleDAO(string _name, bytes32 _description) Owned(msg.sender) {
-        (name, description) = (_name, _description);
+    function CrowdsaleDAO(string _name, string _description, address _serviceContractAddress, address _votingFactoryContractAddress)
+	Owned(msg.sender) {
+        (name, description, serviceContract, votingFactory) = (_name, _description, _serviceContractAddress, VotingFactoryInterface(_votingFactoryContractAddress));
     }
 
     function() payable {
@@ -24,8 +25,12 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedHandlePayment(crowdsaleModule, _sender, true);
     }
 
-    function withdrawal(address _address, uint withdrawalSum) external {
-        DAOProxy.delegatedWithdrawal(votingDecisionModule,_address, withdrawalSum);
+    function handleDXCPayment(address _from, uint _amount) {
+        DAOProxy.delegatedHandleDXCPayment(crowdsaleModule, _from, _amount);
+    }
+
+    function withdrawal(address _address, uint withdrawalSum, bool dxc) external {
+        DAOProxy.delegatedWithdrawal(votingDecisionModule,_address, withdrawalSum, dxc);
     }
 
     function makeRefundableByVotingDecision() external {
@@ -52,40 +57,40 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         crowdsaleModule = _crowdsaleModule;
     }
 
+    function setVotingFactoryAddress(address _votingFactory) external onlyVoting() {
+        votingFactory = VotingFactoryInterface(_votingFactory);
+    }
+
     function isParticipant(address _participantAddress) external constant returns (bool) {
         return token.balanceOf(_participantAddress) > 0;
     }
 
-    function initState(address _tokenAddress, address _votingFactory, address _serviceContract) public {
-        DAOProxy.delegatedInitState(stateModule, _tokenAddress, _votingFactory, _serviceContract);
+    function initState(address _tokenAddress, address _DXC) public {
+        DAOProxy.delegatedInitState(stateModule, _tokenAddress, _DXC);
     }
 
     function initHold(uint _tokenHoldTime) public {
         DAOProxy.delegatedHoldState(stateModule, _tokenHoldTime);
     }
 
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _rate, uint _startTime, uint _endTime) public {
-        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _rate, _startTime, _endTime);
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXCRate, uint _startTime, uint _endTime, bool _dxcPayments) public {
+        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments);
     }
 
-    function addProposal(string _description, uint _duration, bytes32[] _options) public {
-        votings[DAOLib.delegatedCreateProposal(votingFactory, Common.stringToBytes32(_description), _duration, _options, this)] = true;
+    function addProposal(string _name, string _description, uint _duration, bytes32[] _options) public {
+        votings[DAOLib.delegatedCreateProposal(votingFactory, _name, _description, _duration, _options, this)] = true;
     }
 
-    function addWithdrawal(string _description, uint _duration, uint _sum, address withdrawalWallet) public {
-        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, Common.stringToBytes32(_description), _duration, _sum, withdrawalWallet, this)] = true;
+    function addWithdrawal(string _name, string _description, uint _duration, uint _sum, address withdrawalWallet, bool dxc) public {
+        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, _name, _description, _duration, _sum, withdrawalWallet, dxc, this)] = true;
     }
 
-    function addRefund(string _description, uint _duration) public {
-        votings[DAOLib.delegatedCreateRefund(votingFactory, Common.stringToBytes32(_description), _duration, this)] = true;
+    function addRefund(string _name, string _description, uint _duration) public {
+        votings[DAOLib.delegatedCreateRefund(votingFactory, _name, _description, _duration, this)] = true;
     }
 
-    function addModule(string _description, uint _duration, uint _module, address _newAddress) public {
-        votings[DAOLib.delegatedCreateModule(votingFactory, Common.stringToBytes32(_description), _duration, _module, _newAddress, this)] = true;
-    }
-
-    function getCommissionTokens() public {
-        DAOProxy.delegatedGetCommissionTokens(paymentModule);
+    function addModule(string _name, string _description, uint _duration, uint _module, address _newAddress) public {
+        votings[DAOLib.delegatedCreateModule(votingFactory, _name, _description, _duration, _module, _newAddress, this)] = true;
     }
 
     function makeRefundableByUser() public {
@@ -104,24 +109,29 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedFinish(crowdsaleModule);
     }
 
-    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusRates, uint[] _teamHold) public onlyOwner(msg.sender) {
+    function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusEtherRates, uint[] _bonusDXCRates, uint[] _teamHold, bool[] service) public onlyOwner(msg.sender) {
         require(
-					_team.length == tokenPercents.length &&
-					_team.length == _teamHold.length &&
-					_bonusPeriods.length == _bonusRates.length &&
-					canInitBonuses &&
-					(block.timestamp < startTime || canInitCrowdsaleParameters));
+			_team.length == tokenPercents.length &&
+			_team.length == _teamHold.length &&
+			_team.length == service.length &&
+			_bonusPeriods.length == _bonusEtherRates.length &&
+            (_bonusDXCRates.length == 0 || _bonusPeriods.length == _bonusDXCRates.length) &&
+			canInitBonuses &&
+			(block.timestamp < startTime || canInitCrowdsaleParameters)
+        );
 
         team = _team;
         teamHold = _teamHold;
         teamBonusesArr = tokenPercents;
+        teamServiceMember = service;
 
         for(uint i = 0; i < _team.length; i++) {
             teamBonuses[_team[i]] = tokenPercents[i];
         }
 
         bonusPeriods = _bonusPeriods;
-        bonusRates = _bonusRates;
+        bonusEtherRates = _bonusEtherRates;
+        bonusDXCRates = _bonusDXCRates;
 
         canInitBonuses = false;
     }
@@ -143,6 +153,11 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     modifier canSetModule(address module) {
         require(votings[msg.sender] || (module == 0x0 && msg.sender == owner));
+        _;
+    }
+
+    modifier onlyVoting() {
+        require(votings[msg.sender]);
         _;
     }
 }
