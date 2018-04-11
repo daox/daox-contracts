@@ -169,9 +169,9 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.11;\n\n\ninterface VotingFactoryInterface {\n    function createProposal(address _creator, string _name, string _description, uint _duration, bytes32[] _options) external returns (address);\n\n    function createWithdrawal(address _creator, string _name, string _description, uint _duration, uint _sum, address withdrawalWallet, bool _dxc) external returns (address);\n\n    function createRefund(address _creator, string _name, string _description, uint _duration) external returns (address);\n\n    function createModule(address _creator, string _name, string _description, uint _duration, uint _module, address _newAddress) external returns (address);\n\n    function setDaoFactory(address _dao) external;\n}\n",
-  "sourcePath": "/Users/kirill/projects/copy/contracts/Votings/VotingFactoryInterface.sol",
+  "sourcePath": "/Users/kirill/projects/daox-contracts/contracts/Votings/VotingFactoryInterface.sol",
   "ast": {
-    "absolutePath": "/Users/kirill/projects/copy/contracts/Votings/VotingFactoryInterface.sol",
+    "absolutePath": "/Users/kirill/projects/daox-contracts/contracts/Votings/VotingFactoryInterface.sol",
     "exportedSymbols": {
       "VotingFactoryInterface": [
         10867
@@ -1078,7 +1078,7 @@
     "src": "0:720:28"
   },
   "legacyAST": {
-    "absolutePath": "/Users/kirill/projects/copy/contracts/Votings/VotingFactoryInterface.sol",
+    "absolutePath": "/Users/kirill/projects/daox-contracts/contracts/Votings/VotingFactoryInterface.sol",
     "exportedSymbols": {
       "VotingFactoryInterface": [
         10867
@@ -1990,5 +1990,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-04-11T13:57:12.309Z"
+  "updatedAt": "2018-04-11T18:14:29.162Z"
 }
