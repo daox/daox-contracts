@@ -29,7 +29,7 @@ contract("Case#1", accounts => {
     const weiDeposited = etherAmount1.plus(etherAmount2).plus(etherAmount3).plus(etherAmount4);
     const dxcDeposited = dxcAmount1.plus(dxcAmount2);
 
-    let dao, cdf, token, DXC, DAOX, newEtherRate, newDXCRate;
+    let dao, cdf, token, DXC, DAOX, newEtherRate, newDXCRate, etherBalanceAfterCrowdsale, dxcBalanceAfterCrowdsale;
 
     before(async () => {
         DXC = DXCToken.at(DXCToken.address);
@@ -78,6 +78,8 @@ contract("Case#1", accounts => {
         await dao.finish();
         token = Token.at(await dao.token());
         DAOX = daoxContract.at(await dao.serviceContract());
+        etherBalanceAfterCrowdsale = await helper.getBalance(web3, dao.address);
+        dxcBalanceAfterCrowdsale = await DXC.balanceOf(dao.address);
     });
 
 
@@ -417,5 +419,10 @@ contract("Case#1", accounts => {
         assert.deepEqual(web3.toBigNumber(0), await token.balanceOf(backer4));
         assert.deepEqual(web3.toBigNumber(0), await token.balanceOf(backer5));
         assert.deepEqual(web3.toBigNumber(0), await token.balanceOf(backer6));
+    });
+
+    it("Balance after refund should be correct", async () => {
+        assert.isTrue(await helper.getBalance(web3, dao.address) / etherBalanceAfterCrowdsale * 100 <= 1.5);
+        assert.isTrue(await DXC.balanceOf(dao.address) / dxcBalanceAfterCrowdsale * 100 <= 1.5);
     });
 });
