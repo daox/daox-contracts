@@ -261,4 +261,21 @@ contract("Module", accounts => {
 
         assert.equal(`0x${web3.padLeft(newVF.replace("0x", ""), 40)}`, await dao.votingFactory());
     });
+
+    it("Should create module when duration < minimal duration", async () => {
+        const backers = [backer1, backer2];
+        const [backersToWei, backersToOption] = [{}, {}];
+        backersToWei[backers[0]] = web3.toWei(8, "ether");
+        backersToWei[backers[1]] = web3.toWei(2, "ether");
+        backersToOption[backers[0]] = 1;
+        backersToOption[backers[1]] = 2;
+
+        await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
+
+        const tx = await dao.addModule(name, "Test description", 0, 4, "0x1", {from: backers[0]});
+        const logs = helper.decodeVotingParameters(tx);
+        module = Module.at(logs[0]);
+
+        assert.deepEqual(web3.toBigNumber(0), await module.duration());
+    });
 });

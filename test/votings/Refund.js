@@ -9,7 +9,7 @@ contract("Refund", accounts => {
     const team = [teamPerson1, teamPerson2, teamPerson3, teamPerson4];
     const [backer1, backer2, backer3, backer4] = [accounts[6], accounts[7], accounts[8], accounts[9]];
     const teamBonuses = [2, 2, 2, 5];
-    const minimalDurationPeriod = 60 * 60 * 24 * 7;
+    let minimalDurationPeriod = 60 * 60 * 24 * 7;
     const name = "Refund";
 
     let refund, dao, cdf, timestamp;
@@ -226,5 +226,17 @@ contract("Refund", accounts => {
         assert.deepEqual(option1, result, "Refund was not cancelled");
         assert.equal((totalSupply.toNumber() - teamTokensAmount.toNumber()) / 100 * teamTokensPercentage, teamTokensAmount.toNumber(), "Team percentage was not calculated correct");
         assert.isTrue(isFinished, "Refund was not finished");
+    });
+
+    it("Should not create Refund with duration < 7 days", async () => {
+        const backers = [backer1, backer2];
+        const [backersToWei, backersToOption] = [{}, {}];
+        backersToWei[backers[0]] = web3.toWei(18, "ether");
+        backersToWei[backers[1]] = web3.toWei(2, "ether");
+        backersToOption[backers[0]] = 1;
+        backersToOption[backers[1]] = 2;
+        minimalDurationPeriod = 0;
+
+        return helper.handleErrorTransaction(() => makeDAOAndCreateRefund(backersToWei, backersToOption, backer1, true, true));
     });
 });

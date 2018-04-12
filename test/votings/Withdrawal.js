@@ -10,7 +10,7 @@ contract("Withdrawal", accounts => {
     const team = [teamPerson1, teamPerson2];
     const [backer1, backer2, backer3, backer4] = [accounts[6], accounts[7], accounts[8], accounts[9]];
     const teamBonuses = [8, 9];
-    const minimalDurationPeriod = 60 * 60 * 24 * 7;
+    let minimalDurationPeriod = 60 * 60 * 24 * 7;
     let withdrawalSum = 1;
     const withdrawalName = "Funds for salary";
 
@@ -219,6 +219,19 @@ contract("Withdrawal", accounts => {
         backersToOption[`${backers[1]}`] = 2;
 
         withdrawalSum = 11; //greater then dao balance
+
+        return helper.handleErrorTransaction(() => makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, true, true));
+    });
+
+    it("Should not create withdrawal with duration < 7 days", async () => {
+        const backers = [backer1, backer2];
+        const [backersToWei, backersToOption] = [{}, {}];
+        backersToWei[`${backers[0]}`] = web3.toWei(5, "ether");
+        backersToWei[`${backers[1]}`] = web3.toWei(5, "ether");
+        backersToOption[`${backers[0]}`] = 1;
+        backersToOption[`${backers[1]}`] = 2;
+        withdrawalSum = 1; //greater then dao balance
+        minimalDurationPeriod = 0;
 
         return helper.handleErrorTransaction(() => makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, true, true));
     });
