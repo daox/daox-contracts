@@ -83,7 +83,7 @@ contract Voting is VotingFields {
     }
 
     modifier correctDuration(uint _duration) {
-        require(_duration >= minimalDuration);
+        require(_duration >= minimalDuration || keccak256(votingType) == keccak256("Module"));
         _;
     }
 }
