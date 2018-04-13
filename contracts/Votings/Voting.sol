@@ -7,10 +7,10 @@ import "../DAO/ICrowdsaleDAO.sol";
 
 contract Voting is VotingFields {
 
-	function create(address _dao, bytes32 _name, bytes32 _description, uint _duration, uint _quorum)
-        succeededCrowdsale(ICrowdsaleDAO(_dao))
-        correctDuration(_duration)
-        external
+    function create(address _dao, bytes32 _name, bytes32 _description, uint _duration, uint _quorum)
+    succeededCrowdsale(ICrowdsaleDAO(_dao))
+    correctDuration(_duration)
+    external
     {
         dao = ICrowdsaleDAO(_dao);
         name = Common.toString(_name);
@@ -32,7 +32,14 @@ contract Voting is VotingFields {
     function finish() external notFinished {
         require(block.timestamp - duration >= created_at);
         finished = true;
-        if (keccak256(votingType) == keccak256("Withdrawal")) return finishNotProposal();
+        if (keccak256(votingType) == keccak256("Withdrawal")) {
+            if (dao.refundableSoftCap() || dao.refundable()) {
+                result = options[2];
+                return;
+            }
+
+            return finishNotProposal();
+        }
         if (keccak256(votingType) == keccak256("Proposal")) return finishProposal();
 
         //Other two cases of votings (`Module` and `Refund`) requires quorum

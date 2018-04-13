@@ -10,6 +10,8 @@ contract ICrowdsaleDAO is IDAO {
     uint public weiRaised;
     uint public softCap;
     uint public fundsRaised;
+    bool public refundableSoftCap;
+    bool public refundable;
 
     function addProposal(string _description, uint _duration, bytes32[] _options) external;
 
