@@ -13,7 +13,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     address public crowdsaleModule;
 
     function CrowdsaleDAO(string _name, string _description, address _serviceContractAddress, address _votingFactoryContractAddress)
-	Owned(msg.sender) {
+    Owned(msg.sender) {
         (name, description, serviceContract, votingFactory) = (_name, _description, _serviceContractAddress, VotingFactoryInterface(_votingFactoryContractAddress));
     }
 
@@ -41,23 +41,23 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedHoldTokens(votingDecisionModule, _address, duration);
     }
 
-    function setStateModule(address _stateModule) external canSetModule(stateModule) {
+    function setStateModule(address _stateModule) external canSetAddress(stateModule) {
         stateModule = _stateModule;
     }
 
-    function setPaymentModule(address _paymentModule) external canSetModule(paymentModule) {
+    function setPaymentModule(address _paymentModule) external canSetAddress(paymentModule) {
         paymentModule = _paymentModule;
     }
 
-    function setVotingDecisionModule(address _votingDecisionModule) external canSetModule(votingDecisionModule) {
+    function setVotingDecisionModule(address _votingDecisionModule) external canSetAddress(votingDecisionModule) {
         votingDecisionModule = _votingDecisionModule;
     }
 
-    function setCrowdsaleModule(address _crowdsaleModule) external canSetModule(crowdsaleModule) {
+    function setCrowdsaleModule(address _crowdsaleModule) external canSetAddress(crowdsaleModule) {
         crowdsaleModule = _crowdsaleModule;
     }
 
-    function setVotingFactoryAddress(address _votingFactory) external onlyVoting() {
+    function setVotingFactoryAddress(address _votingFactory) external canSetAddress(votingFactory) {
         votingFactory = VotingFactoryInterface(_votingFactory);
     }
 
@@ -111,13 +111,13 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     function initBonuses(address[] _team, uint[] tokenPercents, uint[] _bonusPeriods, uint[] _bonusEtherRates, uint[] _bonusDXCRates, uint[] _teamHold, bool[] service) public onlyOwner(msg.sender) {
         require(
-			_team.length == tokenPercents.length &&
-			_team.length == _teamHold.length &&
-			_team.length == service.length &&
-			_bonusPeriods.length == _bonusEtherRates.length &&
-            (_bonusDXCRates.length == 0 || _bonusPeriods.length == _bonusDXCRates.length) &&
-			canInitBonuses &&
-			(block.timestamp < startTime || canInitCrowdsaleParameters)
+            _team.length == tokenPercents.length &&
+            _team.length == _teamHold.length &&
+            _team.length == service.length &&
+            _bonusPeriods.length == _bonusEtherRates.length &&
+        (_bonusDXCRates.length == 0 || _bonusPeriods.length == _bonusDXCRates.length) &&
+        canInitBonuses &&
+        (block.timestamp < startTime || canInitCrowdsaleParameters)
         );
 
         team = _team;
@@ -151,13 +151,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     Modifiers
     */
 
-    modifier canSetModule(address module) {
+    modifier canSetAddress(address module) {
         require(votings[msg.sender] || (module == 0x0 && msg.sender == owner));
-        _;
-    }
-
-    modifier onlyVoting() {
-        require(votings[msg.sender]);
         _;
     }
 }
