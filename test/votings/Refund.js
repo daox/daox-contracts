@@ -1,6 +1,7 @@
 "use strict";
 const helper = require('../helpers/helper.js');
 const Refund = artifacts.require('./Votings/Refund.sol');
+const Withdrawal = artifacts.require('./Votings/Withdrawal.sol');
 const Token = artifacts.require('./Token/Token.sol');
 
 contract("Refund", accounts => {
@@ -8,6 +9,7 @@ contract("Refund", accounts => {
     const [teamPerson1, teamPerson2, teamPerson3, teamPerson4] = [accounts[2], accounts[3], accounts[4], accounts[5]];
     const team = [teamPerson1, teamPerson2, teamPerson3, teamPerson4];
     const [backer1, backer2, backer3, backer4] = [accounts[6], accounts[7], accounts[8], accounts[9]];
+    const whiteList = accounts[10];
     const teamBonuses = [2, 2, 2, 5];
     let minimalDurationPeriod = 60 * 60 * 24 * 7;
     const name = "Refund";
@@ -17,6 +19,7 @@ contract("Refund", accounts => {
     beforeEach(async () => {
         dao = await helper.createCrowdsaleDAO(cdf);
         await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000, 10000, 10000], [false, false, false, false]);
+        await dao.setWhiteList.sendTransaction([whiteList]);
     });
 
     const makeDAOAndCreateRefund = async (backersToWei, backersToOptions, refundCreator, finish = true, shiftTime = false) => {
@@ -238,5 +241,31 @@ contract("Refund", accounts => {
         minimalDurationPeriod = 0;
 
         return helper.handleErrorTransaction(() => makeDAOAndCreateRefund(backersToWei, backersToOption, backer1, true, true));
+    });
+
+    it("Should not accept withdrawal after successful refund", async () => {
+        const backers = [backer1, backer2];
+        const [backersToWei, backersToOption] = [{}, {}];
+        backersToWei[`${backers[0]}`] = web3.toWei(18, "ether");
+        backersToWei[`${backers[1]}`] = web3.toWei(2, "ether");
+        backersToOption[`${backers[0]}`] = 1;
+        backersToOption[`${backers[1]}`] = 2;
+        minimalDurationPeriod = 60 * 60 * 24 * 7;
+
+        await makeDAOAndCreateRefund(backersToWei, backersToOption, backer1, true, true);
+
+        const tx = await dao.addWithdrawal("Withdrawal#1", "Test description", minimalDurationPeriod, web3.toWei(1), whiteList, false, {from : teamPerson1});
+        const logs = helper.decodeVotingParameters(tx);
+        const withdrawal = Withdrawal.at(logs[0]);
+
+        await Promise.all(Object.keys(backersToOption).map(key => withdrawal.addVote.sendTransaction(backersToOption[key], {from: key})));
+
+        await helper.rpcCall(web3, "evm_increaseTime", [minimalDurationPeriod]);
+        await helper.rpcCall(web3, "evm_mine", null);
+
+        await withdrawal.finish();
+
+        assert.deepEqual(await withdrawal.result(), await withdrawal.options(2));
+        assert.isTrue(await withdrawal.finished());
     });
 });
