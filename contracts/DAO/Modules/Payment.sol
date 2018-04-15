@@ -51,7 +51,7 @@ contract Payment is CrowdsaleDAOFields {
     }
 
     modifier notTeamMember() {
-        require(teamBonuses[msg.sender] == 0);
+        require(!teamMap[msg.sender]);
         _;
     }
 }

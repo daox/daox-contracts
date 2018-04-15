@@ -27,7 +27,7 @@ contract VotingFactory is VotingFactoryInterface {
 
     function createWithdrawal(address _creator, string _name, string _description, uint _duration, uint _sum, address withdrawalWallet, bool _dxc)
         external
-        onlyParticipant(_creator)
+        onlyTeamMember(_creator)
         onlyDAO
         onlyWhiteList(withdrawalWallet)
         returns (address)
@@ -60,6 +60,11 @@ contract VotingFactory is VotingFactoryInterface {
 
     modifier onlyParticipant(address creator) {
         require(IDAO(msg.sender).isParticipant(creator));
+        _;
+    }
+
+    modifier onlyTeamMember(address creator) {
+        require(IDAO(msg.sender).teamMap(creator));
         _;
     }
 

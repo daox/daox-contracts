@@ -27,6 +27,7 @@ contract CrowdsaleDAOFields {
     address public serviceContract;
     uint[] public teamBonusesArr;
     address[] public team;
+    mapping(address => bool) public teamMap;
     uint[] public teamHold;
     bool[] public teamServiceMember;
     TokenInterface public token;

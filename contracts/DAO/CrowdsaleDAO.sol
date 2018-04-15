@@ -126,6 +126,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         teamServiceMember = service;
 
         for(uint i = 0; i < _team.length; i++) {
+            teamMap[_team[i]] = true;
             teamBonuses[_team[i]] = tokenPercents[i];
         }
 

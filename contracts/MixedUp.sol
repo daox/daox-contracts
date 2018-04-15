@@ -134,6 +134,7 @@ contract CrowdsaleDAOFields {
 	uint public commissionRaised = 0;
 	uint public weiRaised = 0;
 	uint public DXCRaised = 0;
+	uint public fundsRaised = 0;
 	mapping(address => uint) public depositedWei;
 	mapping(address => uint) public depositedDXC;
 	bool public crowdsaleFinished;
@@ -143,6 +144,7 @@ contract CrowdsaleDAOFields {
 	address public serviceContract;
 	uint[] public teamBonusesArr;
 	address[] public team;
+	mapping(address => bool) public teamMap;
 	uint[] public teamHold;
 	bool[] public teamServiceMember;
 	TokenInterface public token;
@@ -396,7 +398,7 @@ contract Payment is CrowdsaleDAOFields {
 	}
 
 	modifier notTeamMember() {
-		require(teamBonuses[msg.sender] == 0);
+		require(!teamMap[msg.sender]);
 		_;
 	}
 }
@@ -646,6 +648,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 		teamServiceMember = service;
 
 		for(uint i = 0; i < _team.length; i++) {
+			teamMap[_team[i]] = true;
 			teamBonuses[_team[i]] = tokenPercents[i];
 		}
 
@@ -743,11 +746,10 @@ library VotingLib {
 }
 
 contract IDAO {
-	uint public endTime;
-	uint public weiRaised;
-	uint public softCap;
 
 	function isParticipant(address _participantAddress) external constant returns (bool);
+
+	function teamMap(address _address) external constant returns (bool);
 
 	function whiteList(address _address) constant returns (bool);
 }
@@ -755,6 +757,10 @@ contract IDAO {
 contract ICrowdsaleDAO is IDAO {
 	bool public crowdsaleFinished;
 	uint public teamTokensAmount;
+	uint public endTime;
+	uint public weiRaised;
+	uint public softCap;
+	uint public fundsRaised;
 
 	function addProposal(string _description, uint _duration, bytes32[] _options) external;
 
@@ -777,6 +783,8 @@ contract ICrowdsaleDAO is IDAO {
 	function setVotingDecisionModule(address _votingDecisionModule);
 
 	function setCrowdsaleModule(address _crowdsaleModule);
+
+	function setVotingFactoryAddress(address _votingFactory);
 
 	function teamBonuses(address _address) constant returns (uint);
 
@@ -980,7 +988,7 @@ contract Voting is VotingFields {
 	}
 
 	modifier canVote() {
-		require(dao.teamBonuses(msg.sender) == 0 && dao.isParticipant(msg.sender) && voted[msg.sender] == 0);
+		require(!dao.teamMap(msg.sender) && dao.isParticipant(msg.sender) && voted[msg.sender] == 0);
 		_;
 	}
 
@@ -1048,7 +1056,7 @@ contract Module is VotingFields {
 
 contract VotingFactory is VotingFactoryInterface {
 	address baseVoting;
-	DAOFactoryInterface daoFactory;
+	DAOFactoryInterface public daoFactory;
 
 	function VotingFactory(address _baseVoting) {
 		baseVoting = _baseVoting;
@@ -1065,7 +1073,7 @@ contract VotingFactory is VotingFactoryInterface {
 
 	function createWithdrawal(address _creator, string _name, string _description, uint _duration, uint _sum, address withdrawalWallet, bool _dxc)
 	external
-	onlyParticipant(_creator)
+	onlyTeamMember(_creator)
 	onlyDAO
 	onlyWhiteList(withdrawalWallet)
 	returns (address)
@@ -1073,7 +1081,7 @@ contract VotingFactory is VotingFactoryInterface {
 		return new Withdrawal(baseVoting, msg.sender, _name, _description, _duration, _sum, withdrawalWallet, _dxc);
 	}
 
-	function createRefund(address _creator, string _name, string _description, uint _duration) onlyDAO onlyParticipant(_creator) external returns (address) {
+	function createRefund(address _creator, string _name, string _description, uint _duration) external onlyDAO onlyParticipant(_creator) returns (address) {
 		return new Refund(baseVoting, msg.sender, _name, _description, _duration);
 	}
 
@@ -1098,6 +1106,11 @@ contract VotingFactory is VotingFactoryInterface {
 
 	modifier onlyParticipant(address creator) {
 		require(IDAO(msg.sender).isParticipant(creator));
+		_;
+	}
+
+	modifier onlyTeamMember(address creator) {
+		require(IDAO(msg.sender).teamMap(creator));
 		_;
 	}
 
