@@ -125,7 +125,7 @@ contract("Case#1", accounts => {
         const withdrawalSum = web3.toBigNumber(web3.toWei(8.99));
         const daoBalanceBefore = web3.toBigNumber(web3.toWei(await helper.getBalance(web3, dao.address)));
 
-        const tx = await dao.addWithdrawal("Withdrawal#1", "Salary withdrawal", withdrawalDuration.toNumber(), withdrawalSum.toNumber(), whiteListAddress1, false, {from: backer1});
+        const tx = await dao.addWithdrawal("Withdrawal#1", "Salary withdrawal", withdrawalDuration.toNumber(), withdrawalSum.toNumber(), whiteListAddress1, false, {from: teamPerson1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 
@@ -167,7 +167,7 @@ contract("Case#1", accounts => {
         const daoBalanceBefore = web3.toBigNumber(web3.toWei(await helper.getBalance(web3, dao.address)));
         const whiteListBalanceBefore = web3.toBigNumber(web3.toWei(await helper.getBalance(web3, whiteListAddress1)));
 
-        const tx = await dao.addWithdrawal("Withdrawal#2", "Salary withdrawal2", withdrawalDuration.toNumber(), withdrawalSum.toNumber(), whiteListAddress1, false, {from: backer1});
+        const tx = await dao.addWithdrawal("Withdrawal#2", "Salary withdrawal2", withdrawalDuration.toNumber(), withdrawalSum.toNumber(), whiteListAddress1, false, {from: teamPerson1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 
@@ -218,7 +218,7 @@ contract("Case#1", accounts => {
         const daoBalanceBefore = await DXC.balanceOf(dao.address);
         const whiteListBalanceBefore = await DXC.balanceOf(whiteListAddress1);
 
-        const tx = await dao.addWithdrawal("Withdrawal#3", "Salary withdrawal3", withdrawalDuration.toNumber(), withdrawalSum.toNumber(), whiteListAddress1, true, {from: backer1});
+        const tx = await dao.addWithdrawal("Withdrawal#3", "Salary withdrawal3", withdrawalDuration.toNumber(), withdrawalSum.toNumber(), whiteListAddress1, true, {from: teamPerson2});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 

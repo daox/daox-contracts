@@ -16,6 +16,7 @@ contract("VotingFactory", accounts => {
         cdf = await helper.createCrowdsaleDAOFactory();
         dao = await helper.createCrowdsaleDAO(cdf);
         await dao.setWhiteList.sendTransaction([serviceAccount]);
+        await helper.initBonuses(dao, accounts, web3, true);
         await helper.makeCrowdsale(web3, cdf, dao, accounts);
     });
 
@@ -144,7 +145,7 @@ contract("VotingFactory", accounts => {
         return helper.handleErrorTransaction(() => dao.addProposal(name, description, minimalDurationPeriod, ['yes']));
     });
 
-    it("Should not be able to create withdrawal with more than 10 options", async () => {
+    it("Should not be able to create proposal with more than 10 options", async () => {
         const description = 'Test Description';
 
         return helper.handleErrorTransaction(() =>

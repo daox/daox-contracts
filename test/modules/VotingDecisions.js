@@ -235,7 +235,7 @@ contract("VotingDecisions", accounts => {
 
     it("Withdrawal#1: should not be accepted when equal votes for 2 options. Withdrawal in eth", async () => {
         const withdrawalSum = web3.toWei(1);
-        const tx = await dao.addWithdrawal(name, "Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, false, {from: backer1});
+        const tx = await dao.addWithdrawal(name, "Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, false, {from: teamPerson1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 
@@ -259,7 +259,7 @@ contract("VotingDecisions", accounts => {
 
     it("Withdrawal#2: should be accepted when >=50% votes for option#1. Withdrawal in eth", async () => {
         const withdrawalSum = web3.toWei(1);
-        const tx = await dao.addWithdrawal(name, "Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, false, {from: backer1});
+        const tx = await dao.addWithdrawal(name, "Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, false, {from: teamPerson1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 
@@ -280,7 +280,7 @@ contract("VotingDecisions", accounts => {
 
     it("Withdrawal#3: should be accepted when >=50% votes for option#1. Withdrawal in DXC", async () => {
         const withdrawalSum = 2; //2 dxc tokens
-        const tx = await dao.addWithdrawal(name, "Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, true, {from: backer1});
+        const tx = await dao.addWithdrawal(name, "Test description", minimalDurationPeriod, withdrawalSum, whiteListAddress1, true, {from: teamPerson1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
 

@@ -53,7 +53,7 @@ contract("Withdrawal", accounts => {
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 2;
 
-        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress1, true, true);
+        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, teamPerson1, whiteListAddress1, true, true);
 
         const token = Token.at(await dao.token.call());
 
@@ -73,7 +73,7 @@ contract("Withdrawal", accounts => {
         assert.equal(minimalDurationPeriod, duration, "Withdrawal duration is not correct");
     });
 
-    it("Should not create withdrawal from unknown account", async () => {
+    it("Should not create withdrawal from not member", async () => {
         const backers = [backer1, backer2];
         const [backersToWei, backersToOption] = [{}, {}];
         backersToWei[`${backers[0]}`] = web3.toWei(5, "ether");
@@ -92,7 +92,7 @@ contract("Withdrawal", accounts => {
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 1;
 
-        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, true, true);
+        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, teamPerson1, whiteListAddress2, true, true);
 
         const [option1, isFinished, result] = await Promise.all([
             withdrawal.options.call(1),
@@ -112,9 +112,9 @@ contract("Withdrawal", accounts => {
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 1;
 
-        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, false, false);
+        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, teamPerson1, whiteListAddress2, false, false);
 
-        return helper.handleErrorTransaction(() => withdrawal.finish.sendTransaction());
+        return helper.handleErrorTransaction(() => withdrawal.finish());
     });
 
     it("Should not add vote when time is up", async () => {
@@ -125,7 +125,7 @@ contract("Withdrawal", accounts => {
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 1;
 
-        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, false, true);
+        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, teamPerson1, whiteListAddress2, false, true);
 
         return helper.handleErrorTransaction(() => withdrawal.addVote.sendTransaction(1, {from: backer2}));
     });
@@ -138,7 +138,7 @@ contract("Withdrawal", accounts => {
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 1;
 
-        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, true, true);
+        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, teamPerson1, whiteListAddress2, true, true);
 
         return helper.handleErrorTransaction(() => withdrawal.finish.sendTransaction());
     });
@@ -152,7 +152,7 @@ contract("Withdrawal", accounts => {
         backersToOption[`${backers[1]}`] = 2;
         backersToOption[`${backers[2]}`] = 1;
 
-        return helper.handleErrorTransaction(() => makeDAOAndCreateRefund(backersToWei, backersToOption, backer1, whiteListAddress2, false, false));
+        return helper.handleErrorTransaction(() => makeDAOAndCreateWithdrawal(backersToWei, backersToOption, teamPerson1, whiteListAddress2, false, false));
     });
 
     it("Should not accept withdrawal when amount of votes for option#1 equals amount of votes for option#2", async () => {
@@ -165,7 +165,7 @@ contract("Withdrawal", accounts => {
 
         const balanceBefore = await helper.getBalance(web3, whiteListAddress2);
 
-        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, true, true);
+        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, teamPerson1, whiteListAddress2, true, true);
 
         const balanceAfter = await helper.getBalance(web3, whiteListAddress2);
 
@@ -191,7 +191,7 @@ contract("Withdrawal", accounts => {
         backersToOption[`${backers[1]}`] = 2;
         backersToOption[`${backers[2]}`] = 1;
 
-        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, true, true);
+        await makeDAOAndCreateWithdrawal(backersToWei, backersToOption, teamPerson1, whiteListAddress2, true, true);
 
         const token = Token.at(await dao.token.call());
 
@@ -220,7 +220,7 @@ contract("Withdrawal", accounts => {
 
         withdrawalSum = 11; //greater then dao balance
 
-        return helper.handleErrorTransaction(() => makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, true, true));
+        return helper.handleErrorTransaction(() => makeDAOAndCreateWithdrawal(backersToWei, backersToOption, teamPerson1, whiteListAddress2, true, true));
     });
 
     it("Should not create withdrawal with duration < 7 days", async () => {
@@ -233,6 +233,6 @@ contract("Withdrawal", accounts => {
         withdrawalSum = 1; //greater then dao balance
         minimalDurationPeriod = 0;
 
-        return helper.handleErrorTransaction(() => makeDAOAndCreateWithdrawal(backersToWei, backersToOption, backer1, whiteListAddress2, true, true));
+        return helper.handleErrorTransaction(() => makeDAOAndCreateWithdrawal(backersToWei, backersToOption, teamPerson1, whiteListAddress2, true, true));
     });
 });

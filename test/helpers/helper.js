@@ -114,11 +114,12 @@ const startCrowdsale = async (_web3, cdf, dao, serviceAccount, dxcPayments = tru
     return crowdsaleParams;
 };
 
-const initBonuses = async (dao, accounts, _web3) => {
+const initBonuses = async (dao, accounts, _web3, onlyTeam = false) => {
     const block = await getLatestBlock(_web3);
     const date = block.timestamp;
     const holdTime = 60 * 60 * 24;
-    await dao.initBonuses([accounts[0], accounts[1]], [5, 10], [date, date + 60], [10, 20], [100, 200], [holdTime, holdTime], [false, false]);
+    const [etherBonuses, DXCBonuses] = onlyTeam ? [[1,1], [1,1]] : [[10, 20], [100, 200]];
+    await dao.initBonuses([accounts[0], accounts[1]], [5, 10], [date, date + 60], etherBonuses, DXCBonuses, [holdTime, holdTime], [false, false]);
 
     return [date, holdTime];
 };
