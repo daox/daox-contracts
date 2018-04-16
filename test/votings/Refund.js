@@ -243,7 +243,7 @@ contract("Refund", accounts => {
         return helper.handleErrorTransaction(() => makeDAOAndCreateRefund(backersToWei, backersToOption, backer1, true, true));
     });
 
-    it("Should not accept withdrawal after successful refund", async () => {
+    it("Withdrawal in refundable state should revert", async () => {
         const backers = [backer1, backer2];
         const [backersToWei, backersToOption] = [{}, {}];
         backersToWei[`${backers[0]}`] = web3.toWei(18, "ether");
@@ -254,6 +254,8 @@ contract("Refund", accounts => {
 
         await makeDAOAndCreateRefund(backersToWei, backersToOption, backer1, true, true);
 
+        assert.isTrue(await dao.refundable());
+
         const tx = await dao.addWithdrawal("Withdrawal#1", "Test description", minimalDurationPeriod, web3.toWei(1), whiteList, false, {from : teamPerson1});
         const logs = helper.decodeVotingParameters(tx);
         const withdrawal = Withdrawal.at(logs[0]);
@@ -263,9 +265,6 @@ contract("Refund", accounts => {
         await helper.rpcCall(web3, "evm_increaseTime", [minimalDurationPeriod]);
         await helper.rpcCall(web3, "evm_mine", null);
 
-        await withdrawal.finish();
-
-        assert.deepEqual(await withdrawal.result(), await withdrawal.options(2));
-        assert.isTrue(await withdrawal.finished());
+        return helper.handleErrorTransaction(() => withdrawal.finish());
     });
 });
