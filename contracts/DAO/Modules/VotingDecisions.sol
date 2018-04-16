@@ -7,7 +7,7 @@ import "../CrowdsaleDAOFields.sol";
 
 contract VotingDecisions is CrowdsaleDAOFields {
 
-    function withdrawal(address _address, uint _withdrawalSum, bool _dxc) onlyVoting external {
+    function withdrawal(address _address, uint _withdrawalSum, bool _dxc) notInRefundableState onlyVoting external {
         lastWithdrawalTimestamp = block.timestamp;
         _dxc ? DXC.transfer(_address, _withdrawalSum) : _address.transfer(_withdrawalSum);
     }
@@ -22,8 +22,7 @@ contract VotingDecisions is CrowdsaleDAOFields {
         makeRefundable();
     }
 
-    function makeRefundable() private {
-        require(!refundable);
+    function makeRefundable() notInRefundableState private {
         refundable = true;
         newEtherRate = SafeMath.mul(this.balance * etherRate, multiplier) / tokensMintedByEther;
         newDXCRate = tokensMintedByDXC != 0 ? SafeMath.mul(DXC.balanceOf(this) * DXCRate, multiplier) / tokensMintedByDXC : 0;
@@ -35,6 +34,11 @@ contract VotingDecisions is CrowdsaleDAOFields {
 
     modifier onlyVoting() {
         require(votings[msg.sender]);
+        _;
+    }
+
+    modifier notInRefundableState {
+        require(!refundable && !refundableSoftCap);
         _;
     }
 }

@@ -261,7 +261,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 		depositedWei[_sender] += weiAmount;
 
 		uint tokensAmount = DAOLib.countTokens(weiAmount, bonusPeriods, bonusEtherRates, etherRate);
-		tokensMintedByEther += SafeMath.add(tokensMintedByEther, tokensAmount);
+		tokensMintedByEther = SafeMath.add(tokensMintedByEther, tokensAmount);
 		token.mint(_sender, tokensAmount);
 	}
 
@@ -294,7 +294,7 @@ contract Crowdsale is CrowdsaleDAOFields {
 	}
 
 	function finish() external {
-		uint fundsRaised = DXCRate != 0 ? weiRaised + (DXC.balanceOf(this)) / (etherRate / DXCRate) : weiRaised;
+		fundsRaised = DXCRate != 0 ? weiRaised + (DXC.balanceOf(this)) / (etherRate / DXCRate) : weiRaised;
 
 		require((block.timestamp >= endTime || fundsRaised == hardCap) && !crowdsaleFinished);
 
@@ -392,11 +392,6 @@ contract Payment is CrowdsaleDAOFields {
 		_;
 	}
 
-	modifier succeededCrowdsale() {
-		require(crowdsaleFinished && weiRaised >= softCap);
-		_;
-	}
-
 	modifier notTeamMember() {
 		require(!teamMap[msg.sender]);
 		_;
@@ -405,7 +400,7 @@ contract Payment is CrowdsaleDAOFields {
 
 contract VotingDecisions is CrowdsaleDAOFields {
 
-	function withdrawal(address _address, uint _withdrawalSum, bool _dxc) onlyVoting external {
+	function withdrawal(address _address, uint _withdrawalSum, bool _dxc) notInRefundableState onlyVoting external {
 		lastWithdrawalTimestamp = block.timestamp;
 		_dxc ? DXC.transfer(_address, _withdrawalSum) : _address.transfer(_withdrawalSum);
 	}
@@ -420,8 +415,7 @@ contract VotingDecisions is CrowdsaleDAOFields {
 		makeRefundable();
 	}
 
-	function makeRefundable() private {
-		require(!refundable);
+	function makeRefundable() notInRefundableState private {
 		refundable = true;
 		newEtherRate = SafeMath.mul(this.balance * etherRate, multiplier) / tokensMintedByEther;
 		newDXCRate = tokensMintedByDXC != 0 ? SafeMath.mul(DXC.balanceOf(this) * DXCRate, multiplier) / tokensMintedByDXC : 0;
@@ -433,6 +427,11 @@ contract VotingDecisions is CrowdsaleDAOFields {
 
 	modifier onlyVoting() {
 		require(votings[msg.sender]);
+		_;
+	}
+
+	modifier notInRefundableState {
+		require(!refundable && !refundableSoftCap);
 		_;
 	}
 }
@@ -525,6 +524,23 @@ library Common {
 	function percent(uint numerator, uint denominator, uint precision) constant returns(uint quotient) {
 		uint _numerator  = numerator * 10 ** (precision+1);
 		quotient =  ((_numerator / denominator) + 5) / 10;
+	}
+
+	function toString(bytes32 _bytes) internal constant returns(string) {
+		bytes memory arrayTemp = new bytes(32);
+		uint currentLength = 0;
+
+		for (uint i = 0; i < 32; i++) {
+			arrayTemp[i] = _bytes[i];
+			if (arrayTemp[i] != 0) currentLength+=1;
+		}
+
+		bytes memory arrayRes = new bytes(currentLength);
+		for (i = 0; i < currentLength; i++) {
+			arrayRes[i] = arrayTemp[i];
+		}
+
+		return string(arrayRes);
 	}
 }
 
@@ -746,7 +762,6 @@ library VotingLib {
 }
 
 contract IDAO {
-
 	function isParticipant(address _participantAddress) external constant returns (bool);
 
 	function teamMap(address _address) external constant returns (bool);
@@ -919,108 +934,96 @@ contract Refund is VotingFields {
 
 contract Voting is VotingFields {
 
-	function create(address _dao, bytes32 _name, bytes32 _description, uint _duration, uint _quorum) succeededCrowdsale(ICrowdsaleDAO(_dao)) /*correctDuration(_duration)*/ external {
-		dao = ICrowdsaleDAO(_dao);
-		name = toString(_name);
-		description = toString(_description);
-		duration = _duration;
-		quorum = _quorum;
-	}
+    function create(address _dao, bytes32 _name, bytes32 _description, uint _duration, uint _quorum)
+    succeededCrowdsale(ICrowdsaleDAO(_dao))
+    correctDuration(_duration)
+    external
+    {
+        dao = ICrowdsaleDAO(_dao);
+        name = Common.toString(_name);
+        description = Common.toString(_description);
+        duration = _duration;
+        quorum = _quorum;
+    }
 
-	function toString(bytes32 _bytes) internal constant returns(string) {
-		bytes memory arrayTemp = new bytes(32);
-		uint currentLength = 0;
+    function addVote(uint optionID) external notFinished canVote correctOption(optionID) {
+        require(block.timestamp - duration < created_at);
+        uint tokensAmount = dao.token().balanceOf(msg.sender);
+        options[optionID].votes += tokensAmount;
+        voted[msg.sender] = optionID;
+        votesCount += tokensAmount;
 
-		for (uint i = 0; i < 32; i++) {
-			arrayTemp[i] = _bytes[i];
-			if (arrayTemp[i] != 0) currentLength+=1;
-		}
+        dao.holdTokens(msg.sender, (duration + created_at) - now);
+    }
 
-		bytes memory arrayRes = new bytes(currentLength);
-		for (i = 0; i < currentLength; i++) {
-			arrayRes[i] = arrayTemp[i];
-		}
+    function finish() external notFinished {
+        require(block.timestamp - duration >= created_at);
+        finished = true;
 
-		return string(arrayRes);
-	}
+        if (keccak256(votingType) == keccak256("Withdrawal")) return finishNotProposal();
+        if (keccak256(votingType) == keccak256("Proposal")) return finishProposal();
 
-	function addVote(uint optionID) external notFinished canVote correctOption(optionID) {
-		require(block.timestamp - duration < created_at);
-		uint tokensAmount = dao.token().balanceOf(msg.sender);
-		options[optionID].votes += tokensAmount;
-		voted[msg.sender] = optionID;
-		votesCount += tokensAmount;
+        //Other two cases of votings (`Module` and `Refund`) requires quorum
+        if (Common.percent(options[1].votes, dao.token().totalSupply() - dao.teamTokensAmount(), 2) >= quorum) {
+            result = options[1];
+            return;
+        }
 
-		dao.holdTokens(msg.sender, (duration + created_at) - now);
-	}
+        result = options[2];
+    }
 
-	function finish() external notFinished {
-		require(block.timestamp - duration >= created_at);
-		finished = true;
-		if (keccak256(votingType) == keccak256("Withdrawal")) return finishNotProposal();
-		if (keccak256(votingType) == keccak256("Proposal")) return finishProposal();
+    function finishProposal() private {
+        VotingLib.Option memory _result = options[1];
+        bool equal = false;
+        for (uint i = 2; i < options.length; i++) {
+            if (_result.votes == options[i].votes) equal = true;
+            else if (_result.votes < options[i].votes) {
+                _result = options[i];
+                equal = false;
+            }
+        }
+        if (!equal) result = _result;
+    }
 
-		//Other two cases of votings (`Module` and `Refund`) requires quorum
-		if (Common.percent(options[1].votes, dao.token().totalSupply() - dao.teamTokensAmount(), 2) >= quorum) {
-			result = options[1];
-			return;
-		}
+    function finishNotProposal() private {
+        if (options[1].votes > options[2].votes) result = options[1];
+        else result = options[2];
+    }
 
-		result = options[2];
-	}
+    modifier canVote() {
+        require(!dao.teamMap(msg.sender) && dao.isParticipant(msg.sender) && voted[msg.sender] == 0);
+        _;
+    }
 
-	function finishProposal() private {
-		VotingLib.Option memory _result = options[1];
-		bool equal = false;
-		for (uint i = 2; i < options.length; i++) {
-			if (_result.votes == options[i].votes) equal = true;
-			else if (_result.votes < options[i].votes) {
-				_result = options[i];
-				equal = false;
-			}
-		}
-		if (!equal) result = _result;
-	}
+    modifier notFinished() {
+        require(!finished);
+        _;
+    }
 
-	function finishNotProposal() private {
-		if (options[1].votes > options[2].votes) result = options[1];
-		else result = options[2];
-	}
+    modifier succeededCrowdsale(ICrowdsaleDAO dao) {
+        require(dao.crowdsaleFinished() && dao.fundsRaised() >= dao.softCap());
+        _;
+    }
 
-	modifier canVote() {
-		require(!dao.teamMap(msg.sender) && dao.isParticipant(msg.sender) && voted[msg.sender] == 0);
-		_;
-	}
+    modifier correctOption(uint optionID) {
+        require(options[optionID].description != 0x0);
+        _;
+    }
 
-	modifier notFinished() {
-		require(!finished);
-		_;
-	}
-
-	modifier succeededCrowdsale(ICrowdsaleDAO dao) {
-		require(dao.crowdsaleFinished() && dao.weiRaised() >= dao.softCap());
-		_;
-	}
-
-	modifier correctOption(uint optionID) {
-		require(options[optionID].description != 0x0);
-		_;
-	}
-
-	modifier correctDuration(uint _duration) {
-		require(_duration >= minimalDuration);
-		_;
-	}
+    modifier correctDuration(uint _duration) {
+        require(_duration >= minimalDuration || keccak256(votingType) == keccak256("Module"));
+        _;
+    }
 }
 
 contract Module is VotingFields {
-	enum Modules{State, Payment, VotingDecisions, Crowdsale}
+	enum Modules{State, Payment, VotingDecisions, Crowdsale, VotingFactory}
 	Modules public module;
 	address public newModuleAddress;
 	address baseVoting;
 
 	function Module(address _baseVoting, address _dao, string _name, string _description, uint _duration, uint _module, address _newAddress) {
-		require(_module >= 0 && _module <= 3);
+		require(_module >= 0 && _module <= 4);
 		baseVoting = _baseVoting;
 		votingType = "Module";
 		module = Modules(_module);
@@ -1046,6 +1049,7 @@ contract Module is VotingFields {
 		if (uint(module) == uint(Modules.Payment)) dao.setPaymentModule(newModuleAddress);
 		if (uint(module) == uint(Modules.VotingDecisions)) dao.setVotingDecisionModule(newModuleAddress);
 		if (uint(module) == uint(Modules.Crowdsale)) dao.setCrowdsaleModule(newModuleAddress);
+		if (uint(module) == uint(Modules.VotingFactory)) dao.setVotingFactoryAddress(newModuleAddress);
 	}
 
 	function createOptions() private {
