@@ -177,10 +177,10 @@ const makeModule = async (backersToOptions, finish = true, shiftTime = false, mo
     return finishVoting(shiftTime, finish, duration, module, _web3);
 };
 
-const makeProposal = async (backersToOptions, finish = true, shiftTime = false, proposal, duration, _web3) => {
-    await Promise.all(Object.keys(backersToOptions).map(key => proposal.addVote.sendTransaction(backersToOptions[key], {from: key})));
+const makeRegular = async (backersToOptions, finish = true, shiftTime = false, regular, duration, _web3) => {
+    await Promise.all(Object.keys(backersToOptions).map(key => regular.addVote.sendTransaction(backersToOptions[key], {from: key})));
 
-    return finishVoting(shiftTime, finish, duration, proposal, _web3);
+    return finishVoting(shiftTime, finish, duration, regular, _web3);
 };
 
 const makeRefund = async (backersToOptions, finish, shiftTime, refund, duration, _web3) => {
@@ -212,5 +212,5 @@ module.exports = {
     handleErrorTransaction, createCrowdsaleDAOFactory,
     createCrowdsaleDAO, decodeVotingParameters, mintDXC,
     initCrowdsaleParameters, initState, initBonuses, startCrowdsale, makeCrowdsaleNew,
-    makeWithdrawal, makeModule, makeProposal, makeRefund, getBalance, doesApproximatelyEqual
+    makeWithdrawal, makeModule, makeRegular, makeRefund, getBalance, doesApproximatelyEqual
 };

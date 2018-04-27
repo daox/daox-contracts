@@ -1,14 +1,14 @@
 "use strict";
 const helper = require('../helpers/helper.js');
-const Proposal = artifacts.require('./Votings/Proposal.sol');
+const Regular = artifacts.require('./Votings/Regular.sol');
 const Token = artifacts.require('./Token/Token.sol');
 
-contract("Proposal", accounts => {
+contract("Regular", accounts => {
     const [serviceAccount, unknownAccount] = [accounts[0], accounts[1]];
     let duration = 60 * 60 * 24 * 7;
     const name = "Voting name";
 
-    let proposal, dao, token;
+    let regular, dao, token;
     before(async () => {
         const cdf = await helper.createCrowdsaleDAOFactory();
         dao = await helper.createCrowdsaleDAO(cdf);
@@ -20,43 +20,43 @@ contract("Proposal", accounts => {
     });
 
     beforeEach(async () => {
-        const tx = await dao.addProposal(name, 'Test description', duration, ['yes', 'no', 'maybe']);
+        const tx = await dao.addRegular(name, 'Test description', duration, ['yes', 'no', 'maybe']);
         const logs = helper.decodeVotingParameters(tx);
-        proposal = Proposal.at(logs[0]);
+        regular = Regular.at(logs[0]);
     });
 
-    const makeProposal = async (finish = true) => {
+    const makeRegular = async (finish = true) => {
         await Promise.all([
-            proposal.addVote(1),
-            proposal.addVote(3, {from: unknownAccount}),
+            regular.addVote(1),
+            regular.addVote(3, {from: unknownAccount}),
         ]);
 
         await helper.rpcCall(web3, "evm_increaseTime", [duration]);
         await helper.rpcCall(web3, "evm_mine", null);
-        if (finish) await proposal.finish();
+        if (finish) await regular.finish();
     };
 
     it("Should add vote from 2 different accounts", async () => {
         const [, , latestBlock] = await Promise.all([
-            proposal.addVote(1),
-            proposal.addVote(3, {from: unknownAccount}),
+            regular.addVote(1),
+            regular.addVote(3, {from: unknownAccount}),
             helper.getLatestBlock(web3)
         ]);
 
         const [option1, option2, balance1, balance2] = await Promise.all([
-            proposal.options.call(1),
-            proposal.options.call(3),
+            regular.options.call(1),
+            regular.options.call(3),
             token.balanceOf.call(serviceAccount),
             token.balanceOf.call(unknownAccount),
         ]);
 
         assert.equal(balance1.toNumber(), option1[0].toNumber());
         assert.equal(balance2.toNumber(), option2[0].toNumber());
-        assert.equal(1, await proposal.voted.call(serviceAccount));
-        assert.equal(3, await proposal.voted.call(unknownAccount));
+        assert.equal(1, await regular.voted.call(serviceAccount));
+        assert.equal(3, await regular.voted.call(unknownAccount));
         assert.equal(
             Math.round(web3.fromWei(balance1.toNumber() + balance2.toNumber())),
-            Math.round(web3.fromWei((await proposal.votesCount.call())))
+            Math.round(web3.fromWei((await regular.votesCount.call())))
         );
         assert.equal(latestBlock.timestamp + duration, (await token.held.call(serviceAccount)).toNumber());
         assert.equal(latestBlock.timestamp + duration, (await token.held.call(unknownAccount)).toNumber());
@@ -64,16 +64,16 @@ contract("Proposal", accounts => {
 
     it("Should add vote from 3 different accounts", async () => {
         const [, , , latestBlock] = await Promise.all([
-            proposal.addVote(1),
-            proposal.addVote(2, {from: accounts[9]}),
-            proposal.addVote(3, {from: unknownAccount}),
+            regular.addVote(1),
+            regular.addVote(2, {from: accounts[9]}),
+            regular.addVote(3, {from: unknownAccount}),
             helper.getLatestBlock(web3)
         ]);
 
         const [option1, option2, option3, balance1, balance2, balance3] = await Promise.all([
-            proposal.options.call(1),
-            proposal.options.call(2),
-            proposal.options.call(3),
+            regular.options.call(1),
+            regular.options.call(2),
+            regular.options.call(3),
             await token.balanceOf.call(serviceAccount),
             await token.balanceOf.call(accounts[9]),
             await token.balanceOf.call(unknownAccount),
@@ -82,12 +82,12 @@ contract("Proposal", accounts => {
         assert.equal(balance1.toNumber(), option1[0].toNumber());
         assert.equal(balance2.toNumber(), option2[0].toNumber());
         assert.equal(balance3.toNumber(), option3[0].toNumber());
-        assert.equal(1, await proposal.voted.call(serviceAccount));
-        assert.equal(2, await proposal.voted.call(accounts[9]));
-        assert.equal(3, await proposal.voted.call(unknownAccount));
+        assert.equal(1, await regular.voted.call(serviceAccount));
+        assert.equal(2, await regular.voted.call(accounts[9]));
+        assert.equal(3, await regular.voted.call(unknownAccount));
         assert.equal(
             Math.round(web3.fromWei(balance1.toNumber() + balance2.toNumber() + balance3.toNumber())),
-            Math.round(web3.fromWei((await proposal.votesCount.call())))
+            Math.round(web3.fromWei((await regular.votesCount.call())))
         );
         assert.equal(latestBlock.timestamp + duration, (await token.held.call(serviceAccount)).toNumber());
         assert.equal(latestBlock.timestamp + duration, (await token.held.call(accounts[9])).toNumber());
@@ -95,64 +95,64 @@ contract("Proposal", accounts => {
     });
 
     it("Should finish voting", async () => {
-        await makeProposal();
+        await makeRegular();
 
-        assert.equal(true, await proposal.finished.call());
-        assert.deepEqual(await proposal.result.call(), await proposal.options.call(1));
+        assert.equal(true, await regular.finished.call());
+        assert.deepEqual(await regular.result.call(), await regular.options.call(1));
     });
 
     it("Should finish voting with identical votes for options", async () => {
 
         await Promise.all([
-            await proposal.addVote(1, {from: accounts[9]}),
-            await proposal.addVote(3, {from: unknownAccount}),
+            await regular.addVote(1, {from: accounts[9]}),
+            await regular.addVote(3, {from: unknownAccount}),
         ]);
 
         await helper.rpcCall(web3, "evm_increaseTime", [duration + 10]);
         await helper.rpcCall(web3, "evm_mine", null);
-        await proposal.finish();
+        await regular.finish();
 
-        assert.equal(true, await proposal.finished.call());
-        assert.equal((await proposal.result.call())[0], 0);
+        assert.equal(true, await regular.finished.call());
+        assert.equal((await regular.result.call())[0], 0);
     });
 
     it("Should not be able to vote twice", async () => {
-        await proposal.addVote(1);
+        await regular.addVote(1);
 
-        return helper.handleErrorTransaction(() => proposal.addVote(2));
+        return helper.handleErrorTransaction(() => regular.addVote(2));
     });
 
     it("Should not be able to vote after moment when voting was finished", async () => {
-        await makeProposal();
+        await makeRegular();
 
-        return helper.handleErrorTransaction(() => proposal.addVote(2));
+        return helper.handleErrorTransaction(() => regular.addVote(2));
     });
 
     it("Should not be able to vote after moment when duration exceeded", async () => {
-        await makeProposal(false);
+        await makeRegular(false);
 
-        return helper.handleErrorTransaction(() => proposal.addVote(2));
+        return helper.handleErrorTransaction(() => regular.addVote(2));
     });
 
     it("Should not be able to vote for nonexistent option", async () =>
-        helper.handleErrorTransaction(() => proposal.addVote(4)));
+        helper.handleErrorTransaction(() => regular.addVote(4)));
 
     it("Should not be able to finish voting twice", async () => {
-        await makeProposal();
+        await makeRegular();
 
-        return helper.handleErrorTransaction(() => proposal.finish());
+        return helper.handleErrorTransaction(() => regular.finish());
     });
 
     it("Should not be able to finish voting before the end", async () => {
         await helper.rpcCall(web3, "evm_increaseTime", [50]);
         await helper.rpcCall(web3, "evm_mine", null);
 
-        return helper.handleErrorTransaction(() => proposal.finish());
+        return helper.handleErrorTransaction(() => regular.finish());
     });
 
-    it("Should not create proposal with duration < 7 days", async () => {
+    it("Should not create regular with duration < 7 days", async () => {
         duration = 0;
 
-        return helper.handleErrorTransaction(() => makeProposal());
+        return helper.handleErrorTransaction(() => makeRegular());
     });
 });

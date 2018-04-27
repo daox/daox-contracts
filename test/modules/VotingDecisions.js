@@ -2,7 +2,7 @@
 const helper = require('../helpers/helper.js');
 const Withdrawal = artifacts.require('./Votings/Withdrawal.sol');
 const Module = artifacts.require('./Votings/Module.sol');
-const Proposal = artifacts.require('./Votings/Proposal.sol');
+const Regular = artifacts.require('./Votings/Regular.sol');
 const Refund = artifacts.require('./Votings/Refund.sol');
 const Token = artifacts.require('./Token/Token.sol');
 const DXCToken = artifacts.require("./Token/DXC.sol");
@@ -90,41 +90,41 @@ contract("VotingDecisions", accounts => {
         await dao.finish.sendTransaction({from: serviceAccount, gasPrice: 0});
     });
 
-    it("Proposal#1: equal votes for 2 options", async () => {
-        const tx = await dao.addProposal(name, "Test description", minimalDurationPeriod, ["Option1", "Option2"], {from: backer1});
+    it("Regular#1: equal votes for 2 options", async () => {
+        const tx = await dao.addRegular(name, "Test description", minimalDurationPeriod, ["Option1", "Option2"], {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
-        const proposal = Proposal.at(logs[0]);
+        const regular = Regular.at(logs[0]);
 
         const backersToOption = {};
         backersToOption[backers[0]] = 1;
         backersToOption[backers[1]] = 1;
         backersToOption[backers[2]] = 2;
 
-        await helper.makeProposal(backersToOption, true, true, proposal, minimalDurationPeriod, web3);
+        await helper.makeRegular(backersToOption, true, true, regular, minimalDurationPeriod, web3);
 
-        assert.isTrue(await proposal.finished.call());
-        assert.equal(0, (await proposal.result.call())[0].toNumber());
-        assert.equal((await token.balanceOf.call(backer1)).toNumber() + (await token.balanceOf.call(backer2)).toNumber(), (await proposal.options.call(1))[0].toNumber());
-        assert.equal((await token.balanceOf.call(backer3)).toNumber(), (await proposal.options.call(2))[0].toNumber());
+        assert.isTrue(await regular.finished.call());
+        assert.equal(0, (await regular.result.call())[0].toNumber());
+        assert.equal((await token.balanceOf.call(backer1)).toNumber() + (await token.balanceOf.call(backer2)).toNumber(), (await regular.options.call(1))[0].toNumber());
+        assert.equal((await token.balanceOf.call(backer3)).toNumber(), (await regular.options.call(2))[0].toNumber());
     });
 
-    it("Proposal#2: 0 votes white entire voting", async () => {
-        const tx = await dao.addProposal(name, "Test description", minimalDurationPeriod, ["Option1", "Option2"], {from: backer1});
+    it("Regular#2: 0 votes white entire voting", async () => {
+        const tx = await dao.addRegular(name, "Test description", minimalDurationPeriod, ["Option1", "Option2"], {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
-        const proposal = Proposal.at(logs[0]);
+        const regular = Regular.at(logs[0]);
 
         const backersToOption = {};
 
-        await helper.makeProposal(backersToOption, true, true, proposal, minimalDurationPeriod, web3);
+        await helper.makeRegular(backersToOption, true, true, regular, minimalDurationPeriod, web3);
 
-        assert.isTrue(await proposal.finished.call());
-        assert.equal(0, (await proposal.result.call())[0].toNumber());
+        assert.isTrue(await regular.finished.call());
+        assert.equal(0, (await regular.result.call())[0].toNumber());
     });
 
-    it("Proposal#3: usual voting process", async () => {
-        const tx = await dao.addProposal(name, "Test description", minimalDurationPeriod, ["Option1", "Option2", "Option3"], {from: backer1});
+    it("Regular#3: usual voting process", async () => {
+        const tx = await dao.addRegular(name, "Test description", minimalDurationPeriod, ["Option1", "Option2", "Option3"], {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
-        const proposal = Proposal.at(logs[0]);
+        const regular = Regular.at(logs[0]);
 
         const backersToOption = {};
         backersToOption[`${backers[0]}`] = 1;
@@ -132,10 +132,10 @@ contract("VotingDecisions", accounts => {
         backersToOption[`${backers[2]}`] = 2;
         backersToOption[`${backers[3]}`] = 3;
 
-        await helper.makeProposal(backersToOption, true, true, proposal, minimalDurationPeriod, web3);
+        await helper.makeRegular(backersToOption, true, true, regular, minimalDurationPeriod, web3);
 
-        assert.isTrue(await proposal.finished.call());
-        assert.deepEqual(await proposal.options.call(3), await proposal.result.call());
+        assert.isTrue(await regular.finished.call());
+        assert.deepEqual(await regular.options.call(3), await regular.result.call());
     });
 
     it("Module#1: should not accept module changing when amount of votes for option#1 < 80%", async () => {
