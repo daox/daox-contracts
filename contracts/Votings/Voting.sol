@@ -33,8 +33,8 @@ contract Voting is VotingFields {
         require(block.timestamp - duration >= created_at);
         finished = true;
 
-        if (keccak256(votingType) == keccak256("Withdrawal")) return finishNotProposal();
-        if (keccak256(votingType) == keccak256("Proposal")) return finishProposal();
+        if (keccak256(votingType) == keccak256("Withdrawal")) return finishNotRegular();
+        if (keccak256(votingType) == keccak256("Regular")) return finishRegular();
 
         //Other two cases of votings (`Module` and `Refund`) requires quorum
         if (Common.percent(options[1].votes, dao.token().totalSupply() - dao.teamTokensAmount(), 2) >= quorum) {
@@ -45,7 +45,7 @@ contract Voting is VotingFields {
         result = options[2];
     }
 
-    function finishProposal() private {
+    function finishRegular() private {
         VotingLib.Option memory _result = options[1];
         bool equal = false;
         for (uint i = 2; i < options.length; i++) {
@@ -58,7 +58,7 @@ contract Voting is VotingFields {
         if (!equal) result = _result;
     }
 
-    function finishNotProposal() private {
+    function finishNotRegular() private {
         if (options[1].votes > options[2].votes) result = options[1];
         else result = options[2];
     }

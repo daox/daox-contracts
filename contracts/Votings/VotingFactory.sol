@@ -1,7 +1,7 @@
 pragma solidity ^0.4.0;
 
 import "./VotingFactoryInterface.sol";
-import "./Proposal.sol";
+import "./Regular.sol";
 import "./Withdrawal.sol";
 import "./Refund.sol";
 import "./Module.sol";
@@ -16,13 +16,13 @@ contract VotingFactory is VotingFactoryInterface {
         baseVoting = _baseVoting;
     }
 
-    function createProposal(address _creator, string _name, string _description, uint _duration, bytes32[] _options)
+    function createRegular(address _creator, string _name, string _description, uint _duration, bytes32[] _options)
         external
         onlyDAO
         onlyParticipant(_creator)
         returns (address)
     {
-        return new Proposal(baseVoting, msg.sender, _name, _description, _duration, _options);
+        return new Regular(baseVoting, msg.sender, _name, _description, _duration, _options);
     }
 
     function createWithdrawal(address _creator, string _name, string _description, uint _duration, uint _sum, address withdrawalWallet, bool _dxc)

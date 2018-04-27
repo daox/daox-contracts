@@ -10,7 +10,7 @@ interface TokenInterface {
 }
 
 interface VotingFactoryInterface {
-	function createProposal(address _creator, string _name, string _description, uint _duration, bytes32[] _options) external returns (address);
+	function createRegular(address _creator, string _name, string _description, uint _duration, bytes32[] _options) external returns (address);
 
 	function createWithdrawal(address _creator, string _name, string _description, uint _duration, uint _sum, address withdrawalWallet, bool _dxc) external returns (address);
 
@@ -51,9 +51,9 @@ library DAOLib {
 		require(_parentAddress.delegatecall(bytes4(keccak256("remove(address)")), _participantAddress));
 	}
 
-	function delegatedCreateProposal(VotingFactoryInterface _votingFactory, string _name, string _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
-		address _votingAddress = _votingFactory.createProposal(msg.sender, _name, _description, _duration, _options);
-		VotingCreated(_votingAddress, "Proposal", _dao, _name, _description, _duration, msg.sender);
+	function delegatedCreateRegular(VotingFactoryInterface _votingFactory, string _name, string _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
+		address _votingAddress = _votingFactory.createRegular(msg.sender, _name, _description, _duration, _options);
+		VotingCreated(_votingAddress, "Regular", _dao, _name, _description, _duration, msg.sender);
 
 		return _votingAddress;
 	}
@@ -615,8 +615,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 		DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments);
 	}
 
-	function addProposal(string _name, string _description, uint _duration, bytes32[] _options) public {
-		votings[DAOLib.delegatedCreateProposal(votingFactory, _name, _description, _duration, _options, this)] = true;
+	function addRegular(string _name, string _description, uint _duration, bytes32[] _options) public {
+		votings[DAOLib.delegatedCreateRegular(votingFactory, _name, _description, _duration, _options, this)] = true;
 	}
 
 	function addWithdrawal(string _name, string _description, uint _duration, uint _sum, address withdrawalWallet, bool dxc) public {
@@ -777,7 +777,7 @@ contract ICrowdsaleDAO is IDAO {
 	uint public softCap;
 	uint public fundsRaised;
 
-	function addProposal(string _description, uint _duration, bytes32[] _options) external;
+	function addRegular(string _description, uint _duration, bytes32[] _options) external;
 
 	function addWithdrawal(string _description, uint _duration, uint _sum) external;
 
@@ -836,13 +836,13 @@ interface VotingInterface {
 	function voted(address _address) external constant returns (uint);
 }
 
-contract Proposal is VotingFields {
+contract Regular is VotingFields {
 	address baseVoting;
 
-	function Proposal(address _baseVoting, address _dao, string _name, string _description, uint _duration, bytes32[] _options){
+	function Regular(address _baseVoting, address _dao, string _name, string _description, uint _duration, bytes32[] _options){
 		require(_options.length >= 2 && _options.length <= 10);
 		baseVoting = _baseVoting;
-		votingType = "Proposal";
+		votingType = "Regular";
 		VotingLib.delegatecallCreate(baseVoting, _dao, _name, _description, _duration, 0);
 		createOptions(_options);
 	}
@@ -934,86 +934,86 @@ contract Refund is VotingFields {
 
 contract Voting is VotingFields {
 
-    function create(address _dao, bytes32 _name, bytes32 _description, uint _duration, uint _quorum)
-    succeededCrowdsale(ICrowdsaleDAO(_dao))
-    correctDuration(_duration)
-    external
-    {
-        dao = ICrowdsaleDAO(_dao);
-        name = Common.toString(_name);
-        description = Common.toString(_description);
-        duration = _duration;
-        quorum = _quorum;
-    }
+	function create(address _dao, bytes32 _name, bytes32 _description, uint _duration, uint _quorum)
+	succeededCrowdsale(ICrowdsaleDAO(_dao))
+	correctDuration(_duration)
+	external
+	{
+		dao = ICrowdsaleDAO(_dao);
+		name = Common.toString(_name);
+		description = Common.toString(_description);
+		duration = _duration;
+		quorum = _quorum;
+	}
 
-    function addVote(uint optionID) external notFinished canVote correctOption(optionID) {
-        require(block.timestamp - duration < created_at);
-        uint tokensAmount = dao.token().balanceOf(msg.sender);
-        options[optionID].votes += tokensAmount;
-        voted[msg.sender] = optionID;
-        votesCount += tokensAmount;
+	function addVote(uint optionID) external notFinished canVote correctOption(optionID) {
+		require(block.timestamp - duration < created_at);
+		uint tokensAmount = dao.token().balanceOf(msg.sender);
+		options[optionID].votes += tokensAmount;
+		voted[msg.sender] = optionID;
+		votesCount += tokensAmount;
 
-        dao.holdTokens(msg.sender, (duration + created_at) - now);
-    }
+		dao.holdTokens(msg.sender, (duration + created_at) - now);
+	}
 
-    function finish() external notFinished {
-        require(block.timestamp - duration >= created_at);
-        finished = true;
+	function finish() external notFinished {
+		require(block.timestamp - duration >= created_at);
+		finished = true;
 
-        if (keccak256(votingType) == keccak256("Withdrawal")) return finishNotProposal();
-        if (keccak256(votingType) == keccak256("Proposal")) return finishProposal();
+		if (keccak256(votingType) == keccak256("Withdrawal")) return finishNotRegular();
+		if (keccak256(votingType) == keccak256("Regular")) return finishRegular();
 
-        //Other two cases of votings (`Module` and `Refund`) requires quorum
-        if (Common.percent(options[1].votes, dao.token().totalSupply() - dao.teamTokensAmount(), 2) >= quorum) {
-            result = options[1];
-            return;
-        }
+		//Other two cases of votings (`Module` and `Refund`) requires quorum
+		if (Common.percent(options[1].votes, dao.token().totalSupply() - dao.teamTokensAmount(), 2) >= quorum) {
+			result = options[1];
+			return;
+		}
 
-        result = options[2];
-    }
+		result = options[2];
+	}
 
-    function finishProposal() private {
-        VotingLib.Option memory _result = options[1];
-        bool equal = false;
-        for (uint i = 2; i < options.length; i++) {
-            if (_result.votes == options[i].votes) equal = true;
-            else if (_result.votes < options[i].votes) {
-                _result = options[i];
-                equal = false;
-            }
-        }
-        if (!equal) result = _result;
-    }
+	function finishRegular() private {
+		VotingLib.Option memory _result = options[1];
+		bool equal = false;
+		for (uint i = 2; i < options.length; i++) {
+			if (_result.votes == options[i].votes) equal = true;
+			else if (_result.votes < options[i].votes) {
+				_result = options[i];
+				equal = false;
+			}
+		}
+		if (!equal) result = _result;
+	}
 
-    function finishNotProposal() private {
-        if (options[1].votes > options[2].votes) result = options[1];
-        else result = options[2];
-    }
+	function finishNotRegular() private {
+		if (options[1].votes > options[2].votes) result = options[1];
+		else result = options[2];
+	}
 
-    modifier canVote() {
-        require(!dao.teamMap(msg.sender) && dao.isParticipant(msg.sender) && voted[msg.sender] == 0);
-        _;
-    }
+	modifier canVote() {
+		require(!dao.teamMap(msg.sender) && dao.isParticipant(msg.sender) && voted[msg.sender] == 0);
+		_;
+	}
 
-    modifier notFinished() {
-        require(!finished);
-        _;
-    }
+	modifier notFinished() {
+		require(!finished);
+		_;
+	}
 
-    modifier succeededCrowdsale(ICrowdsaleDAO dao) {
-        require(dao.crowdsaleFinished() && dao.fundsRaised() >= dao.softCap());
-        _;
-    }
+	modifier succeededCrowdsale(ICrowdsaleDAO dao) {
+		require(dao.crowdsaleFinished() && dao.fundsRaised() >= dao.softCap());
+		_;
+	}
 
-    modifier correctOption(uint optionID) {
-        require(options[optionID].description != 0x0);
-        _;
-    }
+	modifier correctOption(uint optionID) {
+		require(options[optionID].description != 0x0);
+		_;
+	}
 
-    modifier correctDuration(uint _duration) {
-        require(_duration >= minimalDuration || keccak256(votingType) == keccak256("Module"));
-        _;
-    }
+	modifier correctDuration(uint _duration) {
+		require(_duration >= minimalDuration || keccak256(votingType) == keccak256("Module"));
+		_;
+	}
 }
 
 contract Module is VotingFields {
@@ -1066,13 +1066,13 @@ contract VotingFactory is VotingFactoryInterface {
 		baseVoting = _baseVoting;
 	}
 
-	function createProposal(address _creator, string _name, string _description, uint _duration, bytes32[] _options)
+	function createRegular(address _creator, string _name, string _description, uint _duration, bytes32[] _options)
 	external
 	onlyDAO
 	onlyParticipant(_creator)
 	returns (address)
 	{
-		return new Proposal(baseVoting, msg.sender, _name, _description, _duration, _options);
+		return new Regular(baseVoting, msg.sender, _name, _description, _duration, _options);
 	}
 
 	function createWithdrawal(address _creator, string _name, string _description, uint _duration, uint _sum, address withdrawalWallet, bool _dxc)

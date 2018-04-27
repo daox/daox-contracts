@@ -34,9 +34,9 @@ library DAOLib {
         require(_parentAddress.delegatecall(bytes4(keccak256("remove(address)")), _participantAddress));
     }
 
-    function delegatedCreateProposal(VotingFactoryInterface _votingFactory, string _name, string _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
-        address _votingAddress = _votingFactory.createProposal(msg.sender, _name, _description, _duration, _options);
-        VotingCreated(_votingAddress, "Proposal", _dao, _name, _description, _duration, msg.sender);
+    function delegatedCreateRegular(VotingFactoryInterface _votingFactory, string _name, string _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
+        address _votingAddress = _votingFactory.createRegular(msg.sender, _name, _description, _duration, _options);
+        VotingCreated(_votingAddress, "Regular", _dao, _name, _description, _duration, msg.sender);
 
         return _votingAddress;
     }

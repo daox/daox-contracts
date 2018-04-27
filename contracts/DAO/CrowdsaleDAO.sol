@@ -77,8 +77,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments);
     }
 
-    function addProposal(string _name, string _description, uint _duration, bytes32[] _options) public {
-        votings[DAOLib.delegatedCreateProposal(votingFactory, _name, _description, _duration, _options, this)] = true;
+    function addRegular(string _name, string _description, uint _duration, bytes32[] _options) public {
+        votings[DAOLib.delegatedCreateRegular(votingFactory, _name, _description, _duration, _options, this)] = true;
     }
 
     function addWithdrawal(string _name, string _description, uint _duration, uint _sum, address withdrawalWallet, bool dxc) public {
