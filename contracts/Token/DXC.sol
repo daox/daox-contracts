@@ -27,7 +27,7 @@ contract DXC is MintableToken {
      * @param _amount The amount of tokens to mint.
      * @return A boolean that indicates if the operation was successful.
     */
-    function mint(address _to, uint256 _amount) isOwnerOrAdditionalOwner canMint capWasNotReached(_amount) public returns (bool) {
+    function mint(address _to, uint256 _amount) isOwnerOrAdditionalOwner canMint supplyWasNotReached(_amount) public returns (bool) {
         totalSupply = totalSupply.add(_amount);
         balances[_to] = balances[_to].add(_amount);
         Mint(_to, _amount);
@@ -65,7 +65,7 @@ contract DXC is MintableToken {
      * @dev Throws an exception if maximumSupply will be exceeded after minting
      * @param _amount The amount of tokens to mint
      */
-    modifier capWasNotReached(uint256 _amount) {
+    modifier supplyWasNotReached(uint256 _amount) {
         require(totalSupply.add(_amount) <= maximumSupply);
         _;
     }
