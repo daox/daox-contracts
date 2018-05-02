@@ -2,6 +2,7 @@ pragma solidity ^0.4.11;
 
 import '../../node_modules/zeppelin-solidity/contracts/token/BasicToken.sol';
 import '../../node_modules/zeppelin-solidity/contracts/token/MintableToken.sol';
+import '../../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 
 contract DXC is MintableToken {
     address[] public additionalOwnersList; // List of addresses which are able to call `mint` function
@@ -66,7 +67,7 @@ contract DXC is MintableToken {
      * @param _amount The amount of tokens to mint
      */
     modifier maximumSupplyWasNotReached(uint256 _amount) {
-        require(totalSupply.add(_amount) <= maximumSupply);
+        require(SafeMath.add(totalSupply, _amount) <= maximumSupply);
         _;
     }
 }
