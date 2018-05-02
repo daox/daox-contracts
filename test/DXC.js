@@ -46,4 +46,12 @@ contract("DXC", accounts => {
         assert.deepEqual(web3.toBigNumber(web3.toWei(2)), await dxc.balanceOf(accounts[1]));
         assert.deepEqual(web3.toBigNumber(web3.toWei(2)), await dxc.totalSupply());
     });
+
+    it("Token's maximum supply can't be exceeded", async () => {
+        await dxc.mint(accounts[1], web3.toWei(THREE_HUNDRED_MILLION - 2), {from: accounts[3]}); // maximum supply has reached
+
+        assert.deepEqual(await dxc.totalSupply(), await dxc.maximumSupply());
+
+        return helper.handleErrorTransaction(() => dxc.mint(accounts[1], web3.toWei(1), {from: accounts[3]}));
+    });
 });
