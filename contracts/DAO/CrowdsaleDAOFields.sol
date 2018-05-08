@@ -14,17 +14,17 @@ contract CrowdsaleDAOFields {
     bool public canInitStateParameters = true;
     bool public canInitBonuses = true;
     bool public canSetWhiteList = true;
-    uint public commissionRaised = 0;
+    uint public commissionRaised = 0; // Funds that was provided via commission contract
     uint public weiRaised = 0;
     uint public DXCRaised = 0;
     uint public fundsRaised = 0;
-    mapping(address => uint) public depositedWei;
-    mapping(address => uint) public depositedDXC;
+    mapping(address => uint) public depositedWei; // Used for refund in case of not reached soft cap
+    mapping(address => uint) public depositedDXC; // Used for refund in case of not reached soft cap
     bool public crowdsaleFinished;
     bool public refundableSoftCap = false;
-    uint public newEtherRate = 0;
-    uint public newDXCRate = 0;
-    address public serviceContract;
+    uint public newEtherRate = 0; // Used for refund after accept of Refund proposal
+    uint public newDXCRate = 0; // Used for refund after accept of Refund proposal
+    address public serviceContract; //Contract which gets commission funds if soft cap was reached during the crowdsale
     uint[] public teamBonusesArr;
     address[] public team;
     mapping(address => bool) public teamMap;
@@ -32,7 +32,7 @@ contract CrowdsaleDAOFields {
     bool[] public teamServiceMember;
     TokenInterface public token;
     VotingFactoryInterface public votingFactory;
-    address public commissionContract;
+    address public commissionContract; //Contract that is used to mark funds which were provided through daox.org platform
     string public name;
 	string public description;
     uint public created_at = now; // UNIX time
@@ -50,7 +50,7 @@ contract CrowdsaleDAOFields {
     TokenInterface public DXC;
     uint public tokensMintedByEther;
     uint public tokensMintedByDXC;
-    bool public dxcPayments;
+    bool public dxcPayments; //Flag indicating whether it is possible to invest via DXC token or not
     uint internal constant multiplier = 100000;
     uint internal constant percentMultiplier = 100;
 }
