@@ -1,14 +1,13 @@
 pragma solidity ^0.4.0;
 
 import "./VotingLib.sol";
-import "./VotingFields.sol";
 import "../Common.sol";
+import "./BaseProposal.sol";
 
-contract Module is VotingFields {
+contract Module is BaseProposal {
     enum Modules{State, Payment, VotingDecisions, Crowdsale, VotingFactory}
     Modules public module;
     address public newModuleAddress;
-    address baseVoting;
 
     function Module(address _baseVoting, address _dao, string _name, string _description, uint _duration, uint _module, address _newAddress) {
         require(_module >= 0 && _module <= 4);
@@ -20,14 +19,9 @@ contract Module is VotingFields {
         createOptions();
     }
 
-    function getOptions() public constant returns(uint[2]) {
-        return [options[1].votes, options[2].votes];
-    }
-
-    function addVote(uint optionID) public {
-        VotingLib.delegatecallAddVote(baseVoting, optionID);
-    }
-
+    /*
+    * @dev Delegates request of finishing to the Voting base contract
+    */
     function finish() public {
         VotingLib.delegatecallFinish(baseVoting);
         if(result.description == "no") return;
@@ -38,10 +32,5 @@ contract Module is VotingFields {
         if (uint(module) == uint(Modules.VotingDecisions)) dao.setVotingDecisionModule(newModuleAddress);
         if (uint(module) == uint(Modules.Crowdsale)) dao.setCrowdsaleModule(newModuleAddress);
         if (uint(module) == uint(Modules.VotingFactory)) dao.setVotingFactoryAddress(newModuleAddress);
-    }
-
-    function createOptions() private {
-        options[1] = VotingLib.Option(0, "yes");
-        options[2] = VotingLib.Option(0, "no");
     }
 }

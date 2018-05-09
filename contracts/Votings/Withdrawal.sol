@@ -1,11 +1,10 @@
 pragma solidity ^0.4.11;
 
 import "./VotingLib.sol";
-import "./VotingFields.sol";
 import "../Common.sol";
+import "./BaseProposal.sol";
 
-contract Withdrawal is VotingFields {
-    address baseVoting;
+contract Withdrawal is BaseProposal {
     uint public withdrawalSum;
     address public withdrawalWallet;
     bool public dxc;
@@ -21,21 +20,8 @@ contract Withdrawal is VotingFields {
         createOptions();
     }
 
-    function getOptions() external constant returns(uint[2]) {
-        return [options[1].votes, options[2].votes];
-    }
-
-    function addVote(uint optionID) public {
-        VotingLib.delegatecallAddVote(baseVoting, optionID);
-    }
-
     function finish() public {
         VotingLib.delegatecallFinish(baseVoting);
         if(result.description == "yes") dao.withdrawal(withdrawalWallet, withdrawalSum, dxc);
-    }
-
-    function createOptions() private {
-        options[1] = VotingLib.Option(0, "yes");
-        options[2] = VotingLib.Option(0, "no");
     }
 }
