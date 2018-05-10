@@ -20,6 +20,9 @@ contract Withdrawal is BaseProposal {
         createOptions();
     }
 
+    /*
+    * @dev Delegates request of finishing to the Voting base contract
+    */
     function finish() public {
         VotingLib.delegatecallFinish(baseVoting);
         if(result.description == "yes") dao.withdrawal(withdrawalWallet, withdrawalSum, dxc);

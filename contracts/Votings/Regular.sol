@@ -15,19 +15,33 @@ contract Regular is VotingFields {
         createOptions(_options);
     }
 
+    /*
+    * @dev Returns amount of votes for all regular proposal's options
+    */
     function getOptions() external constant returns(uint[10]) {
         return [options[1].votes, options[2].votes, options[3].votes, options[4].votes, options[5].votes,
         options[6].votes, options[7].votes, options[8].votes, options[9].votes, options[10].votes];
     }
 
-    function addVote(uint optionID) public {
-        VotingLib.delegatecallAddVote(baseVoting, optionID);
+    /*
+    * @dev Delegates request of adding vote to the Voting base contract
+    * @param _optionID ID of option which will be added as vote
+    */
+    function addVote(uint _optionID) public {
+        VotingLib.delegatecallAddVote(baseVoting, _optionID);
     }
 
+    /*
+    * @dev Delegates request of finishing to the Voting base contract
+    */
     function finish() public {
         VotingLib.delegatecallFinish(baseVoting);
     }
 
+    /*
+    * @dev Create up to 10 options of votes
+    * @param _options Array of votes options
+    */
     function createOptions(bytes32[] _options) private {
         for (uint i = 0; i < _options.length; i++) {
             options[i + 1] = VotingLib.Option(0, _options[i]);
