@@ -6,6 +6,9 @@ import "../../Token/TokenInterface.sol";
 import "../CrowdsaleDAOFields.sol";
 
 contract Payment is CrowdsaleDAOFields {
+    /*
+    * @dev Returns funds to participant according to amount of funds that left in DAO and amount of tokens for this participant
+    */
     function refund() whenRefundable notTeamMember {
         uint tokensMintedSum = SafeMath.add(tokensMintedByEther, tokensMintedByDXC);
         uint etherPerDXCRate = SafeMath.mul(tokensMintedByEther, percentMultiplier) / tokensMintedSum;
@@ -21,6 +24,9 @@ contract Payment is CrowdsaleDAOFields {
             DXC.transfer(msg.sender, DAOLib.countRefundSum(dxcPerEtherRate * tokensAmount, DXCRate, newDXCRate, multiplier));
     }
 
+    /*
+    * @dev Returns funds which were sent to crowdsale contract back to backer and burns tokens that were minted for him
+    */
     function refundSoftCap() whenRefundableSoftCap {
         require(depositedWei[msg.sender] != 0 || depositedDXC[msg.sender] != 0);
 

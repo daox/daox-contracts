@@ -14,7 +14,7 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     address public votingFactoryContractAddress;
     // DAOs created by factory
     mapping(address => string) DAOs;
-    // Functional modules that will be used by DAOs to delegate calls
+    // Functional modules which will be used by DAOs to delegate calls
     address[4] modules;
 
     function CrowdsaleDAOFactory(address _serviceContractAddress, address _votingFactoryAddress, address[4] _modules) {

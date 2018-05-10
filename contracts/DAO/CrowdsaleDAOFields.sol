@@ -14,7 +14,7 @@ contract CrowdsaleDAOFields {
     bool public canInitStateParameters = true;
     bool public canInitBonuses = true;
     bool public canSetWhiteList = true;
-    uint public commissionRaised = 0; // Funds that was provided via commission contract
+    uint public commissionRaised = 0; // Funds which were provided via commission contract
     uint public weiRaised = 0;
     uint public DXCRaised = 0;
     uint public fundsRaised = 0;

@@ -9,6 +9,11 @@ contract State is CrowdsaleDAOFields {
 
     event State(address _comission);
 
+    /*
+    * @dev Sets addresses of token which will be minted during the crowdsale and address of DXC token contract so that
+    *      DAO will be able to handle investments via DXC. Also function creates instance of Commission contract for this DAO
+    * @param value Amount of sent funds
+    */
     function initState(address _tokenAddress, address _DXC)
         external
         onlyOwner(msg.sender)

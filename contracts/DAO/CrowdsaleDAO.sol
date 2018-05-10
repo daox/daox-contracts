@@ -100,9 +100,9 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     }
 
     /*
-    * @dev Function that is used to set address of token which will be distributed by DAO during the crowdsale and
+    * @dev Function which is used to set address of token which will be distributed by DAO during the crowdsale and
     *      address of DXC token contract to use it for handling payment operations with DXC. Delegates call to state module
-    * @param _tokenAddress Address of token that will be distributed during the crowdsale
+    * @param _tokenAddress Address of token which will be distributed during the crowdsale
     * @param _DXC Address of DXC contract
     */
     function initState(address _tokenAddress, address _DXC) public {
@@ -110,11 +110,11 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     }
 
     /*
-    * @dev Delegates parameters that describes conditions of crowdsale to the crowdsale module.
-    * @param _softCap Minimal amount of funds that must be collected by DAO for crowdsale to be considered successful
-    * @param _hardCap Maximal amount of funds that can be raised during the crowdsale
-    * @param _etherRate Amount of tokens that will be minted for one ether
-    * @param _DXCRate Amount of tokens that will be minted for one DXC
+    * @dev Delegates parameters which describe conditions of crowdsale to the crowdsale module.
+    * @param _softCap The minimal amount of funds that must be collected by DAO for crowdsale to be considered successful
+    * @param _hardCap The maximal amount of funds that can be raised during the crowdsale
+    * @param _etherRate Amount of tokens that will be minted per one ether
+    * @param _DXCRate Amount of tokens that will be minted per one DXC
     * @param _startTime Unix timestamp that indicates the moment when crowdsale will start
     * @param _endTime Unix timestamp that indicates the moment when crowdsale will end
     * @param _dxcPayments Boolean indicating whether it is possible to invest via DXC token or not
@@ -162,7 +162,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _name Name for voting
     * @param _description Description for voting that will be created
     * @param _duration Time in seconds from current moment until voting will be finished
-    * @param _module Number of module that must be replaced
+    * @param _module Number of module which must be replaced
     * @param _newAddress Address of new module
     */
     function addModule(string _name, string _description, uint _duration, uint _module, address _newAddress) public {
@@ -199,7 +199,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     /*
     * @dev Sets team addresses and bonuses for crowdsale
-    * @param _team Array of addresses which represent team members' addresses
+    * @param _team The addresses that will be defined as team members
     * @param _tokenPercents Array of bonuses in percents which will go te every member in case of successful crowdsale
     * @param _bonusPeriods Array of timestamps which show when tokens will be minted with higher rate
     * @param _bonusEtherRates Array of ether rates for every bonus period

@@ -15,6 +15,16 @@ library DAOLib {
         address sender
     );
 
+    /*
+    * @dev Receives parameters from crowdsale module in case of successful crowdsale and processes them
+    * @param token Instance of token contract
+    * @param commissionRaised Amount of funds which were sent via commission contract
+    * @param serviceContract Address of contract which receives commission
+    * @param teamBonuses Array of percents which indicates the number of token for every team member
+    * @param team Array of team members' addresses
+    * @param teamHold Array of timestamp until which the tokens will be held for every team member
+    * @return uint Amount of tokens minted for team
+    */
     function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) returns (uint) {
         uint commission = (commissionRaised / 100) * 4;
         serviceContract.call.gas(200000).value(commission)();
@@ -28,10 +38,6 @@ library DAOLib {
         }
 
         return teamTokensAmount;
-    }
-
-    function delegateRemove(address _parentAddress, address _participantAddress) {
-        require(_parentAddress.delegatecall(bytes4(keccak256("remove(address)")), _participantAddress));
     }
 
     function delegatedCreateRegular(VotingFactoryInterface _votingFactory, string _name, string _description, uint _duration, bytes32[] _options, address _dao) returns (address) {
@@ -64,24 +70,14 @@ library DAOLib {
         return _votingAddress;
     }
 
-    function delegatedInitCrowdsaleParameters(address _p, uint softCap, uint hardCap, uint etherRate, uint startTime, uint endTime) {
-        require(_p.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256)")), softCap, hardCap, etherRate, startTime, endTime));
-    }
-
-    function delegatedCreate(address _p, address _usersAddress, uint8 _minVote, address _tokenAddress,
-        address _votingFactory, address _serviceContract, address _parentAddress) {
-        require(_p.delegatecall(bytes4(keccak256("create(address,uint8,address,address,address,address)")),
-            _usersAddress, _minVote, _tokenAddress, _votingFactory, _serviceContract, _parentAddress));
-    }
-
-    function delegatedHandlePayment(address _p, address sender, bool commission) {
-        require(_p.delegatecall(bytes4(keccak256("handlePayment(address,bool)")), sender, commission));
-    }
-
-    function delegatedFinish(address _p) {
-        require(_p.delegatecall(bytes4(keccak256("finish()"))));
-    }
-
+    /*
+    * @dev Counts the number of tokens that should be minted according to amount of sent funds and current rate
+    * @param value Amount of sent funds
+    * @param bonusPeriods Array of timestamps indicating bonus periods
+    * @param bonusRates Array of rates for every bonus period
+    * @param rate Default rate
+    * @return uint Amount of tokens that should be minted
+    */
     function countTokens(uint value, uint[] bonusPeriods, uint[] bonusRates, uint rate) constant returns (uint) {
         if (bonusRates.length == 0) return value * rate; // DXC bonus rates could be empty
 
@@ -96,6 +92,14 @@ library DAOLib {
         return tokensAmount;
     }
 
+    /*
+    * @dev Counts the amount of funds that must be returned to participant
+    * @param tokensAmount Amount of tokens on participant's balance
+    * @param etherRate Rate for ether during the crowdsale
+    * @param newRate Current rate according to left funds and total supply of tokens
+    * @param multiplier Multiplier that was used in previous calculations to avoid issues with float numbers
+    * @return uint Amount of funds that must be returned to participant
+    */
     function countRefundSum(uint tokensAmount, uint etherRate, uint newRate, uint multiplier) constant returns (uint) {
         uint fromPercentDivider = 100;
 
