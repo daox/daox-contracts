@@ -262,14 +262,14 @@
     "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Votings/Refund.sol",
     "exportedSymbols": {
       "Refund": [
-        10257
+        10130
       ]
     },
-    "id": 10258,
+    "id": 10131,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 10138,
+        "id": 10011,
         "literals": [
           "solidity",
           "^",
@@ -282,10 +282,10 @@
       {
         "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Votings/VotingLib.sol",
         "file": "./VotingLib.sol",
-        "id": 10139,
+        "id": 10012,
         "nodeType": "ImportDirective",
-        "scope": 10258,
-        "sourceUnit": 11317,
+        "scope": 10131,
+        "sourceUnit": 11190,
         "src": "25:25:24",
         "symbolAliases": [],
         "unitAlias": ""
@@ -293,10 +293,10 @@
       {
         "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Votings/VotingFields.sol",
         "file": "./VotingFields.sol",
-        "id": 10140,
+        "id": 10013,
         "nodeType": "ImportDirective",
-        "scope": 10258,
-        "sourceUnit": 11172,
+        "scope": 10131,
+        "sourceUnit": 11045,
         "src": "51:28:24",
         "symbolAliases": [],
         "unitAlias": ""
@@ -304,9 +304,9 @@
       {
         "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Common.sol",
         "file": "../Common.sol",
-        "id": 10141,
+        "id": 10014,
         "nodeType": "ImportDirective",
-        "scope": 10258,
+        "scope": 10131,
         "sourceUnit": 166,
         "src": "80:23:24",
         "symbolAliases": [],
@@ -318,41 +318,41 @@
             "arguments": [],
             "baseName": {
               "contractScope": null,
-              "id": 10142,
+              "id": 10015,
               "name": "VotingFields",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 11171,
+              "referencedDeclaration": 11044,
               "src": "124:12:24",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_VotingFields_$11171",
+                "typeIdentifier": "t_contract$_VotingFields_$11044",
                 "typeString": "contract VotingFields"
               }
             },
-            "id": 10143,
+            "id": 10016,
             "nodeType": "InheritanceSpecifier",
             "src": "124:12:24"
           }
         ],
         "contractDependencies": [
-          11171
+          11044
         ],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 10257,
+        "id": 10130,
         "linearizedBaseContracts": [
-          10257,
-          11171
+          10130,
+          11044
         ],
         "name": "Refund",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": false,
-            "id": 10145,
+            "id": 10018,
             "name": "baseVoting",
             "nodeType": "VariableDeclaration",
-            "scope": 10257,
+            "scope": 10130,
             "src": "143:18:24",
             "stateVariable": true,
             "storageLocation": "default",
@@ -361,7 +361,7 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 10144,
+              "id": 10017,
               "name": "address",
               "nodeType": "ElementaryTypeName",
               "src": "143:7:24",
@@ -375,25 +375,25 @@
           },
           {
             "body": {
-              "id": 10180,
+              "id": 10053,
               "nodeType": "Block",
               "src": "270:189:24",
               "statements": [
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 10160,
+                    "id": 10033,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 10158,
+                      "id": 10031,
                       "name": "baseVoting",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 10145,
+                      "referencedDeclaration": 10018,
                       "src": "280:10:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -404,11 +404,11 @@
                     "operator": "=",
                     "rightHandSide": {
                       "argumentTypes": null,
-                      "id": 10159,
+                      "id": 10032,
                       "name": "_baseVoting",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 10147,
+                      "referencedDeclaration": 10020,
                       "src": "293:11:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -421,25 +421,25 @@
                       "typeString": "address"
                     }
                   },
-                  "id": 10161,
+                  "id": 10034,
                   "nodeType": "ExpressionStatement",
                   "src": "280:24:24"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 10164,
+                    "id": 10037,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 10162,
+                      "id": 10035,
                       "name": "votingType",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 11161,
+                      "referencedDeclaration": 11034,
                       "src": "314:10:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_storage",
@@ -451,7 +451,7 @@
                     "rightHandSide": {
                       "argumentTypes": null,
                       "hexValue": "526566756e64",
-                      "id": 10163,
+                      "id": 10036,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -472,7 +472,7 @@
                       "typeString": "string storage ref"
                     }
                   },
-                  "id": 10165,
+                  "id": 10038,
                   "nodeType": "ExpressionStatement",
                   "src": "314:21:24"
                 },
@@ -482,11 +482,11 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 10169,
+                        "id": 10042,
                         "name": "baseVoting",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10145,
+                        "referencedDeclaration": 10018,
                         "src": "374:10:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -495,11 +495,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 10170,
+                        "id": 10043,
                         "name": "_dao",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10149,
+                        "referencedDeclaration": 10022,
                         "src": "386:4:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -508,11 +508,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 10171,
+                        "id": 10044,
                         "name": "_name",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10151,
+                        "referencedDeclaration": 10024,
                         "src": "392:5:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_string_memory_ptr",
@@ -521,11 +521,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 10172,
+                        "id": 10045,
                         "name": "_description",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10153,
+                        "referencedDeclaration": 10026,
                         "src": "399:12:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_string_memory_ptr",
@@ -534,11 +534,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 10173,
+                        "id": 10046,
                         "name": "_duration",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10155,
+                        "referencedDeclaration": 10028,
                         "src": "413:9:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -548,7 +548,7 @@
                       {
                         "argumentTypes": null,
                         "hexValue": "3930",
-                        "id": 10174,
+                        "id": 10047,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -593,32 +593,32 @@
                       ],
                       "expression": {
                         "argumentTypes": null,
-                        "id": 10166,
+                        "id": 10039,
                         "name": "VotingLib",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 11316,
+                        "referencedDeclaration": 11189,
                         "src": "345:9:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_VotingLib_$11316_$",
+                          "typeIdentifier": "t_type$_t_contract$_VotingLib_$11189_$",
                           "typeString": "type(library VotingLib)"
                         }
                       },
-                      "id": 10168,
+                      "id": 10041,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "delegatecallCreate",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 11248,
+                      "referencedDeclaration": 11121,
                       "src": "345:28:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_delegatecall_nonpayable$_t_address_$_t_address_$_t_string_memory_ptr_$_t_string_memory_ptr_$_t_uint256_$_t_uint256_$returns$__$",
                         "typeString": "function (address,address,string memory,string memory,uint256,uint256)"
                       }
                     },
-                    "id": 10175,
+                    "id": 10048,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -632,7 +632,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 10176,
+                  "id": 10049,
                   "nodeType": "ExpressionStatement",
                   "src": "345:82:24"
                 },
@@ -642,18 +642,18 @@
                     "arguments": [],
                     "expression": {
                       "argumentTypes": [],
-                      "id": 10177,
+                      "id": 10050,
                       "name": "createOptions",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 10256,
+                      "referencedDeclaration": 10129,
                       "src": "437:13:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
                         "typeString": "function ()"
                       }
                     },
-                    "id": 10178,
+                    "id": 10051,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -667,14 +667,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 10179,
+                  "id": 10052,
                   "nodeType": "ExpressionStatement",
                   "src": "437:15:24"
                 }
               ]
             },
             "documentation": null,
-            "id": 10181,
+            "id": 10054,
             "implemented": true,
             "isConstructor": true,
             "isDeclaredConst": false,
@@ -682,15 +682,15 @@
             "name": "Refund",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 10156,
+              "id": 10029,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 10147,
+                  "id": 10020,
                   "name": "_baseVoting",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10181,
+                  "scope": 10054,
                   "src": "184:19:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -699,7 +699,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 10146,
+                    "id": 10019,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "184:7:24",
@@ -713,10 +713,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 10149,
+                  "id": 10022,
                   "name": "_dao",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10181,
+                  "scope": 10054,
                   "src": "205:12:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -725,7 +725,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 10148,
+                    "id": 10021,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "205:7:24",
@@ -739,10 +739,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 10151,
+                  "id": 10024,
                   "name": "_name",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10181,
+                  "scope": 10054,
                   "src": "219:12:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -751,7 +751,7 @@
                     "typeString": "string memory"
                   },
                   "typeName": {
-                    "id": 10150,
+                    "id": 10023,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "219:6:24",
@@ -765,10 +765,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 10153,
+                  "id": 10026,
                   "name": "_description",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10181,
+                  "scope": 10054,
                   "src": "233:19:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -777,7 +777,7 @@
                     "typeString": "string memory"
                   },
                   "typeName": {
-                    "id": 10152,
+                    "id": 10025,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "233:6:24",
@@ -791,10 +791,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 10155,
+                  "id": 10028,
                   "name": "_duration",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10181,
+                  "scope": 10054,
                   "src": "254:14:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -803,7 +803,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 10154,
+                    "id": 10027,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "254:4:24",
@@ -820,12 +820,12 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 10157,
+              "id": 10030,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "270:0:24"
             },
-            "scope": 10257,
+            "scope": 10130,
             "src": "168:291:24",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -833,7 +833,7 @@
           },
           {
             "body": {
-              "id": 10198,
+              "id": 10071,
               "nodeType": "Block",
               "src": "520:60:24",
               "statements": [
@@ -847,22 +847,22 @@
                           "argumentTypes": null,
                           "baseExpression": {
                             "argumentTypes": null,
-                            "id": 10188,
+                            "id": 10061,
                             "name": "options",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 11141,
+                            "referencedDeclaration": 11014,
                             "src": "538:7:24",
                             "typeDescriptions": {
-                              "typeIdentifier": "t_array$_t_struct$_Option_$11210_storage_$11_storage",
+                              "typeIdentifier": "t_array$_t_struct$_Option_$11083_storage_$11_storage",
                               "typeString": "struct VotingLib.Option storage ref[11] storage ref"
                             }
                           },
-                          "id": 10190,
+                          "id": 10063,
                           "indexExpression": {
                             "argumentTypes": null,
                             "hexValue": "31",
-                            "id": 10189,
+                            "id": 10062,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
@@ -884,18 +884,18 @@
                           "nodeType": "IndexAccess",
                           "src": "538:10:24",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_struct$_Option_$11210_storage",
+                            "typeIdentifier": "t_struct$_Option_$11083_storage",
                             "typeString": "struct VotingLib.Option storage ref"
                           }
                         },
-                        "id": 10191,
+                        "id": 10064,
                         "isConstant": false,
                         "isLValue": true,
                         "isPure": false,
                         "lValueRequested": false,
                         "memberName": "votes",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 11207,
+                        "referencedDeclaration": 11080,
                         "src": "538:16:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -908,22 +908,22 @@
                           "argumentTypes": null,
                           "baseExpression": {
                             "argumentTypes": null,
-                            "id": 10192,
+                            "id": 10065,
                             "name": "options",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 11141,
+                            "referencedDeclaration": 11014,
                             "src": "556:7:24",
                             "typeDescriptions": {
-                              "typeIdentifier": "t_array$_t_struct$_Option_$11210_storage_$11_storage",
+                              "typeIdentifier": "t_array$_t_struct$_Option_$11083_storage_$11_storage",
                               "typeString": "struct VotingLib.Option storage ref[11] storage ref"
                             }
                           },
-                          "id": 10194,
+                          "id": 10067,
                           "indexExpression": {
                             "argumentTypes": null,
                             "hexValue": "32",
-                            "id": 10193,
+                            "id": 10066,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
@@ -945,18 +945,18 @@
                           "nodeType": "IndexAccess",
                           "src": "556:10:24",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_struct$_Option_$11210_storage",
+                            "typeIdentifier": "t_struct$_Option_$11083_storage",
                             "typeString": "struct VotingLib.Option storage ref"
                           }
                         },
-                        "id": 10195,
+                        "id": 10068,
                         "isConstant": false,
                         "isLValue": true,
                         "isPure": false,
                         "lValueRequested": false,
                         "memberName": "votes",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 11207,
+                        "referencedDeclaration": 11080,
                         "src": "556:16:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -964,7 +964,7 @@
                         }
                       }
                     ],
-                    "id": 10196,
+                    "id": 10069,
                     "isConstant": false,
                     "isInlineArray": true,
                     "isLValue": false,
@@ -977,15 +977,15 @@
                       "typeString": "uint256[2] memory"
                     }
                   },
-                  "functionReturnParameters": 10187,
-                  "id": 10197,
+                  "functionReturnParameters": 10060,
+                  "id": 10070,
                   "nodeType": "Return",
                   "src": "530:43:24"
                 }
               ]
             },
             "documentation": null,
-            "id": 10199,
+            "id": 10072,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": true,
@@ -993,22 +993,22 @@
             "name": "getOptions",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 10182,
+              "id": 10055,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "484:2:24"
             },
             "payable": false,
             "returnParameters": {
-              "id": 10187,
+              "id": 10060,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 10186,
+                  "id": 10059,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10199,
+                  "scope": 10072,
                   "src": "511:7:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1018,7 +1018,7 @@
                   },
                   "typeName": {
                     "baseType": {
-                      "id": 10183,
+                      "id": 10056,
                       "name": "uint",
                       "nodeType": "ElementaryTypeName",
                       "src": "511:4:24",
@@ -1027,11 +1027,11 @@
                         "typeString": "uint256"
                       }
                     },
-                    "id": 10185,
+                    "id": 10058,
                     "length": {
                       "argumentTypes": null,
                       "hexValue": "32",
-                      "id": 10184,
+                      "id": 10057,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1059,7 +1059,7 @@
               ],
               "src": "510:9:24"
             },
-            "scope": 10257,
+            "scope": 10130,
             "src": "465:115:24",
             "stateMutability": "view",
             "superFunction": null,
@@ -1067,7 +1067,7 @@
           },
           {
             "body": {
-              "id": 10211,
+              "id": 10084,
               "nodeType": "Block",
               "src": "625:68:24",
               "statements": [
@@ -1077,11 +1077,11 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 10207,
+                        "id": 10080,
                         "name": "baseVoting",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10145,
+                        "referencedDeclaration": 10018,
                         "src": "665:10:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -1090,11 +1090,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 10208,
+                        "id": 10081,
                         "name": "optionID",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10201,
+                        "referencedDeclaration": 10074,
                         "src": "677:8:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -1115,32 +1115,32 @@
                       ],
                       "expression": {
                         "argumentTypes": null,
-                        "id": 10204,
+                        "id": 10077,
                         "name": "VotingLib",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 11316,
+                        "referencedDeclaration": 11189,
                         "src": "635:9:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_VotingLib_$11316_$",
+                          "typeIdentifier": "t_type$_t_contract$_VotingLib_$11189_$",
                           "typeString": "type(library VotingLib)"
                         }
                       },
-                      "id": 10206,
+                      "id": 10079,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "delegatecallAddVote",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 11268,
+                      "referencedDeclaration": 11141,
                       "src": "635:29:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_delegatecall_nonpayable$_t_address_$_t_uint256_$returns$__$",
                         "typeString": "function (address,uint256)"
                       }
                     },
-                    "id": 10209,
+                    "id": 10082,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1154,14 +1154,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 10210,
+                  "id": 10083,
                   "nodeType": "ExpressionStatement",
                   "src": "635:51:24"
                 }
               ]
             },
             "documentation": null,
-            "id": 10212,
+            "id": 10085,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -1169,15 +1169,15 @@
             "name": "addVote",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 10202,
+              "id": 10075,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 10201,
+                  "id": 10074,
                   "name": "optionID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10212,
+                  "scope": 10085,
                   "src": "603:13:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -1186,7 +1186,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 10200,
+                    "id": 10073,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "603:4:24",
@@ -1203,12 +1203,12 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 10203,
+              "id": 10076,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "625:0:24"
             },
-            "scope": 10257,
+            "scope": 10130,
             "src": "586:107:24",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -1216,7 +1216,7 @@
           },
           {
             "body": {
-              "id": 10231,
+              "id": 10104,
               "nodeType": "Block",
               "src": "724:135:24",
               "statements": [
@@ -1226,11 +1226,11 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 10218,
+                        "id": 10091,
                         "name": "baseVoting",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10145,
+                        "referencedDeclaration": 10018,
                         "src": "763:10:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -1247,32 +1247,32 @@
                       ],
                       "expression": {
                         "argumentTypes": null,
-                        "id": 10215,
+                        "id": 10088,
                         "name": "VotingLib",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 11316,
+                        "referencedDeclaration": 11189,
                         "src": "734:9:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_VotingLib_$11316_$",
+                          "typeIdentifier": "t_type$_t_contract$_VotingLib_$11189_$",
                           "typeString": "type(library VotingLib)"
                         }
                       },
-                      "id": 10217,
+                      "id": 10090,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "delegatecallFinish",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 11285,
+                      "referencedDeclaration": 11158,
                       "src": "734:28:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_delegatecall_nonpayable$_t_address_$returns$__$",
                         "typeString": "function (address)"
                       }
                     },
-                    "id": 10219,
+                    "id": 10092,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1286,7 +1286,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 10220,
+                  "id": 10093,
                   "nodeType": "ExpressionStatement",
                   "src": "734:40:24"
                 },
@@ -1297,7 +1297,7 @@
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
                     },
-                    "id": 10224,
+                    "id": 10097,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1306,25 +1306,25 @@
                       "argumentTypes": null,
                       "expression": {
                         "argumentTypes": null,
-                        "id": 10221,
+                        "id": 10094,
                         "name": "result",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 11147,
+                        "referencedDeclaration": 11020,
                         "src": "787:6:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_struct$_Option_$11210_storage",
+                          "typeIdentifier": "t_struct$_Option_$11083_storage",
                           "typeString": "struct VotingLib.Option storage ref"
                         }
                       },
-                      "id": 10222,
+                      "id": 10095,
                       "isConstant": false,
                       "isLValue": true,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "description",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 11209,
+                      "referencedDeclaration": 11082,
                       "src": "787:18:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
@@ -1336,7 +1336,7 @@
                     "rightExpression": {
                       "argumentTypes": null,
                       "hexValue": "796573",
-                      "id": 10223,
+                      "id": 10096,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -1358,7 +1358,7 @@
                     }
                   },
                   "falseBody": null,
-                  "id": 10230,
+                  "id": 10103,
                   "nodeType": "IfStatement",
                   "src": "784:68:24",
                   "trueBody": {
@@ -1369,32 +1369,32 @@
                         "argumentTypes": [],
                         "expression": {
                           "argumentTypes": null,
-                          "id": 10225,
+                          "id": 10098,
                           "name": "dao",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 11133,
+                          "referencedDeclaration": 11006,
                           "src": "816:3:24",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_contract$_ICrowdsaleDAO_$2105",
+                            "typeIdentifier": "t_contract$_ICrowdsaleDAO_$1978",
                             "typeString": "contract ICrowdsaleDAO"
                           }
                         },
-                        "id": 10227,
+                        "id": 10100,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "memberName": "makeRefundableByVotingDecision",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 2053,
+                        "referencedDeclaration": 1926,
                         "src": "816:34:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_external_nonpayable$__$returns$__$",
                           "typeString": "function () external"
                         }
                       },
-                      "id": 10228,
+                      "id": 10101,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -1408,7 +1408,7 @@
                         "typeString": "tuple()"
                       }
                     },
-                    "id": 10229,
+                    "id": 10102,
                     "nodeType": "ExpressionStatement",
                     "src": "816:36:24"
                   }
@@ -1416,7 +1416,7 @@
               ]
             },
             "documentation": null,
-            "id": 10232,
+            "id": 10105,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -1424,19 +1424,19 @@
             "name": "finish",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 10213,
+              "id": 10086,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "714:2:24"
             },
             "payable": false,
             "returnParameters": {
-              "id": 10214,
+              "id": 10087,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "724:0:24"
             },
-            "scope": 10257,
+            "scope": 10130,
             "src": "699:160:24",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -1444,14 +1444,14 @@
           },
           {
             "body": {
-              "id": 10255,
+              "id": 10128,
               "nodeType": "Block",
               "src": "898:104:24",
               "statements": [
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 10243,
+                    "id": 10116,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1460,22 +1460,22 @@
                       "argumentTypes": null,
                       "baseExpression": {
                         "argumentTypes": null,
-                        "id": 10235,
+                        "id": 10108,
                         "name": "options",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 11141,
+                        "referencedDeclaration": 11014,
                         "src": "908:7:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_array$_t_struct$_Option_$11210_storage_$11_storage",
+                          "typeIdentifier": "t_array$_t_struct$_Option_$11083_storage_$11_storage",
                           "typeString": "struct VotingLib.Option storage ref[11] storage ref"
                         }
                       },
-                      "id": 10237,
+                      "id": 10110,
                       "indexExpression": {
                         "argumentTypes": null,
                         "hexValue": "31",
-                        "id": 10236,
+                        "id": 10109,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -1497,7 +1497,7 @@
                       "nodeType": "IndexAccess",
                       "src": "908:10:24",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_Option_$11210_storage",
+                        "typeIdentifier": "t_struct$_Option_$11083_storage",
                         "typeString": "struct VotingLib.Option storage ref"
                       }
                     },
@@ -1509,7 +1509,7 @@
                         {
                           "argumentTypes": null,
                           "hexValue": "30",
-                          "id": 10240,
+                          "id": 10113,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -1527,7 +1527,7 @@
                         {
                           "argumentTypes": null,
                           "hexValue": "796573",
-                          "id": 10241,
+                          "id": 10114,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -1556,32 +1556,32 @@
                         ],
                         "expression": {
                           "argumentTypes": null,
-                          "id": 10238,
+                          "id": 10111,
                           "name": "VotingLib",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 11316,
+                          "referencedDeclaration": 11189,
                           "src": "921:9:24",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_VotingLib_$11316_$",
+                            "typeIdentifier": "t_type$_t_contract$_VotingLib_$11189_$",
                             "typeString": "type(library VotingLib)"
                           }
                         },
-                        "id": 10239,
+                        "id": 10112,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "memberName": "Option",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 11210,
+                        "referencedDeclaration": 11083,
                         "src": "921:16:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_struct$_Option_$11210_storage_ptr_$",
+                          "typeIdentifier": "t_type$_t_struct$_Option_$11083_storage_ptr_$",
                           "typeString": "type(struct VotingLib.Option storage pointer)"
                         }
                       },
-                      "id": 10242,
+                      "id": 10115,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -1591,24 +1591,24 @@
                       "nodeType": "FunctionCall",
                       "src": "921:26:24",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_Option_$11210_memory",
+                        "typeIdentifier": "t_struct$_Option_$11083_memory",
                         "typeString": "struct VotingLib.Option memory"
                       }
                     },
                     "src": "908:39:24",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Option_$11210_storage",
+                      "typeIdentifier": "t_struct$_Option_$11083_storage",
                       "typeString": "struct VotingLib.Option storage ref"
                     }
                   },
-                  "id": 10244,
+                  "id": 10117,
                   "nodeType": "ExpressionStatement",
                   "src": "908:39:24"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 10253,
+                    "id": 10126,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -1617,22 +1617,22 @@
                       "argumentTypes": null,
                       "baseExpression": {
                         "argumentTypes": null,
-                        "id": 10245,
+                        "id": 10118,
                         "name": "options",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 11141,
+                        "referencedDeclaration": 11014,
                         "src": "957:7:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_array$_t_struct$_Option_$11210_storage_$11_storage",
+                          "typeIdentifier": "t_array$_t_struct$_Option_$11083_storage_$11_storage",
                           "typeString": "struct VotingLib.Option storage ref[11] storage ref"
                         }
                       },
-                      "id": 10247,
+                      "id": 10120,
                       "indexExpression": {
                         "argumentTypes": null,
                         "hexValue": "32",
-                        "id": 10246,
+                        "id": 10119,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -1654,7 +1654,7 @@
                       "nodeType": "IndexAccess",
                       "src": "957:10:24",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_Option_$11210_storage",
+                        "typeIdentifier": "t_struct$_Option_$11083_storage",
                         "typeString": "struct VotingLib.Option storage ref"
                       }
                     },
@@ -1666,7 +1666,7 @@
                         {
                           "argumentTypes": null,
                           "hexValue": "30",
-                          "id": 10250,
+                          "id": 10123,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -1684,7 +1684,7 @@
                         {
                           "argumentTypes": null,
                           "hexValue": "6e6f",
-                          "id": 10251,
+                          "id": 10124,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -1713,32 +1713,32 @@
                         ],
                         "expression": {
                           "argumentTypes": null,
-                          "id": 10248,
+                          "id": 10121,
                           "name": "VotingLib",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 11316,
+                          "referencedDeclaration": 11189,
                           "src": "970:9:24",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_VotingLib_$11316_$",
+                            "typeIdentifier": "t_type$_t_contract$_VotingLib_$11189_$",
                             "typeString": "type(library VotingLib)"
                           }
                         },
-                        "id": 10249,
+                        "id": 10122,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "memberName": "Option",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 11210,
+                        "referencedDeclaration": 11083,
                         "src": "970:16:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_struct$_Option_$11210_storage_ptr_$",
+                          "typeIdentifier": "t_type$_t_struct$_Option_$11083_storage_ptr_$",
                           "typeString": "type(struct VotingLib.Option storage pointer)"
                         }
                       },
-                      "id": 10252,
+                      "id": 10125,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -1748,24 +1748,24 @@
                       "nodeType": "FunctionCall",
                       "src": "970:25:24",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_Option_$11210_memory",
+                        "typeIdentifier": "t_struct$_Option_$11083_memory",
                         "typeString": "struct VotingLib.Option memory"
                       }
                     },
                     "src": "957:38:24",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Option_$11210_storage",
+                      "typeIdentifier": "t_struct$_Option_$11083_storage",
                       "typeString": "struct VotingLib.Option storage ref"
                     }
                   },
-                  "id": 10254,
+                  "id": 10127,
                   "nodeType": "ExpressionStatement",
                   "src": "957:38:24"
                 }
               ]
             },
             "documentation": null,
-            "id": 10256,
+            "id": 10129,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -1773,26 +1773,26 @@
             "name": "createOptions",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 10233,
+              "id": 10106,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "887:2:24"
             },
             "payable": false,
             "returnParameters": {
-              "id": 10234,
+              "id": 10107,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "898:0:24"
             },
-            "scope": 10257,
+            "scope": 10130,
             "src": "865:137:24",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "private"
           }
         ],
-        "scope": 10258,
+        "scope": 10131,
         "src": "105:899:24"
       }
     ],
@@ -1802,14 +1802,14 @@
     "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Votings/Refund.sol",
     "exportedSymbols": {
       "Refund": [
-        10257
+        10130
       ]
     },
-    "id": 10258,
+    "id": 10131,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 10138,
+        "id": 10011,
         "literals": [
           "solidity",
           "^",
@@ -1822,10 +1822,10 @@
       {
         "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Votings/VotingLib.sol",
         "file": "./VotingLib.sol",
-        "id": 10139,
+        "id": 10012,
         "nodeType": "ImportDirective",
-        "scope": 10258,
-        "sourceUnit": 11317,
+        "scope": 10131,
+        "sourceUnit": 11190,
         "src": "25:25:24",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1833,10 +1833,10 @@
       {
         "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Votings/VotingFields.sol",
         "file": "./VotingFields.sol",
-        "id": 10140,
+        "id": 10013,
         "nodeType": "ImportDirective",
-        "scope": 10258,
-        "sourceUnit": 11172,
+        "scope": 10131,
+        "sourceUnit": 11045,
         "src": "51:28:24",
         "symbolAliases": [],
         "unitAlias": ""
@@ -1844,9 +1844,9 @@
       {
         "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Common.sol",
         "file": "../Common.sol",
-        "id": 10141,
+        "id": 10014,
         "nodeType": "ImportDirective",
-        "scope": 10258,
+        "scope": 10131,
         "sourceUnit": 166,
         "src": "80:23:24",
         "symbolAliases": [],
@@ -1858,41 +1858,41 @@
             "arguments": [],
             "baseName": {
               "contractScope": null,
-              "id": 10142,
+              "id": 10015,
               "name": "VotingFields",
               "nodeType": "UserDefinedTypeName",
-              "referencedDeclaration": 11171,
+              "referencedDeclaration": 11044,
               "src": "124:12:24",
               "typeDescriptions": {
-                "typeIdentifier": "t_contract$_VotingFields_$11171",
+                "typeIdentifier": "t_contract$_VotingFields_$11044",
                 "typeString": "contract VotingFields"
               }
             },
-            "id": 10143,
+            "id": 10016,
             "nodeType": "InheritanceSpecifier",
             "src": "124:12:24"
           }
         ],
         "contractDependencies": [
-          11171
+          11044
         ],
         "contractKind": "contract",
         "documentation": null,
         "fullyImplemented": true,
-        "id": 10257,
+        "id": 10130,
         "linearizedBaseContracts": [
-          10257,
-          11171
+          10130,
+          11044
         ],
         "name": "Refund",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "constant": false,
-            "id": 10145,
+            "id": 10018,
             "name": "baseVoting",
             "nodeType": "VariableDeclaration",
-            "scope": 10257,
+            "scope": 10130,
             "src": "143:18:24",
             "stateVariable": true,
             "storageLocation": "default",
@@ -1901,7 +1901,7 @@
               "typeString": "address"
             },
             "typeName": {
-              "id": 10144,
+              "id": 10017,
               "name": "address",
               "nodeType": "ElementaryTypeName",
               "src": "143:7:24",
@@ -1915,25 +1915,25 @@
           },
           {
             "body": {
-              "id": 10180,
+              "id": 10053,
               "nodeType": "Block",
               "src": "270:189:24",
               "statements": [
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 10160,
+                    "id": 10033,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 10158,
+                      "id": 10031,
                       "name": "baseVoting",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 10145,
+                      "referencedDeclaration": 10018,
                       "src": "280:10:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -1944,11 +1944,11 @@
                     "operator": "=",
                     "rightHandSide": {
                       "argumentTypes": null,
-                      "id": 10159,
+                      "id": 10032,
                       "name": "_baseVoting",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 10147,
+                      "referencedDeclaration": 10020,
                       "src": "293:11:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_address",
@@ -1961,25 +1961,25 @@
                       "typeString": "address"
                     }
                   },
-                  "id": 10161,
+                  "id": 10034,
                   "nodeType": "ExpressionStatement",
                   "src": "280:24:24"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 10164,
+                    "id": 10037,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
                     "lValueRequested": false,
                     "leftHandSide": {
                       "argumentTypes": null,
-                      "id": 10162,
+                      "id": 10035,
                       "name": "votingType",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 11161,
+                      "referencedDeclaration": 11034,
                       "src": "314:10:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_string_storage",
@@ -1991,7 +1991,7 @@
                     "rightHandSide": {
                       "argumentTypes": null,
                       "hexValue": "526566756e64",
-                      "id": 10163,
+                      "id": 10036,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -2012,7 +2012,7 @@
                       "typeString": "string storage ref"
                     }
                   },
-                  "id": 10165,
+                  "id": 10038,
                   "nodeType": "ExpressionStatement",
                   "src": "314:21:24"
                 },
@@ -2022,11 +2022,11 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 10169,
+                        "id": 10042,
                         "name": "baseVoting",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10145,
+                        "referencedDeclaration": 10018,
                         "src": "374:10:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -2035,11 +2035,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 10170,
+                        "id": 10043,
                         "name": "_dao",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10149,
+                        "referencedDeclaration": 10022,
                         "src": "386:4:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -2048,11 +2048,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 10171,
+                        "id": 10044,
                         "name": "_name",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10151,
+                        "referencedDeclaration": 10024,
                         "src": "392:5:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_string_memory_ptr",
@@ -2061,11 +2061,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 10172,
+                        "id": 10045,
                         "name": "_description",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10153,
+                        "referencedDeclaration": 10026,
                         "src": "399:12:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_string_memory_ptr",
@@ -2074,11 +2074,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 10173,
+                        "id": 10046,
                         "name": "_duration",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10155,
+                        "referencedDeclaration": 10028,
                         "src": "413:9:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -2088,7 +2088,7 @@
                       {
                         "argumentTypes": null,
                         "hexValue": "3930",
-                        "id": 10174,
+                        "id": 10047,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -2133,32 +2133,32 @@
                       ],
                       "expression": {
                         "argumentTypes": null,
-                        "id": 10166,
+                        "id": 10039,
                         "name": "VotingLib",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 11316,
+                        "referencedDeclaration": 11189,
                         "src": "345:9:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_VotingLib_$11316_$",
+                          "typeIdentifier": "t_type$_t_contract$_VotingLib_$11189_$",
                           "typeString": "type(library VotingLib)"
                         }
                       },
-                      "id": 10168,
+                      "id": 10041,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "delegatecallCreate",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 11248,
+                      "referencedDeclaration": 11121,
                       "src": "345:28:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_delegatecall_nonpayable$_t_address_$_t_address_$_t_string_memory_ptr_$_t_string_memory_ptr_$_t_uint256_$_t_uint256_$returns$__$",
                         "typeString": "function (address,address,string memory,string memory,uint256,uint256)"
                       }
                     },
-                    "id": 10175,
+                    "id": 10048,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2172,7 +2172,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 10176,
+                  "id": 10049,
                   "nodeType": "ExpressionStatement",
                   "src": "345:82:24"
                 },
@@ -2182,18 +2182,18 @@
                     "arguments": [],
                     "expression": {
                       "argumentTypes": [],
-                      "id": 10177,
+                      "id": 10050,
                       "name": "createOptions",
                       "nodeType": "Identifier",
                       "overloadedDeclarations": [],
-                      "referencedDeclaration": 10256,
+                      "referencedDeclaration": 10129,
                       "src": "437:13:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_internal_nonpayable$__$returns$__$",
                         "typeString": "function ()"
                       }
                     },
-                    "id": 10178,
+                    "id": 10051,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2207,14 +2207,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 10179,
+                  "id": 10052,
                   "nodeType": "ExpressionStatement",
                   "src": "437:15:24"
                 }
               ]
             },
             "documentation": null,
-            "id": 10181,
+            "id": 10054,
             "implemented": true,
             "isConstructor": true,
             "isDeclaredConst": false,
@@ -2222,15 +2222,15 @@
             "name": "Refund",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 10156,
+              "id": 10029,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 10147,
+                  "id": 10020,
                   "name": "_baseVoting",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10181,
+                  "scope": 10054,
                   "src": "184:19:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2239,7 +2239,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 10146,
+                    "id": 10019,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "184:7:24",
@@ -2253,10 +2253,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 10149,
+                  "id": 10022,
                   "name": "_dao",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10181,
+                  "scope": 10054,
                   "src": "205:12:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2265,7 +2265,7 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 10148,
+                    "id": 10021,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
                     "src": "205:7:24",
@@ -2279,10 +2279,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 10151,
+                  "id": 10024,
                   "name": "_name",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10181,
+                  "scope": 10054,
                   "src": "219:12:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2291,7 +2291,7 @@
                     "typeString": "string memory"
                   },
                   "typeName": {
-                    "id": 10150,
+                    "id": 10023,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "219:6:24",
@@ -2305,10 +2305,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 10153,
+                  "id": 10026,
                   "name": "_description",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10181,
+                  "scope": 10054,
                   "src": "233:19:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2317,7 +2317,7 @@
                     "typeString": "string memory"
                   },
                   "typeName": {
-                    "id": 10152,
+                    "id": 10025,
                     "name": "string",
                     "nodeType": "ElementaryTypeName",
                     "src": "233:6:24",
@@ -2331,10 +2331,10 @@
                 },
                 {
                   "constant": false,
-                  "id": 10155,
+                  "id": 10028,
                   "name": "_duration",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10181,
+                  "scope": 10054,
                   "src": "254:14:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2343,7 +2343,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 10154,
+                    "id": 10027,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "254:4:24",
@@ -2360,12 +2360,12 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 10157,
+              "id": 10030,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "270:0:24"
             },
-            "scope": 10257,
+            "scope": 10130,
             "src": "168:291:24",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -2373,7 +2373,7 @@
           },
           {
             "body": {
-              "id": 10198,
+              "id": 10071,
               "nodeType": "Block",
               "src": "520:60:24",
               "statements": [
@@ -2387,22 +2387,22 @@
                           "argumentTypes": null,
                           "baseExpression": {
                             "argumentTypes": null,
-                            "id": 10188,
+                            "id": 10061,
                             "name": "options",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 11141,
+                            "referencedDeclaration": 11014,
                             "src": "538:7:24",
                             "typeDescriptions": {
-                              "typeIdentifier": "t_array$_t_struct$_Option_$11210_storage_$11_storage",
+                              "typeIdentifier": "t_array$_t_struct$_Option_$11083_storage_$11_storage",
                               "typeString": "struct VotingLib.Option storage ref[11] storage ref"
                             }
                           },
-                          "id": 10190,
+                          "id": 10063,
                           "indexExpression": {
                             "argumentTypes": null,
                             "hexValue": "31",
-                            "id": 10189,
+                            "id": 10062,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
@@ -2424,18 +2424,18 @@
                           "nodeType": "IndexAccess",
                           "src": "538:10:24",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_struct$_Option_$11210_storage",
+                            "typeIdentifier": "t_struct$_Option_$11083_storage",
                             "typeString": "struct VotingLib.Option storage ref"
                           }
                         },
-                        "id": 10191,
+                        "id": 10064,
                         "isConstant": false,
                         "isLValue": true,
                         "isPure": false,
                         "lValueRequested": false,
                         "memberName": "votes",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 11207,
+                        "referencedDeclaration": 11080,
                         "src": "538:16:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -2448,22 +2448,22 @@
                           "argumentTypes": null,
                           "baseExpression": {
                             "argumentTypes": null,
-                            "id": 10192,
+                            "id": 10065,
                             "name": "options",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [],
-                            "referencedDeclaration": 11141,
+                            "referencedDeclaration": 11014,
                             "src": "556:7:24",
                             "typeDescriptions": {
-                              "typeIdentifier": "t_array$_t_struct$_Option_$11210_storage_$11_storage",
+                              "typeIdentifier": "t_array$_t_struct$_Option_$11083_storage_$11_storage",
                               "typeString": "struct VotingLib.Option storage ref[11] storage ref"
                             }
                           },
-                          "id": 10194,
+                          "id": 10067,
                           "indexExpression": {
                             "argumentTypes": null,
                             "hexValue": "32",
-                            "id": 10193,
+                            "id": 10066,
                             "isConstant": false,
                             "isLValue": false,
                             "isPure": true,
@@ -2485,18 +2485,18 @@
                           "nodeType": "IndexAccess",
                           "src": "556:10:24",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_struct$_Option_$11210_storage",
+                            "typeIdentifier": "t_struct$_Option_$11083_storage",
                             "typeString": "struct VotingLib.Option storage ref"
                           }
                         },
-                        "id": 10195,
+                        "id": 10068,
                         "isConstant": false,
                         "isLValue": true,
                         "isPure": false,
                         "lValueRequested": false,
                         "memberName": "votes",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 11207,
+                        "referencedDeclaration": 11080,
                         "src": "556:16:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -2504,7 +2504,7 @@
                         }
                       }
                     ],
-                    "id": 10196,
+                    "id": 10069,
                     "isConstant": false,
                     "isInlineArray": true,
                     "isLValue": false,
@@ -2517,15 +2517,15 @@
                       "typeString": "uint256[2] memory"
                     }
                   },
-                  "functionReturnParameters": 10187,
-                  "id": 10197,
+                  "functionReturnParameters": 10060,
+                  "id": 10070,
                   "nodeType": "Return",
                   "src": "530:43:24"
                 }
               ]
             },
             "documentation": null,
-            "id": 10199,
+            "id": 10072,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": true,
@@ -2533,22 +2533,22 @@
             "name": "getOptions",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 10182,
+              "id": 10055,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "484:2:24"
             },
             "payable": false,
             "returnParameters": {
-              "id": 10187,
+              "id": 10060,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 10186,
+                  "id": 10059,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10199,
+                  "scope": 10072,
                   "src": "511:7:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2558,7 +2558,7 @@
                   },
                   "typeName": {
                     "baseType": {
-                      "id": 10183,
+                      "id": 10056,
                       "name": "uint",
                       "nodeType": "ElementaryTypeName",
                       "src": "511:4:24",
@@ -2567,11 +2567,11 @@
                         "typeString": "uint256"
                       }
                     },
-                    "id": 10185,
+                    "id": 10058,
                     "length": {
                       "argumentTypes": null,
                       "hexValue": "32",
-                      "id": 10184,
+                      "id": 10057,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -2599,7 +2599,7 @@
               ],
               "src": "510:9:24"
             },
-            "scope": 10257,
+            "scope": 10130,
             "src": "465:115:24",
             "stateMutability": "view",
             "superFunction": null,
@@ -2607,7 +2607,7 @@
           },
           {
             "body": {
-              "id": 10211,
+              "id": 10084,
               "nodeType": "Block",
               "src": "625:68:24",
               "statements": [
@@ -2617,11 +2617,11 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 10207,
+                        "id": 10080,
                         "name": "baseVoting",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10145,
+                        "referencedDeclaration": 10018,
                         "src": "665:10:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -2630,11 +2630,11 @@
                       },
                       {
                         "argumentTypes": null,
-                        "id": 10208,
+                        "id": 10081,
                         "name": "optionID",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10201,
+                        "referencedDeclaration": 10074,
                         "src": "677:8:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_uint256",
@@ -2655,32 +2655,32 @@
                       ],
                       "expression": {
                         "argumentTypes": null,
-                        "id": 10204,
+                        "id": 10077,
                         "name": "VotingLib",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 11316,
+                        "referencedDeclaration": 11189,
                         "src": "635:9:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_VotingLib_$11316_$",
+                          "typeIdentifier": "t_type$_t_contract$_VotingLib_$11189_$",
                           "typeString": "type(library VotingLib)"
                         }
                       },
-                      "id": 10206,
+                      "id": 10079,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "delegatecallAddVote",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 11268,
+                      "referencedDeclaration": 11141,
                       "src": "635:29:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_delegatecall_nonpayable$_t_address_$_t_uint256_$returns$__$",
                         "typeString": "function (address,uint256)"
                       }
                     },
-                    "id": 10209,
+                    "id": 10082,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2694,14 +2694,14 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 10210,
+                  "id": 10083,
                   "nodeType": "ExpressionStatement",
                   "src": "635:51:24"
                 }
               ]
             },
             "documentation": null,
-            "id": 10212,
+            "id": 10085,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -2709,15 +2709,15 @@
             "name": "addVote",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 10202,
+              "id": 10075,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 10201,
+                  "id": 10074,
                   "name": "optionID",
                   "nodeType": "VariableDeclaration",
-                  "scope": 10212,
+                  "scope": 10085,
                   "src": "603:13:24",
                   "stateVariable": false,
                   "storageLocation": "default",
@@ -2726,7 +2726,7 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 10200,
+                    "id": 10073,
                     "name": "uint",
                     "nodeType": "ElementaryTypeName",
                     "src": "603:4:24",
@@ -2743,12 +2743,12 @@
             },
             "payable": false,
             "returnParameters": {
-              "id": 10203,
+              "id": 10076,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "625:0:24"
             },
-            "scope": 10257,
+            "scope": 10130,
             "src": "586:107:24",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -2756,7 +2756,7 @@
           },
           {
             "body": {
-              "id": 10231,
+              "id": 10104,
               "nodeType": "Block",
               "src": "724:135:24",
               "statements": [
@@ -2766,11 +2766,11 @@
                     "arguments": [
                       {
                         "argumentTypes": null,
-                        "id": 10218,
+                        "id": 10091,
                         "name": "baseVoting",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 10145,
+                        "referencedDeclaration": 10018,
                         "src": "763:10:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_address",
@@ -2787,32 +2787,32 @@
                       ],
                       "expression": {
                         "argumentTypes": null,
-                        "id": 10215,
+                        "id": 10088,
                         "name": "VotingLib",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 11316,
+                        "referencedDeclaration": 11189,
                         "src": "734:9:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_contract$_VotingLib_$11316_$",
+                          "typeIdentifier": "t_type$_t_contract$_VotingLib_$11189_$",
                           "typeString": "type(library VotingLib)"
                         }
                       },
-                      "id": 10217,
+                      "id": 10090,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "delegatecallFinish",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 11285,
+                      "referencedDeclaration": 11158,
                       "src": "734:28:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_function_delegatecall_nonpayable$_t_address_$returns$__$",
                         "typeString": "function (address)"
                       }
                     },
-                    "id": 10219,
+                    "id": 10092,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2826,7 +2826,7 @@
                       "typeString": "tuple()"
                     }
                   },
-                  "id": 10220,
+                  "id": 10093,
                   "nodeType": "ExpressionStatement",
                   "src": "734:40:24"
                 },
@@ -2837,7 +2837,7 @@
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
                     },
-                    "id": 10224,
+                    "id": 10097,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -2846,25 +2846,25 @@
                       "argumentTypes": null,
                       "expression": {
                         "argumentTypes": null,
-                        "id": 10221,
+                        "id": 10094,
                         "name": "result",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 11147,
+                        "referencedDeclaration": 11020,
                         "src": "787:6:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_struct$_Option_$11210_storage",
+                          "typeIdentifier": "t_struct$_Option_$11083_storage",
                           "typeString": "struct VotingLib.Option storage ref"
                         }
                       },
-                      "id": 10222,
+                      "id": 10095,
                       "isConstant": false,
                       "isLValue": true,
                       "isPure": false,
                       "lValueRequested": false,
                       "memberName": "description",
                       "nodeType": "MemberAccess",
-                      "referencedDeclaration": 11209,
+                      "referencedDeclaration": 11082,
                       "src": "787:18:24",
                       "typeDescriptions": {
                         "typeIdentifier": "t_bytes32",
@@ -2876,7 +2876,7 @@
                     "rightExpression": {
                       "argumentTypes": null,
                       "hexValue": "796573",
-                      "id": 10223,
+                      "id": 10096,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -2898,7 +2898,7 @@
                     }
                   },
                   "falseBody": null,
-                  "id": 10230,
+                  "id": 10103,
                   "nodeType": "IfStatement",
                   "src": "784:68:24",
                   "trueBody": {
@@ -2909,32 +2909,32 @@
                         "argumentTypes": [],
                         "expression": {
                           "argumentTypes": null,
-                          "id": 10225,
+                          "id": 10098,
                           "name": "dao",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 11133,
+                          "referencedDeclaration": 11006,
                           "src": "816:3:24",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_contract$_ICrowdsaleDAO_$2105",
+                            "typeIdentifier": "t_contract$_ICrowdsaleDAO_$1978",
                             "typeString": "contract ICrowdsaleDAO"
                           }
                         },
-                        "id": 10227,
+                        "id": 10100,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "memberName": "makeRefundableByVotingDecision",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 2053,
+                        "referencedDeclaration": 1926,
                         "src": "816:34:24",
                         "typeDescriptions": {
                           "typeIdentifier": "t_function_external_nonpayable$__$returns$__$",
                           "typeString": "function () external"
                         }
                       },
-                      "id": 10228,
+                      "id": 10101,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": false,
@@ -2948,7 +2948,7 @@
                         "typeString": "tuple()"
                       }
                     },
-                    "id": 10229,
+                    "id": 10102,
                     "nodeType": "ExpressionStatement",
                     "src": "816:36:24"
                   }
@@ -2956,7 +2956,7 @@
               ]
             },
             "documentation": null,
-            "id": 10232,
+            "id": 10105,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -2964,19 +2964,19 @@
             "name": "finish",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 10213,
+              "id": 10086,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "714:2:24"
             },
             "payable": false,
             "returnParameters": {
-              "id": 10214,
+              "id": 10087,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "724:0:24"
             },
-            "scope": 10257,
+            "scope": 10130,
             "src": "699:160:24",
             "stateMutability": "nonpayable",
             "superFunction": null,
@@ -2984,14 +2984,14 @@
           },
           {
             "body": {
-              "id": 10255,
+              "id": 10128,
               "nodeType": "Block",
               "src": "898:104:24",
               "statements": [
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 10243,
+                    "id": 10116,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3000,22 +3000,22 @@
                       "argumentTypes": null,
                       "baseExpression": {
                         "argumentTypes": null,
-                        "id": 10235,
+                        "id": 10108,
                         "name": "options",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 11141,
+                        "referencedDeclaration": 11014,
                         "src": "908:7:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_array$_t_struct$_Option_$11210_storage_$11_storage",
+                          "typeIdentifier": "t_array$_t_struct$_Option_$11083_storage_$11_storage",
                           "typeString": "struct VotingLib.Option storage ref[11] storage ref"
                         }
                       },
-                      "id": 10237,
+                      "id": 10110,
                       "indexExpression": {
                         "argumentTypes": null,
                         "hexValue": "31",
-                        "id": 10236,
+                        "id": 10109,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3037,7 +3037,7 @@
                       "nodeType": "IndexAccess",
                       "src": "908:10:24",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_Option_$11210_storage",
+                        "typeIdentifier": "t_struct$_Option_$11083_storage",
                         "typeString": "struct VotingLib.Option storage ref"
                       }
                     },
@@ -3049,7 +3049,7 @@
                         {
                           "argumentTypes": null,
                           "hexValue": "30",
-                          "id": 10240,
+                          "id": 10113,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -3067,7 +3067,7 @@
                         {
                           "argumentTypes": null,
                           "hexValue": "796573",
-                          "id": 10241,
+                          "id": 10114,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -3096,32 +3096,32 @@
                         ],
                         "expression": {
                           "argumentTypes": null,
-                          "id": 10238,
+                          "id": 10111,
                           "name": "VotingLib",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 11316,
+                          "referencedDeclaration": 11189,
                           "src": "921:9:24",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_VotingLib_$11316_$",
+                            "typeIdentifier": "t_type$_t_contract$_VotingLib_$11189_$",
                             "typeString": "type(library VotingLib)"
                           }
                         },
-                        "id": 10239,
+                        "id": 10112,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "memberName": "Option",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 11210,
+                        "referencedDeclaration": 11083,
                         "src": "921:16:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_struct$_Option_$11210_storage_ptr_$",
+                          "typeIdentifier": "t_type$_t_struct$_Option_$11083_storage_ptr_$",
                           "typeString": "type(struct VotingLib.Option storage pointer)"
                         }
                       },
-                      "id": 10242,
+                      "id": 10115,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -3131,24 +3131,24 @@
                       "nodeType": "FunctionCall",
                       "src": "921:26:24",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_Option_$11210_memory",
+                        "typeIdentifier": "t_struct$_Option_$11083_memory",
                         "typeString": "struct VotingLib.Option memory"
                       }
                     },
                     "src": "908:39:24",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Option_$11210_storage",
+                      "typeIdentifier": "t_struct$_Option_$11083_storage",
                       "typeString": "struct VotingLib.Option storage ref"
                     }
                   },
-                  "id": 10244,
+                  "id": 10117,
                   "nodeType": "ExpressionStatement",
                   "src": "908:39:24"
                 },
                 {
                   "expression": {
                     "argumentTypes": null,
-                    "id": 10253,
+                    "id": 10126,
                     "isConstant": false,
                     "isLValue": false,
                     "isPure": false,
@@ -3157,22 +3157,22 @@
                       "argumentTypes": null,
                       "baseExpression": {
                         "argumentTypes": null,
-                        "id": 10245,
+                        "id": 10118,
                         "name": "options",
                         "nodeType": "Identifier",
                         "overloadedDeclarations": [],
-                        "referencedDeclaration": 11141,
+                        "referencedDeclaration": 11014,
                         "src": "957:7:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_array$_t_struct$_Option_$11210_storage_$11_storage",
+                          "typeIdentifier": "t_array$_t_struct$_Option_$11083_storage_$11_storage",
                           "typeString": "struct VotingLib.Option storage ref[11] storage ref"
                         }
                       },
-                      "id": 10247,
+                      "id": 10120,
                       "indexExpression": {
                         "argumentTypes": null,
                         "hexValue": "32",
-                        "id": 10246,
+                        "id": 10119,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": true,
@@ -3194,7 +3194,7 @@
                       "nodeType": "IndexAccess",
                       "src": "957:10:24",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_Option_$11210_storage",
+                        "typeIdentifier": "t_struct$_Option_$11083_storage",
                         "typeString": "struct VotingLib.Option storage ref"
                       }
                     },
@@ -3206,7 +3206,7 @@
                         {
                           "argumentTypes": null,
                           "hexValue": "30",
-                          "id": 10250,
+                          "id": 10123,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -3224,7 +3224,7 @@
                         {
                           "argumentTypes": null,
                           "hexValue": "6e6f",
-                          "id": 10251,
+                          "id": 10124,
                           "isConstant": false,
                           "isLValue": false,
                           "isPure": true,
@@ -3253,32 +3253,32 @@
                         ],
                         "expression": {
                           "argumentTypes": null,
-                          "id": 10248,
+                          "id": 10121,
                           "name": "VotingLib",
                           "nodeType": "Identifier",
                           "overloadedDeclarations": [],
-                          "referencedDeclaration": 11316,
+                          "referencedDeclaration": 11189,
                           "src": "970:9:24",
                           "typeDescriptions": {
-                            "typeIdentifier": "t_type$_t_contract$_VotingLib_$11316_$",
+                            "typeIdentifier": "t_type$_t_contract$_VotingLib_$11189_$",
                             "typeString": "type(library VotingLib)"
                           }
                         },
-                        "id": 10249,
+                        "id": 10122,
                         "isConstant": false,
                         "isLValue": false,
                         "isPure": false,
                         "lValueRequested": false,
                         "memberName": "Option",
                         "nodeType": "MemberAccess",
-                        "referencedDeclaration": 11210,
+                        "referencedDeclaration": 11083,
                         "src": "970:16:24",
                         "typeDescriptions": {
-                          "typeIdentifier": "t_type$_t_struct$_Option_$11210_storage_ptr_$",
+                          "typeIdentifier": "t_type$_t_struct$_Option_$11083_storage_ptr_$",
                           "typeString": "type(struct VotingLib.Option storage pointer)"
                         }
                       },
-                      "id": 10252,
+                      "id": 10125,
                       "isConstant": false,
                       "isLValue": false,
                       "isPure": true,
@@ -3288,24 +3288,24 @@
                       "nodeType": "FunctionCall",
                       "src": "970:25:24",
                       "typeDescriptions": {
-                        "typeIdentifier": "t_struct$_Option_$11210_memory",
+                        "typeIdentifier": "t_struct$_Option_$11083_memory",
                         "typeString": "struct VotingLib.Option memory"
                       }
                     },
                     "src": "957:38:24",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_struct$_Option_$11210_storage",
+                      "typeIdentifier": "t_struct$_Option_$11083_storage",
                       "typeString": "struct VotingLib.Option storage ref"
                     }
                   },
-                  "id": 10254,
+                  "id": 10127,
                   "nodeType": "ExpressionStatement",
                   "src": "957:38:24"
                 }
               ]
             },
             "documentation": null,
-            "id": 10256,
+            "id": 10129,
             "implemented": true,
             "isConstructor": false,
             "isDeclaredConst": false,
@@ -3313,26 +3313,26 @@
             "name": "createOptions",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 10233,
+              "id": 10106,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "887:2:24"
             },
             "payable": false,
             "returnParameters": {
-              "id": 10234,
+              "id": 10107,
               "nodeType": "ParameterList",
               "parameters": [],
               "src": "898:0:24"
             },
-            "scope": 10257,
+            "scope": 10130,
             "src": "865:137:24",
             "stateMutability": "nonpayable",
             "superFunction": null,
             "visibility": "private"
           }
         ],
-        "scope": 10258,
+        "scope": 10131,
         "src": "105:899:24"
       }
     ],
@@ -3344,5 +3344,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-05-08T21:03:38.499Z"
+  "updatedAt": "2018-05-10T12:49:50.728Z"
 }
