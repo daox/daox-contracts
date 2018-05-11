@@ -17,6 +17,7 @@ contract Regular is VotingFields {
 
     /*
     * @dev Returns amount of votes for all regular proposal's options
+    * @return Array[10] of int
     */
     function getOptions() external constant returns(uint[10]) {
         return [options[1].votes, options[2].votes, options[3].votes, options[4].votes, options[5].votes,
