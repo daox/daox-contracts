@@ -425,4 +425,8 @@ contract("Case#1", accounts => {
         assert.isTrue(await helper.getBalance(web3, dao.address) / etherBalanceAfterCrowdsale * 100 <= 1.5);
         assert.isTrue(await DXC.balanceOf(dao.address) / dxcBalanceAfterCrowdsale * 100 <= 1.5);
     });
+
+    it("False", () => {
+        assert.isTrue(false);
+    });
 });
