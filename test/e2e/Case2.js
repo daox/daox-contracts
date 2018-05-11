@@ -3,8 +3,7 @@ const helper = require('../helpers/helper.js');
 const Token = artifacts.require("./Token/Token.sol");
 const Commission = artifacts.require("./Commission.sol");
 const DXCToken = artifacts.require("./Token/DXC.sol");
-const daoxContract = artifacts.require("./DAOX.sol");
-const Withdrawal = artifacts.require('./Votings/Withdrawal.sol');
+const daoxContract = artifacts.require("./DAOx.sol");
 const Refund = artifacts.require('./Votings/Refund.sol');
 
 contract("Case#2", accounts => {
