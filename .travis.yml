@@ -1,0 +1,10 @@
+sudo: required
+language: node_js
+node_js:
+  - "9.4.0"
+
+before_script:
+  - npm i && npm i -g truffle ganache-cli
+
+script:
+  - bash ./test.sh
