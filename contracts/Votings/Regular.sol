@@ -40,7 +40,7 @@ contract Regular is VotingFields {
     }
 
     /*
-    * @dev Create up to 10 options of votes
+    * @dev Creates up to 10 options of votes
     * @param _options Array of votes options
     */
     function createOptions(bytes32[] _options) private {
