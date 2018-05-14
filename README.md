@@ -1,4 +1,4 @@
-# Daox Contracts <img align="right" src="https://raw.githubusercontent.com/daox/daox-contracts/master/assets/daox-logo_github@2x.png" height="76px" />
+# Daox Contracts <img align="right" src="https://raw.githubusercontent.com/daox/daox-contracts/840ebd10400d1d81b6b324116f009d2154e07b07/assets/daox-logo_github%402x.png" height="60px" />
 
 [![Build Status](https://travis-ci.org/daox/daox-contracts.svg?branch=master)](https://travis-ci.org/daox/daox-contracts)
 
