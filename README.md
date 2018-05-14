@@ -36,7 +36,7 @@ npm test
 
 Compile and Deploy
 ------------------
-Compiled contract are already stored in repository so in regular case you will not need to compile it. 
+Compiled contracts are already stored in repository so in regular case you will not need to compile it. 
 But if it is needed for some reason use instructions below
 
 ### Compile all contracts:
