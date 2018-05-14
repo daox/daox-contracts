@@ -53,4 +53,4 @@ Contributors
 ------------
 - Anton Vityazev ([GiddeonWyeth](https://github.com/GiddeonWyeth))
 - Kirill Bulgakov ([bulgakovk](https://github.com/bulgakovk))
-- Alexander Shevlyakov ([sanchosrancho](https://github.com/sanchosrancho))
+- Alex Shevlyakov ([sanchosrancho](https://github.com/sanchosrancho))
