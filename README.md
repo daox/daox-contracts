@@ -1,4 +1,4 @@
-# Daox Contracts <img align="right" src="https://raw.githubusercontent.com/daox/daox-contracts/840ebd10400d1d81b6b324116f009d2154e07b07/assets/daox-logo_github%402x.png" height="34px" />
+# Daox Contracts &nbsp; [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social)](https://twitter.com/intent/tweet?text=Daox%20is%20a%20solution%20that%20lets%20startups%20and%20investors%20form%20decentralized%20autonomous%20organizations%20on%20Ethereum%20blockchain&url=https://daox.org&hashtags=blockchain,ethereum,dapps,dao,investment) <img align="right" src="https://raw.githubusercontent.com/daox/daox-contracts/840ebd10400d1d81b6b324116f009d2154e07b07/assets/daox-logo_github%402x.png" height="34px" />
 
 [![Build Status](https://travis-ci.org/daox/daox-contracts.svg?branch=master)](https://travis-ci.org/daox/daox-contracts)
 
