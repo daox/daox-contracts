@@ -49,6 +49,10 @@ License
 -------
 All smart contracts are released under MIT.
 
+Details
+-------
+For additional details you can also follow series of [How Daox Works](https://medium.com/daox/how-daox-works-part-1-a1d2a456cbe7) blogposts.
+
 Contributors
 ------------
 - Anton Vityazev ([GiddeonWyeth](https://github.com/GiddeonWyeth))
