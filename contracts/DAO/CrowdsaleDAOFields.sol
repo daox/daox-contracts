@@ -46,7 +46,7 @@ contract CrowdsaleDAOFields {
     uint[] public bonusEtherRates;
     uint[] public bonusDXCRates;
     uint public teamTokensAmount;
-    uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;
+    uint constant internal withdrawalPeriod = 60 * 24 * 60 * 60;
     TokenInterface public DXC;
     uint public tokensMintedByEther;
     uint public tokensMintedByDXC;
