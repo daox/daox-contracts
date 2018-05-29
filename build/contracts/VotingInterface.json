@@ -77,9 +77,9 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.0;\n\ninterface VotingInterface {\n    function addVote(uint optionID) external;\n\n    function finish() external;\n\n    function getOptions() external constant returns(uint[2] result);\n\n    function finished() external constant returns(bool);\n\n    function voted(address _address) external constant returns (uint);\n}",
-  "sourcePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Votings/VotingInterface.sol",
+  "sourcePath": "/Users/kirill/projects/daox-contracts/contracts/Votings/VotingInterface.sol",
   "ast": {
-    "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Votings/VotingInterface.sol",
+    "absolutePath": "/Users/kirill/projects/daox-contracts/contracts/Votings/VotingInterface.sol",
     "exportedSymbols": {
       "VotingInterface": [
         10935
@@ -229,7 +229,7 @@
                   "storageLocation": "default",
                   "typeDescriptions": {
                     "typeIdentifier": "t_array$_t_uint256_$2_memory_ptr",
-                    "typeString": "uint256[2] memory"
+                    "typeString": "uint256[2]"
                   },
                   "typeName": {
                     "baseType": {
@@ -265,7 +265,7 @@
                     "src": "185:7:31",
                     "typeDescriptions": {
                       "typeIdentifier": "t_array$_t_uint256_$2_storage_ptr",
-                      "typeString": "uint256[2] storage pointer"
+                      "typeString": "uint256[2]"
                     }
                   },
                   "value": null,
@@ -427,7 +427,7 @@
     "src": "0:333:31"
   },
   "legacyAST": {
-    "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Votings/VotingInterface.sol",
+    "absolutePath": "/Users/kirill/projects/daox-contracts/contracts/Votings/VotingInterface.sol",
     "exportedSymbols": {
       "VotingInterface": [
         10935
@@ -577,7 +577,7 @@
                   "storageLocation": "default",
                   "typeDescriptions": {
                     "typeIdentifier": "t_array$_t_uint256_$2_memory_ptr",
-                    "typeString": "uint256[2] memory"
+                    "typeString": "uint256[2]"
                   },
                   "typeName": {
                     "baseType": {
@@ -613,7 +613,7 @@
                     "src": "185:7:31",
                     "typeDescriptions": {
                       "typeIdentifier": "t_array$_t_uint256_$2_storage_ptr",
-                      "typeString": "uint256[2] storage pointer"
+                      "typeString": "uint256[2]"
                     }
                   },
                   "value": null,
@@ -776,9 +776,9 @@
   },
   "compiler": {
     "name": "solc",
-    "version": "0.4.21+commit.dfe3193c.Emscripten.clang"
+    "version": "0.4.23+commit.124ca40d.Emscripten.clang"
   },
   "networks": {},
   "schemaVersion": "2.0.0",
-  "updatedAt": "2018-05-11T15:56:12.766Z"
+  "updatedAt": "2018-05-29T15:59:36.910Z"
 }
