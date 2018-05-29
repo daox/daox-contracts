@@ -17,7 +17,7 @@ contract("VotingDecisions", accounts => {
     const backers = [backer1, backer2, backer3, backer4, backer5];
     const teamBonuses = [9, 9];
     const minimalDurationPeriod = 60 * 60 * 24 * 7;
-    const FOUR_MONTHS = 120 * 24 * 60 * 60;
+    const TWO_MONTHS = 60 * 24 * 60 * 60;
     const name = "Voting name";
 
     const Modules = {
@@ -403,7 +403,7 @@ contract("VotingDecisions", accounts => {
         return helper.handleErrorTransaction(() => dao.makeRefundableByUser.sendTransaction({from: backer4}));
     });
 
-    it("Make refundable by user#2: should become refundable when last withdrawal was >= 4 months ago", async () => {
+    it("Make refundable by user#2: should not become refundable when last withdrawal was < 2 months ago", async () => {
         const cdf = await helper.createCrowdsaleDAOFactory();
         const dao = await helper.createCrowdsaleDAO(cdf, accounts);
         await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000], [false, false]);
@@ -412,7 +412,22 @@ contract("VotingDecisions", accounts => {
 
         assert.isNotTrue(await dao.refundable.call());
 
-        await helper.rpcCall(web3, "evm_increaseTime", [FOUR_MONTHS]);
+        await helper.rpcCall(web3, "evm_increaseTime", [TWO_MONTHS - 1000]);
+        await helper.rpcCall(web3, "evm_mine", null);
+
+        return helper.handleErrorTransaction(() => dao.makeRefundableByUser.sendTransaction({from: backer4}));
+    });
+
+    it("Make refundable by user#3: should become refundable when last withdrawal was >= 2 months ago", async () => {
+        const cdf = await helper.createCrowdsaleDAOFactory();
+        const dao = await helper.createCrowdsaleDAO(cdf, accounts);
+        await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000], [false, false]);
+        await dao.setWhiteList.sendTransaction([whiteListAddress1]);
+        await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
+
+        assert.isNotTrue(await dao.refundable.call());
+
+        await helper.rpcCall(web3, "evm_increaseTime", [TWO_MONTHS]);
         await helper.rpcCall(web3, "evm_mine", null);
 
         await dao.makeRefundableByUser.sendTransaction({from: backer4});
