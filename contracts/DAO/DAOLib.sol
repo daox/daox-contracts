@@ -103,6 +103,6 @@ library DAOLib {
     function countRefundSum(uint tokensAmount, uint etherRate, uint newRate, uint multiplier) constant returns (uint) {
         uint fromPercentDivider = 100;
 
-        return (tokensAmount / fromPercentDivider * newRate) / (multiplier * etherRate);
+        return (tokensAmount * newRate / fromPercentDivider) / (multiplier * etherRate);
     }
 }
