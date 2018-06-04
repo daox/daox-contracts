@@ -83,11 +83,20 @@ contract("DXC", accounts => {
         return helper.handleErrorTransaction(() => dxc.transferTokens([accounts[8]], [100, 200]), {from: accounts[1]});
     });
 
+    it("Should throw when amount of sending tokens is greater then balance", async () => {
+        await dxc.setAdditionalOwners([accounts[5]], {from: accounts[0]});
+        assert.equal(await dxc.additionalOwnersList(0), accounts[5]);
+        assert.deepEqual(await dxc.balanceOf(accounts[5]), web3.toBigNumber(350)); // 350*10^-18 tokens
+
+        await helper.handleErrorTransaction(() => dxc.transferTokens([accounts[0], accounts[1]], [200, 200]));
+        assert.deepEqual(await dxc.balanceOf(accounts[5]), web3.toBigNumber(350)); // 350*10^-18 tokens
+    });
+
     it("Token's maximum supply can't be exceeded", async () => {
-        await dxc.mint(accounts[1], web3.toWei(THREE_HUNDRED_MILLION - 2), {from: accounts[3]}); // maximum supply has reached
+        await dxc.mint(accounts[1], web3.toWei(THREE_HUNDRED_MILLION - 2), {from: accounts[5]}); // maximum supply has reached
 
         assert.deepEqual(await dxc.totalSupply(), await dxc.maximumSupply());
 
-        return helper.handleErrorTransaction(() => dxc.mint(accounts[1], web3.toWei(1), {from: accounts[3]}));
+        return helper.handleErrorTransaction(() => dxc.mint(accounts[1], web3.toWei(1), {from: accounts[5]}));
     });
 });
