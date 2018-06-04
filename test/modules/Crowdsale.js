@@ -373,7 +373,7 @@ contract("Crowdsale", accounts => {
         return helper.handleErrorTransaction(() => dxc.contributeTo.sendTransaction(dao.address, DXCAmount, {from: accounts[2]}));
     });
 
-    it("Should finish crowdsale with achieved hardCap before it's end with only DXT deposit", async () => {
+    it("Should finish crowdsale with achieved hardCap before it's end with only DXC deposit", async () => {
         const dxcAmount = web3.toBigNumber(web3.toWei(40));
         const dxc = await helper.mintDXC(accounts[2], dxcAmount.toNumber());
 
@@ -404,7 +404,7 @@ contract("Crowdsale", accounts => {
         return helper.handleErrorTransaction(() => dxc.contributeTo(dao.address, dxcAmount2.toNumber(), {from: accounts[3]}));
     });
 
-    it("Should finish crowdsale with achieved hardCap before it's end with ether and DXT deposit", async () => {
+    it("Should finish crowdsale with achieved hardCap before it's end with ether and DXC deposit", async () => {
         const dxcAmount = web3.toBigNumber(web3.toWei(20));
         const etherAmount = web3.toBigNumber(web3.toWei(10));
         const dxc = await helper.mintDXC(accounts[4], dxcAmount.toNumber());
@@ -422,5 +422,83 @@ contract("Crowdsale", accounts => {
         assert.isFalse(await dao.refundable());
         assert.isTrue(await dao.crowdsaleFinished());
         assert.deepEqual(await dao.tokensMintedByEther(), await dao.tokensMintedByDXC());
+    });
+
+    it("Should not let set lockup timestamp less than endTime of crowdsale", async () => {
+        await helper.initState(cdf, dao, serviceAccount);
+        const latestBlock = await helper.getLatestBlock(web3);
+
+        return helper.handleErrorTransaction(() => helper.initCrowdsaleParameters(dao, serviceAccount, web3, true, null, latestBlock.timestamp + 70));
+    });
+
+    it("Should finish crowdsale with achieved softCap and lockup investors' tokens", async () => {
+        const etherAmount = 11;
+        const weiAmount = web3.toWei(etherAmount, "ether");
+
+        const latestBlock = await helper.getLatestBlock(web3);
+        await helper.startCrowdsale(web3, cdf, dao, serviceAccount, true, latestBlock.timestamp + 200);
+        await dao.sendTransaction({from: accounts[2], value: weiAmount});
+        await helper.rpcCall(web3, "evm_increaseTime", [60]);
+        await helper.rpcCall(web3, "evm_mine", null);
+
+        const token = Token.at(await dao.token.call());
+        await dao.finish.sendTransaction({from: unknownAccount});
+
+        assert.equal(true, await dao.crowdsaleFinished.call());
+        assert.equal(false, await dao.refundableSoftCap.call());
+        assert.equal(true, await token.mintingFinished.call());
+        assert.equal(latestBlock.timestamp + 200, await token.held.call(accounts[2]));
+    });
+
+    it("Should finish crowdsale with achieved softCap via DXC and lockup investors' tokens", async () => {
+        const dxcAmount = web3.toBigNumber(web3.toWei(40));
+        const dxc = await helper.mintDXC(accounts[2], dxcAmount.toNumber());
+
+        const latestBlock = await helper.getLatestBlock(web3);
+        await helper.startCrowdsale(web3, cdf, dao, serviceAccount, true, latestBlock.timestamp + 200);
+        await dxc.contributeTo(dao.address, dxcAmount.toNumber(), {from: accounts[2]});
+
+        const token = Token.at(await dao.token.call());
+        await dao.finish.sendTransaction({from: unknownAccount});
+
+        assert.equal(true, await dao.crowdsaleFinished.call());
+        assert.equal(false, await dao.refundableSoftCap.call());
+        assert.equal(true, await token.mintingFinished.call());
+        assert.equal(latestBlock.timestamp + 200, await token.held.call(accounts[2]));
+    });
+
+    it("Investors should not be able to transfer tokens until the end of lockup", async () => {
+        const dxcAmount = web3.toBigNumber(web3.toWei(11));
+        const dxc = await helper.mintDXC(accounts[3], dxcAmount.toNumber());
+        const etherAmount = 5;
+        const weiAmount = web3.toWei(etherAmount, "ether");
+
+        const latestBlock = await helper.getLatestBlock(web3);
+        const lockup = latestBlock.timestamp + 200;
+        await helper.startCrowdsale(web3, cdf, dao, serviceAccount, true, lockup);
+        await dxc.contributeTo(dao.address, dxcAmount.toNumber(), {from: accounts[3]});
+        await dao.sendTransaction({from: accounts[2], value: weiAmount});
+        await helper.rpcCall(web3, "evm_increaseTime", [60]);
+        await helper.rpcCall(web3, "evm_mine", null);
+
+        const token = Token.at(await dao.token.call());
+        await dao.finish.sendTransaction({from: unknownAccount});
+
+        assert.equal(true, await dao.crowdsaleFinished.call());
+        assert.equal(false, await dao.refundableSoftCap.call());
+        assert.equal(true, await token.mintingFinished.call());
+        assert.equal(lockup, await token.held.call(accounts[2]));
+        assert.equal(lockup, await token.held.call(accounts[3]));
+
+        await helper.handleErrorTransaction(() => token.transfer(accounts[9], 1, {from: accounts[2]}));
+        await helper.handleErrorTransaction(() => token.transfer(accounts[9], 1, {from: accounts[3]}));
+
+        const latestBlock2 = await helper.getLatestBlock(web3);
+
+        await helper.rpcCall(web3, "evm_increaseTime", [lockup - latestBlock2.timestamp]);
+        await helper.rpcCall(web3, "evm_mine", null);
+
+        await token.transfer(accounts[9], 1, {from: accounts[2]});
+        await token.transfer(accounts[9], 1, {from: accounts[3]});
     });
 });

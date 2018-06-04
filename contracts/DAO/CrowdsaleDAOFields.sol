@@ -51,6 +51,7 @@ contract CrowdsaleDAOFields {
     uint public tokensMintedByEther;
     uint public tokensMintedByDXC;
     bool public dxcPayments; //Flag indicating whether it is possible to invest via DXC token or not
+    uint public lockup = 0; // UNIX time
     uint internal constant multiplier = 100000;
     uint internal constant percentMultiplier = 100;
 }
