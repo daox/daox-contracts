@@ -38,11 +38,11 @@ const createCrowdsaleDAO = async (cdf, accounts, data = null) => {
     return CrowdsaleDAO.at(logs[0]);
 };
 
-const initCrowdsaleParameters = async (dao, account, _web3, dxcPayments = true, data = null) => {
+const initCrowdsaleParameters = async (dao, account, _web3, dxcPayments = true, data = null, lockup = 0) => {
     const latestBlock = await getLatestBlock(_web3);
     const [softCap, hardCap, etherRate, DXCRate, startTime, endTime] = data || [10, 20, 1000, 500, latestBlock.timestamp + 60, latestBlock.timestamp + 120];
 
-    await dao.initCrowdsaleParameters.sendTransaction(softCap, hardCap, etherRate, DXCRate, startTime, endTime, dxcPayments, {
+    await dao.initCrowdsaleParameters.sendTransaction(softCap, hardCap, etherRate, DXCRate, startTime, endTime, dxcPayments, lockup, {
         from: account,
         gasPrice: 0
     });
@@ -103,10 +103,10 @@ const initState = async (cdf, dao, account, tokenName = "TEST TOKEN", tokenSymbo
     return Promise.resolve(token);
 };
 
-const startCrowdsale = async (_web3, cdf, dao, serviceAccount, dxcPayments = true) => {
+const startCrowdsale = async (_web3, cdf, dao, serviceAccount, dxcPayments = true, lockup = 0) => {
     const [, crowdsaleParams] = await Promise.all([
         initState(cdf, dao, serviceAccount),
-        initCrowdsaleParameters(dao, serviceAccount, _web3, dxcPayments)
+        initCrowdsaleParameters(dao, serviceAccount, _web3, dxcPayments, null, lockup)
     ]);
     await rpcCall(_web3, "evm_increaseTime", [60]);
     await rpcCall(_web3, "evm_mine", null);
