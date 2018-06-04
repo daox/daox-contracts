@@ -119,8 +119,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _endTime Unix timestamp that indicates the moment when crowdsale will end
     * @param _dxcPayments Boolean indicating whether it is possible to invest via DXC token or not
     */
-    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXCRate, uint _startTime, uint _endTime, bool _dxcPayments) public {
-        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments);
+    function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXCRate, uint _startTime, uint _endTime, bool _dxcPayments, uint _lockup) public {
+        DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments, _lockup);
     }
 
     /*

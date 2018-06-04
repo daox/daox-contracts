@@ -29,6 +29,8 @@ contract Crowdsale is CrowdsaleDAOFields {
 		uint tokensAmount = DAOLib.countTokens(weiAmount, bonusPeriods, bonusEtherRates, etherRate);
 		tokensMintedByEther = SafeMath.add(tokensMintedByEther, tokensAmount);
 		token.mint(_sender, tokensAmount);
+
+		if(lockup > 0) token.hold(_sender, lockup - now);
 	}
 
 	/*
@@ -43,8 +45,9 @@ contract Crowdsale is CrowdsaleDAOFields {
 
 		uint tokensAmount = DAOLib.countTokens(_dxcAmount, bonusPeriods, bonusDXCRates, DXCRate);
 		tokensMintedByDXC = SafeMath.add(tokensMintedByDXC, tokensAmount);
-
 		token.mint(_from, tokensAmount);
+
+		if(lockup > 0) token.hold(_from, lockup - now);
 	}
 
 	/*
@@ -57,18 +60,19 @@ contract Crowdsale is CrowdsaleDAOFields {
     * @param _endTime Unix timestamp which indicates the moment when crowdsale will end
     * @param _dxcPayments Boolean indicating whether it is possible to invest via DXC token or not
     */
-	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXCRate, uint _startTime, uint _endTime, bool _dxcPayments)
+	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXCRate, uint _startTime, uint _endTime, bool _dxcPayments, uint _lockup)
 		external
 		onlyOwner(msg.sender)
 		canInit
 	{
 		require(_softCap != 0 && _hardCap != 0 && _etherRate != 0 && _DXCRate != 0 && _startTime != 0 && _endTime != 0);
 		require(_softCap < _hardCap && _startTime > block.timestamp);
+		require(_lockup == 0 || _lockup > _endTime);
 
 		softCap = _softCap * 1 ether;
 		hardCap = _hardCap * 1 ether;
 
-		(startTime, endTime) = (_startTime, _endTime);
+		(startTime, endTime, lockup) = (_startTime, _endTime, _lockup);
 
 		(dxcPayments, etherRate, DXCRate) = (_dxcPayments, _etherRate, _DXCRate);
 

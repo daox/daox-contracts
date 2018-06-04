@@ -45,10 +45,11 @@ library DAOProxy {
         uint _DXCRate,
         uint _startTime,
         uint _endTime,
-        bool _dxcPayments
+        bool _dxcPayments,
+        uint _lockup
     ) {
-        require(crowdsaleModule.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256,uint256,bool)"))
-        , _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments));
+        require(crowdsaleModule.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256,uint256,bool,uint256)"))
+        , _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments, _lockup));
     }
 
     function delegatedFinish(address crowdsaleModule) {
