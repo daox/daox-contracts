@@ -12,14 +12,17 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
 
     address public serviceContractAddress;
     address public votingFactoryContractAddress;
+    address public DXC;
+    mapping(address => uint) DXCDeposit;
     // DAOs created by factory
     mapping(address => string) DAOs;
     // Functional modules which will be used by DAOs to delegate calls
     address[4] modules;
 
-    function CrowdsaleDAOFactory(address _serviceContractAddress, address _votingFactoryAddress, address[4] _modules) {
-        require(_serviceContractAddress != 0x0 && _votingFactoryAddress != 0x0);
+    function CrowdsaleDAOFactory(address _serviceContractAddress, address _votingFactoryAddress, address _DXC, address[4] _modules) {
+        require(_serviceContractAddress != 0x0 && _votingFactoryAddress != 0x0, _DXC != 0x0);
         serviceContractAddress = _serviceContractAddress;
+        DXC = _DXC;
         votingFactoryContractAddress = _votingFactoryAddress;
         modules = _modules;
 
@@ -34,6 +37,15 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     */
     function exists(address _address) external constant returns (bool) {
         return keccak256(DAOs[_address]) != keccak256("");
+    }
+
+
+
+    function handleDXCPayment(address _from, uint _dxcAmount) external onlyDXC {
+        require(_dxcAmount >= 1, "Amount of DXC for initial deposit must be equal or greater than 1 DXC");
+
+        DXCDeposit[_from] += _dxcAmount;
+//        votingPrice = _dxcAmount/10 != 0 ? _dxcAmount/10 : 1;
     }
 
     /*
@@ -53,5 +65,10 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
 
         DAOs[dao] = _name;
         CrowdsaleDAOCreated(dao, _name);
+    }
+
+    modifier onlyDXC() {
+        require(msg.sender == address(DXC), "Method can be called only from DXC contract");
+        _;
     }
 }

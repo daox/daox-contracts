@@ -37,7 +37,7 @@ contract CrowdsaleDAOFields {
     string public name;
 	string public description;
     uint public created_at = now; // UNIX time
-    mapping(address => bool) public votings;
+    mapping(address => address) public votings;
     bool public refundable = false;
     uint public lastWithdrawalTimestamp = 0;
     address[] public whiteListArr;
@@ -53,6 +53,9 @@ contract CrowdsaleDAOFields {
     uint public tokensMintedByDXC;
     bool public dxcPayments; //Flag indicating whether it is possible to invest via DXC token or not
     uint public lockup = 0; // UNIX time
+    uint public initialDXCDeposit = 0;
+    uint public votingPrice = 0; // Amount of DXC needed to create voting
+    mapping(address => uint) public votingDXCDeposit; // Amount of DXC that user transferred and can use for voting creation
     uint internal constant multiplier = 100000;
     uint internal constant percentMultiplier = 100;
 }

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity 0.4.22;
 
 import "../../DAO/Owned.sol";
 import "../CrowdsaleDAOFields.sol";
@@ -34,6 +34,13 @@ contract State is CrowdsaleDAOFields {
         State(commissionContract);
     }
 
+    function handleDXCPayment(address _from, uint _dxcAmount) external CrowdsaleNotStarted onlyDXC {
+        require(_dxcAmount >= 1, "Amount of DXC for initial deposit must be equal or greater than 1 DXC");
+
+        initialDXCDeposit = _dxcAmount;
+        votingPrice = _dxcAmount/10 != 0 ? _dxcAmount/10 : 1;
+    }
+
     modifier canInit() {
         require(canInitStateParameters);
         _;
@@ -46,6 +53,11 @@ contract State is CrowdsaleDAOFields {
 
     modifier onlyOwner(address _sender) {
         require(_sender == owner);
+        _;
+    }
+
+    modifier onlyDXC() {
+        require(msg.sender == address(DXC), "Method can be called only from DXC contract");
         _;
     }
 }

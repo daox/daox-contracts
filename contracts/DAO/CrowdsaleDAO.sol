@@ -40,7 +40,9 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _amount Amount of tokens which were sent
     */
     function handleDXCPayment(address _from, uint _amount) {
-        DAOProxy.delegatedHandleDXCPayment(crowdsaleModule, _from, _amount);
+        if(now < startTime) DAOProxy.delegatedHandleDXCPayment(stateModule, _from, _amount);
+        else if(now > startTime && now < endTime && !crowdsaleFinished) DAOProxy.delegatedHandleDXCPayment(crowdsaleModule, _from, _amount);
+        else if(crowdsaleFinished && !refundableSoftCap) DAOProxy.delegatedHandleDXCPayment(paymentModule, _from, _amount);
     }
 
     /*
@@ -131,7 +133,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _options List of options
     */
     function addRegular(string _name, string _description, uint _duration, bytes32[] _options) public {
-        votings[DAOLib.delegatedCreateRegular(votingFactory, _name, _description, _duration, _options, this)] = true;
+        address voting = DAOLib.delegatedCreateRegular(votingFactory, _name, _description, _duration, _options, this);
+        handleCreatedVoting(voting);
     }
 
     /*
@@ -144,7 +147,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _dxc Boolean indicating whether withdrawal must be in DXC tokens or in ether
     */
     function addWithdrawal(string _name, string _description, uint _duration, uint _sum, address _withdrawalWallet, bool _dxc) public {
-        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, _name, _description, _duration, _sum, _withdrawalWallet, _dxc, this)] = true;
+        votings[DAOLib.delegatedCreateWithdrawal(votingFactory, _name, _description, _duration, _sum, _withdrawalWallet, _dxc, this)] = msg.sender;
     }
 
     /*
@@ -154,7 +157,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _duration Time in seconds from current moment until voting will be finished
     */
     function addRefund(string _name, string _description, uint _duration) public {
-        votings[DAOLib.delegatedCreateRefund(votingFactory, _name, _description, _duration, this)] = true;
+        address voting = DAOLib.delegatedCreateRefund(votingFactory, _name, _description, _duration, this);
+        handleCreatedVoting(voting);
     }
 
     /*
@@ -166,7 +170,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _newAddress Address of new module
     */
     function addModule(string _name, string _description, uint _duration, uint _module, address _newAddress) public {
-        votings[DAOLib.delegatedCreateModule(votingFactory, _name, _description, _duration, _module, _newAddress, this)] = true;
+        address voting = DAOLib.delegatedCreateModule(votingFactory, _name, _description, _duration, _module, _newAddress, this);
+        handleCreatedVoting(voting);
     }
 
     /*
@@ -248,6 +253,12 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         }
 
         canSetWhiteList = false;
+    }
+
+    function handleCreatedVoting(address _voting) private {
+        votings[_voting] = msg.sender;
+        votingDXCDeposit[msg.sender] -= votingPrice;
+        DXC.transfer(_voting, votingPrice);
     }
 
     /*

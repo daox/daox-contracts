@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity 0.4.22;
 
 import '../../../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 import "../DAOLib.sol";
@@ -41,6 +41,14 @@ contract Payment is CrowdsaleDAOFields {
         msg.sender.transfer(weiAmount);
     }
 
+    function handleDXCPayment(address _from, uint _dxcAmount) external crowdsaleEndedSuccessfully onlyDXC {
+        votingDXCDeposit[_from] += _dxcAmount;
+    }
+
+    modifier crowdsaleEndedSuccessfully() {
+        require(crowdsaleFinished && !refundableSoftCap, "Method can be called only after successful crowdsale");
+    }
+
     modifier whenRefundable() {
         require(refundable);
         _;
@@ -58,6 +66,11 @@ contract Payment is CrowdsaleDAOFields {
 
     modifier notTeamMember() {
         require(!teamMap[msg.sender]);
+        _;
+    }
+
+    modifier onlyDXC() {
+        require(msg.sender == address(DXC), "Method can be called only from DXC contract");
         _;
     }
 }

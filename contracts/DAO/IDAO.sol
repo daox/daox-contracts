@@ -6,4 +6,8 @@ contract IDAO {
     function teamMap(address _address) external constant returns (bool);
 
     function whiteList(address _address) constant returns (bool);
+
+    function votingDXCDeposit(address _address) constant returns (uint);
+
+    function votingPrice() constant returns (uint);
 }

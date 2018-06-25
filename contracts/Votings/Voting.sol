@@ -48,6 +48,8 @@ contract Voting is VotingFields {
     function finish() external notFinished {
         require(block.timestamp - duration >= created_at);
         finished = true;
+        if (keccak256(votingType) != keccak256("Withdrawal")) dao.DXC().transfer(dao.votings(this), dao.votingPrice());
+
 
         if (keccak256(votingType) == keccak256("Withdrawal")) return finishNotRegular();
         if (keccak256(votingType) == keccak256("Regular")) return finishRegular();

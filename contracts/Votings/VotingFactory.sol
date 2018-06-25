@@ -27,10 +27,10 @@ contract VotingFactory is VotingFactoryInterface {
     function createRegular(address _creator, string _name, string _description, uint _duration, bytes32[] _options)
         external
         onlyDAO
-        onlyParticipant(_creator)
+        onlyParticipantWithEnoughDXC(_creator)
         returns (address)
     {
-        return new Regular(baseVoting, msg.sender, _name, _description, _duration, _options);
+        return new Regular(baseVoting, msg.sender, _name, _description, _duration, _options, _creator);
     }
 
     /*
@@ -60,8 +60,8 @@ contract VotingFactory is VotingFactoryInterface {
     * @param _description Voting's description
     * @param _duration Voting's duration
     */
-    function createRefund(address _creator, string _name, string _description, uint _duration) external onlyDAO onlyParticipant(_creator) returns (address) {
-        return new Refund(baseVoting, msg.sender, _name, _description, _duration);
+    function createRefund(address _creator, string _name, string _description, uint _duration) external onlyDAO onlyParticipantWithEnoughDXC(_creator) returns (address) {
+        return new Refund(baseVoting, msg.sender, _name, _description, _duration, _creator);
     }
 
     /*
@@ -76,10 +76,10 @@ contract VotingFactory is VotingFactoryInterface {
     function createModule(address _creator, string _name, string _description, uint _duration, uint _module, address _newAddress)
         external
         onlyDAO
-        onlyParticipant(_creator)
+        onlyParticipantWithEnoughDXC(_creator)
         returns (address)
     {
-        return new Module(baseVoting, msg.sender, _name, _description, _duration, _module, _newAddress);
+        return new Module(baseVoting, msg.sender, _name, _description, _duration, _module, _newAddress, _creator);
     }
 
     /*
@@ -102,8 +102,9 @@ contract VotingFactory is VotingFactoryInterface {
     /*
     * @dev Throws if creator is not participant of passed DAO
     */
-    modifier onlyParticipant(address creator) {
-        require(IDAO(msg.sender).isParticipant(creator));
+    modifier onlyParticipantWithEnoughDXC(address creator) {
+        require(IDAO(msg.sender).isParticipant(creator), "You need to be a participant to call this method");
+        require(IDAO(msg.sender).votingDXCDeposit(creator) >= IDAO(msg.sender).votingPrice(), "You don't have enough DXC to call this method.")
         _;
     }
 
