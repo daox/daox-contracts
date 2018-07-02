@@ -12,9 +12,15 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     address public votingDecisionModule;
     address public crowdsaleModule;
 
-    function CrowdsaleDAO(string _name, string _description, address _serviceContractAddress, address _votingFactoryContractAddress)
+    function CrowdsaleDAO(string _name, string _description, address _serviceContract, address _votingFactory, address _DXC, uint _initialCapital)
     Owned(msg.sender) {
-        (name, description, serviceContract, votingFactory) = (_name, _description, _serviceContractAddress, VotingFactoryInterface(_votingFactoryContractAddress));
+        name = _name;
+        description = _description;
+        serviceContract = _serviceContract;
+        votingFactory = VotingFactoryInterface(_votingFactory);
+        DXC = TokenInterface(_DXC);
+        initialCapital = _initialCapital;
+        votingPrice = _initialCapital/10 != 0 ? _initialCapital/10 : 1;
     }
 
     /*
@@ -40,9 +46,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _amount Amount of tokens which were sent
     */
     function handleDXCPayment(address _from, uint _amount) {
-        if(now < startTime) DAOProxy.delegatedHandleDXCPayment(stateModule, _from, _amount);
-        else if(now > startTime && now < endTime && !crowdsaleFinished) DAOProxy.delegatedHandleDXCPayment(crowdsaleModule, _from, _amount);
-        else if(crowdsaleFinished && !refundableSoftCap) DAOProxy.delegatedHandleDXCPayment(paymentModule, _from, _amount);
+        if(now < startTime || (crowdsaleFinished && !refundableSoftCap)) DAOProxy.delegatedHandleDXCPayment(paymentModule, _from, _amount);
+        else if(now >= startTime && now <= endTime && !crowdsaleFinished) DAOProxy.delegatedHandleDXCPayment(crowdsaleModule, _from, _amount);
     }
 
     /*
@@ -107,8 +112,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _tokenAddress Address of token which will be distributed during the crowdsale
     * @param _DXC Address of DXC contract
     */
-    function initState(address _tokenAddress, address _DXC) public {
-        DAOProxy.delegatedInitState(stateModule, _tokenAddress, _DXC);
+    function initState(address _tokenAddress) public {
+        DAOProxy.delegatedInitState(stateModule, _tokenAddress);
     }
 
     /*
@@ -257,8 +262,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     function handleCreatedVoting(address _voting) private {
         votings[_voting] = msg.sender;
-        votingDXCDeposit[msg.sender] -= votingPrice;
-        DXC.transfer(_voting, votingPrice);
+        initialCapitalIncr[msg.sender] -= votingPrice;
     }
 
     /*
@@ -266,7 +270,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     */
 
     modifier canSetAddress(address module) {
-        require(votings[msg.sender] || (module == 0x0 && msg.sender == owner));
+        require(votings[msg.sender] != 0x0 || (module == 0x0 && msg.sender == owner));
         _;
     }
 }

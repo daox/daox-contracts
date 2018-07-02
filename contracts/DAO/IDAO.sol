@@ -7,7 +7,7 @@ contract IDAO {
 
     function whiteList(address _address) constant returns (bool);
 
-    function votingDXCDeposit(address _address) constant returns (uint);
+    function initialCapitalIncr(address _address) constant returns (uint);
 
     function votingPrice() constant returns (uint);
 }

@@ -85,7 +85,7 @@ contract Crowdsale is CrowdsaleDAOFields {
     *      parameters which were set for every member via initBonuses function. In addition function sends commission to service contract
     */
 	function finish() external {
-		fundsRaised = DXCRate != 0 ? weiRaised + (DXC.balanceOf(this)) / (etherRate / DXCRate) : weiRaised;
+		fundsRaised = DXCRate != 0 ? weiRaised + (DXCRaised) / (etherRate / DXCRate) : weiRaised;
 
 		require((block.timestamp >= endTime || fundsRaised == hardCap) && !crowdsaleFinished);
 

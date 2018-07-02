@@ -1,4 +1,4 @@
-pragma solidity ^0.4.0;
+pragma solidity 0.4.24;
 
 import "./VotingFactoryInterface.sol";
 import "./Regular.sol";
@@ -30,7 +30,7 @@ contract VotingFactory is VotingFactoryInterface {
         onlyParticipantWithEnoughDXC(_creator)
         returns (address)
     {
-        return new Regular(baseVoting, msg.sender, _name, _description, _duration, _options, _creator);
+        return new Regular(baseVoting, msg.sender, _name, _description, _duration, _options);
     }
 
     /*
@@ -61,7 +61,7 @@ contract VotingFactory is VotingFactoryInterface {
     * @param _duration Voting's duration
     */
     function createRefund(address _creator, string _name, string _description, uint _duration) external onlyDAO onlyParticipantWithEnoughDXC(_creator) returns (address) {
-        return new Refund(baseVoting, msg.sender, _name, _description, _duration, _creator);
+        return new Refund(baseVoting, msg.sender, _name, _description, _duration);
     }
 
     /*
@@ -79,7 +79,7 @@ contract VotingFactory is VotingFactoryInterface {
         onlyParticipantWithEnoughDXC(_creator)
         returns (address)
     {
-        return new Module(baseVoting, msg.sender, _name, _description, _duration, _module, _newAddress, _creator);
+        return new Module(baseVoting, msg.sender, _name, _description, _duration, _module, _newAddress);
     }
 
     /*
@@ -104,7 +104,7 @@ contract VotingFactory is VotingFactoryInterface {
     */
     modifier onlyParticipantWithEnoughDXC(address creator) {
         require(IDAO(msg.sender).isParticipant(creator), "You need to be a participant to call this method");
-        require(IDAO(msg.sender).votingDXCDeposit(creator) >= IDAO(msg.sender).votingPrice(), "You don't have enough DXC to call this method.")
+        require(IDAO(msg.sender).initialCapitalIncr(creator) >= IDAO(msg.sender).votingPrice(), "You don't have enough DXC to call this method.");
         _;
     }
 

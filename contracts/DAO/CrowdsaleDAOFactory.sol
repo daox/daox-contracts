@@ -3,6 +3,7 @@ pragma solidity ^0.4.0;
 import "./DAOFactoryInterface.sol";
 import "./DAODeployer.sol";
 import "../Common.sol";
+import "../Token/TokenInterface.sol";
 
 contract CrowdsaleDAOFactory is DAOFactoryInterface {
     event CrowdsaleDAOCreated(
@@ -20,7 +21,7 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     address[4] modules;
 
     function CrowdsaleDAOFactory(address _serviceContractAddress, address _votingFactoryAddress, address _DXC, address[4] _modules) {
-        require(_serviceContractAddress != 0x0 && _votingFactoryAddress != 0x0, _DXC != 0x0);
+        require(_serviceContractAddress != 0x0 && _votingFactoryAddress != 0x0 && _DXC != 0x0);
         serviceContractAddress = _serviceContractAddress;
         DXC = _DXC;
         votingFactoryContractAddress = _votingFactoryAddress;
@@ -42,10 +43,9 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
 
 
     function handleDXCPayment(address _from, uint _dxcAmount) external onlyDXC {
-        require(_dxcAmount >= 1, "Amount of DXC for initial deposit must be equal or greater than 1 DXC");
+        require(_dxcAmount >= 10**18, "Amount of DXC for initial deposit must be equal or greater than 1 DXC");
 
         DXCDeposit[_from] += _dxcAmount;
-//        votingPrice = _dxcAmount/10 != 0 ? _dxcAmount/10 : 1;
     }
 
     /*
@@ -54,8 +54,10 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     * @param _name Name of the DAO
     * @param _name Description for the DAO
     */
-    function createCrowdsaleDAO(string _name, string _description) public {
-        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, serviceContractAddress, votingFactoryContractAddress);
+    function createCrowdsaleDAO(string _name, string _description, uint _initialCapital) public correctInitialCapital(_initialCapital) enoughDXC(_initialCapital) {
+        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, serviceContractAddress, votingFactoryContractAddress, DXC, _initialCapital);
+        DXCDeposit[msg.sender] -= _initialCapital;
+        TokenInterface(DXC).transfer(dao, _initialCapital);
 
         require(dao.call(bytes4(keccak256("setStateModule(address)")), modules[0]));
         require(dao.call(bytes4(keccak256("setPaymentModule(address)")), modules[1]));
@@ -69,6 +71,17 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
 
     modifier onlyDXC() {
         require(msg.sender == address(DXC), "Method can be called only from DXC contract");
+        _;
+    }
+
+    modifier correctInitialCapital(uint value) {
+        require(value >= 10**18, "Initial capital should be equal at least 1 DXC");
+        _;
+    }
+
+    modifier enoughDXC(uint value) {
+        require(value <= TokenInterface(DXC).balanceOf(this), "Not enough DXC tokens were transferred for such initial capital");
+        require(DXCDeposit[msg.sender] >= value, "Not enough DXC were transferred by your address");
         _;
     }
 }

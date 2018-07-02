@@ -40,7 +40,7 @@ contract VotingDecisions is CrowdsaleDAOFields {
     function makeRefundable() notInRefundableState private {
         refundable = true;
         newEtherRate = SafeMath.mul(this.balance * etherRate, multiplier) / tokensMintedByEther;
-        newDXCRate = tokensMintedByDXC != 0 ? SafeMath.mul(DXC.balanceOf(this) * DXCRate, multiplier) / tokensMintedByDXC : 0;
+        newDXCRate = tokensMintedByDXC != 0 ? SafeMath.mul((DXC.balanceOf(this) - initialCapital) * DXCRate, multiplier) / tokensMintedByDXC : 0;
     }
 
     /*
@@ -56,7 +56,7 @@ contract VotingDecisions is CrowdsaleDAOFields {
     * @dev Throws if called not by any voting contract
     */
     modifier onlyVoting() {
-        require(votings[msg.sender]);
+        require(votings[msg.sender] != 0x0);
         _;
     }
 

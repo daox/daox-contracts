@@ -37,8 +37,6 @@ contract ICrowdsaleDAO is IDAO {
 
     function teamBonuses(address _address) constant returns (uint);
 
-    function votings(address _address) constant returns (address);
-
     function token() constant returns (TokenInterface);
 
     function DXC() constant returns(TokenInterface);

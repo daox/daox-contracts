@@ -53,9 +53,9 @@ contract CrowdsaleDAOFields {
     uint public tokensMintedByDXC;
     bool public dxcPayments; //Flag indicating whether it is possible to invest via DXC token or not
     uint public lockup = 0; // UNIX time
-    uint public initialDXCDeposit = 0;
+    uint public initialCapital = 0;
     uint public votingPrice = 0; // Amount of DXC needed to create voting
-    mapping(address => uint) public votingDXCDeposit; // Amount of DXC that user transferred and can use for voting creation
+    mapping(address => uint) public initialCapitalIncr; // Amount of DXC that user transferred to DAO
     uint internal constant multiplier = 100000;
     uint internal constant percentMultiplier = 100;
 }
