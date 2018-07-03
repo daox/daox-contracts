@@ -11,7 +11,7 @@ contract("Regular", accounts => {
     let regular, dao, token;
     before(async () => {
         const cdf = await helper.createCrowdsaleDAOFactory();
-        dao = await helper.createCrowdsaleDAO(cdf);
+        dao = await helper.createCrowdsaleDAO(cdf, accounts);
         await dao.setWhiteList.sendTransaction([serviceAccount]);
         await helper.makeCrowdsale(web3, cdf, dao, accounts);
 
@@ -20,6 +20,7 @@ contract("Regular", accounts => {
     });
 
     beforeEach(async () => {
+        await helper.payForVoting(dao, accounts[0]);
         const tx = await dao.addRegular(name, 'Test description', duration, ['yes', 'no', 'maybe']);
         const logs = helper.decodeVotingParameters(tx);
         regular = Regular.at(logs[0]);
@@ -120,6 +121,19 @@ contract("Regular", accounts => {
         await regular.addVote(1);
 
         return helper.handleErrorTransaction(() => regular.addVote(2));
+    });
+
+    it("Should not let create proposal if not enough DXC for voting price was transferred", async () => {
+        const dxc = await helper.mintDXC(accounts[0], web3.toWei('0.09'));
+        await dxc.contributeTo.sendTransaction(dao.address, web3.toWei('0.09'));
+
+        return helper.handleErrorTransaction(() => dao.addRegular(name, 'Test description', duration, ['yes', 'no', 'maybe']));
+    });
+
+    it("Should not let create proposal if not enough DXC for voting price was transferred", async () => {
+        await helper.payForVoting(dao, accounts[9]);
+
+        return helper.handleErrorTransaction(() => dao.addRegular(name, 'Test description', duration, ['yes', 'no', 'maybe']));
     });
 
     it("Should not be able to vote after moment when voting was finished", async () => {

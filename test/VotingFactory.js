@@ -14,7 +14,7 @@ contract("VotingFactory", accounts => {
     let cdf, dao;
     before(async () => {
         cdf = await helper.createCrowdsaleDAOFactory();
-        dao = await helper.createCrowdsaleDAO(cdf);
+        dao = await helper.createCrowdsaleDAO(cdf, accounts);
         await dao.setWhiteList.sendTransaction([serviceAccount]);
         await helper.initBonuses(dao, accounts, web3, true);
         await helper.makeCrowdsale(web3, cdf, dao, accounts);
@@ -22,6 +22,7 @@ contract("VotingFactory", accounts => {
 
     it("Should create regular", async () => {
         const description = 'Test Description';
+        await helper.payForVoting(dao, serviceAccount);
         const tx = await dao.addRegular(name, description, minimalDurationPeriod, ['yes', 'no', 'maybe']);
         const logs = helper.decodeVotingParameters(tx);
         const regular = Regular.at(logs[0]);
@@ -62,6 +63,7 @@ contract("VotingFactory", accounts => {
 
     it("Should create refund", async () => {
         const description = 'Test Description';
+        await helper.payForVoting(dao, serviceAccount);
         const tx = await dao.addRefund(name, description, minimalDurationPeriod);
         const logs = helper.decodeVotingParameters(tx);
         const refund = Refund.at(logs[0]);
@@ -80,6 +82,7 @@ contract("VotingFactory", accounts => {
 
     it("Should create module", async () => {
         const description = 'Test Description';
+        await helper.payForVoting(dao, serviceAccount);
         const tx = await dao.addModule(name, description, minimalDurationPeriod, 1, unknownAccount);
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
@@ -155,9 +158,10 @@ contract("VotingFactory", accounts => {
     it("Should not be able to create any voting before succeeded crowdsale", async () => {
         const description = 'Test Description';
 
-        const daoTest = await helper.createCrowdsaleDAO(cdf);
+        const daoTest = await helper.createCrowdsaleDAO(cdf, accounts);
         await daoTest.setWhiteList.sendTransaction([serviceAccount]);
         await helper.makeCrowdsale(web3, cdf, daoTest, accounts, false);
+        await helper.payForVoting(dao, serviceAccount);
 
         return Promise.all([
             helper.handleErrorTransaction(() => daoTest.addModule(name, description, minimalDurationPeriod, 1, unknownAccount)),

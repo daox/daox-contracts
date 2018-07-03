@@ -10,7 +10,7 @@ contract("Crowdsale", accounts => {
     let cdf, dao;
 
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
-    beforeEach(async () => dao = await helper.createCrowdsaleDAO(cdf));
+    beforeEach(async () => dao = await helper.createCrowdsaleDAO(cdf, accounts));
 
     it("Should set parameters for crowdsale", async () => {
         const [softCap, hardCap, etherRate, DXCRate, startTime, endTime] = await helper.initCrowdsaleParameters(dao, serviceAccount, web3);
@@ -65,8 +65,7 @@ contract("Crowdsale", accounts => {
     it("Should deposit DXC and mint tokens", async () => {
         const DXCAmount = web3.toWei(1);
         await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
-        await helper.mintDXC(unknownAccount, DXCAmount);
-        const dxc = DXC.at(DXC.address);
+        const dxc = await helper.mintDXC(unknownAccount, DXCAmount);
         await dxc.contributeTo.sendTransaction(dao.address, DXCAmount, {from: unknownAccount});
 
         const token = Token.at(await dao.token.call());
@@ -75,7 +74,7 @@ contract("Crowdsale", accounts => {
         assert.equal(DXCAmount * await dao.DXCRate.call(),await token.balanceOf.call(unknownAccount));
         assert.equal(DXCAmount * await dao.DXCRate.call(), await dao.tokensMintedByDXC.call());
         assert.equal(DXCAmount * await dao.DXCRate.call(), await token.totalSupply.call());
-        assert.equal(DXCAmount, await dxc.balanceOf.call(dao.address));
+        assert.equal(DXCAmount, await dxc.balanceOf.call(dao.address) - await dao.initialCapital());
         assert.equal(0, await dxc.balanceOf.call(unknownAccount));
     });
 
@@ -101,7 +100,7 @@ contract("Crowdsale", accounts => {
         assert.equal(DXCAmount, await dao.DXCRaised.call());
         assert.equal(DXCAmount, await dao.depositedDXC.call(unknownAccount));
         assert.equal(DXCAmount * await dao.DXCRate.call(), await dao.tokensMintedByDXC.call());
-        assert.equal(DXCAmount, await dxc.balanceOf.call(dao.address));
+        assert.equal(DXCAmount, await dxc.balanceOf.call(dao.address) - await dao.initialCapital());
         assert.equal(0, await dxc.balanceOf.call(unknownAccount));
     });
 
@@ -173,18 +172,6 @@ contract("Crowdsale", accounts => {
         return helper.handleErrorTransaction(() => dao.sendTransaction({from: unknownAccount, value: weiAmount}));
     });
 
-    it("Should not let send DXC before crowdsale start", async () => {
-        const DXCAmount = 1;
-        const dxc = await helper.mintDXC(unknownAccount, DXCAmount);
-
-        await helper.initState(cdf, dao, serviceAccount);
-        await helper.initCrowdsaleParameters(dao, serviceAccount, web3);
-        await helper.rpcCall(web3, "evm_increaseTime", [50]);
-        await helper.rpcCall(web3, "evm_mine", null);
-
-        return helper.handleErrorTransaction(() => dxc.contributeTo.sendTransaction(dao.address, DXCAmount, {from: unknownAccount}));
-    });
-
     it("Should not let send more ether than hardCap", async () => {
         const DXCAmount = web3.toWei(38);
         const dxc = await helper.mintDXC(unknownAccount, DXCAmount);
@@ -225,15 +212,6 @@ contract("Crowdsale", accounts => {
         await helper.rpcCall(web3, "evm_mine", null);
 
         return helper.handleErrorTransaction(() => dao.sendTransaction({from: unknownAccount, value: weiAmount}));
-    });
-
-    it("Should not let send DXC after the end of crowdsale", async () => {
-        const DXCAmount = 1;
-        const dxc = await helper.mintDXC(unknownAccount, DXCAmount);
-
-        await helper.makeCrowdsale(web3, cdf, dao, accounts, false);
-
-        return helper.handleErrorTransaction(() => dxc.contributeTo.sendTransaction(dao.address, DXCAmount, {from: unknownAccount}));
     });
 
     it("Should finish crowdsale with achieved softCap", async () => {
@@ -288,7 +266,7 @@ contract("Crowdsale", accounts => {
         assert.equal(true, await dao.crowdsaleFinished.call());
         assert.equal(false, await dao.refundableSoftCap.call());
         assert.equal(true, await token.mintingFinished.call());
-        assert.equal(DXCAmount, await dxc.balanceOf.call(dao.address));
+        assert.equal(DXCAmount, await dxc.balanceOf.call(dao.address) - await dao.initialCapital());
         assert.equal(latestBlock.timestamp + holdTime, (await token.held.call(serviceAccount)).toNumber());
         assert.equal(latestBlock.timestamp + holdTime, (await token.held.call(unknownAccount)).toNumber());
         assert.equal(Math.round(web3.fromWei(totalSupply * 0.05)), web3.fromWei((await token.balanceOf.call(serviceAccount))));

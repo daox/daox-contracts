@@ -25,15 +25,18 @@ const createCrowdsaleDAOFactory = async () => {
     return CrowdsaleDAOFactory.new(
         _DAOx.address,
         _VotingFactory.address,
+        DXC.address,
         [State.address, Payment.address, VotingDecisions.address, Crowdsale.address]
     );
 };
 
-const createCrowdsaleDAO = async (cdf, accounts, data = null) => {
+const createCrowdsaleDAO = async (cdf, accounts, data = null, initialCapital) => {
     const [daoName, daoDescription] = data || ["Test", "Test DAO"];
 
-    const tx = await cdf.createCrowdsaleDAO(daoName, daoDescription);
-    const logs = web3.eth.abi.decodeParameters(["address", "string"], tx.receipt.logs[0].data);
+    const dxc = await mintDXC(accounts[0], web3.utils.toWei(initialCapital || '1'));
+    await dxc.contributeTo.sendTransaction(cdf.address, web3.utils.toWei(initialCapital || '1'));
+    const tx = await cdf.createCrowdsaleDAO(daoName, daoDescription, web3.utils.toWei(initialCapital || '1'));
+    const logs = web3.eth.abi.decodeParameters(["address", "string"], tx.receipt.logs[1].data);
 
     return CrowdsaleDAO.at(logs[0]);
 };
@@ -97,7 +100,7 @@ const getParametersForInitState = (cdf, tokenName, tokenSymbol) =>
 
 const initState = async (cdf, dao, account, tokenName = "TEST TOKEN", tokenSymbol = "TTK") => {
     const token = await getParametersForInitState(cdf, tokenName, tokenSymbol);
-    await dao.initState.sendTransaction(token.address, DXC.address, {from: account});
+    await dao.initState.sendTransaction(token.address, {from: account});
     await token.transferOwnership.sendTransaction(dao.address, {from: account});
 
     return Promise.resolve(token);
@@ -202,15 +205,23 @@ const mintDXC = async (to, amount = 1) => {
     return token;
 };
 
+const getDXC = () => DXC.at(DXC.address);
+
 const EPSILON = 1e-9;
 const doesApproximatelyEqual = (a, b) =>
     a + EPSILON >= b && a - EPSILON <= b;
+
+const payForVoting = async (dao, account) => {
+    const votingPrice = await dao.votingPrice();
+    const dxc = await mintDXC(account, votingPrice);
+    await dxc.contributeTo.sendTransaction(dao.address, votingPrice, {from: account});
+};
 
 
 module.exports = {
     getLatestBlock, rpcCall, fillZeros, makeCrowdsale,
     handleErrorTransaction, createCrowdsaleDAOFactory,
-    createCrowdsaleDAO, decodeVotingParameters, mintDXC,
+    createCrowdsaleDAO, decodeVotingParameters, mintDXC, getDXC, payForVoting,
     initCrowdsaleParameters, initState, initBonuses, startCrowdsale, makeCrowdsaleNew,
     makeWithdrawal, makeModule, makeRegular, makeRefund, getBalance, doesApproximatelyEqual
 };

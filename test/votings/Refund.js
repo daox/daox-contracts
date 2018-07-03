@@ -17,7 +17,7 @@ contract("Refund", accounts => {
     let refund, dao, cdf, timestamp;
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
     beforeEach(async () => {
-        dao = await helper.createCrowdsaleDAO(cdf);
+        dao = await helper.createCrowdsaleDAO(cdf, accounts);
         await dao.initBonuses.sendTransaction(team, teamBonuses, [], [], [], [10000, 10000, 10000, 10000], [false, false, false, false]);
         await dao.setWhiteList.sendTransaction([whiteList]);
     });
@@ -25,6 +25,7 @@ contract("Refund", accounts => {
     const makeDAOAndCreateRefund = async (backersToWei, backersToOptions, refundCreator, finish = true, shiftTime = false) => {
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
+        await helper.payForVoting(dao, refundCreator);
         const tx = await dao.addRefund(name, 'Test description', minimalDurationPeriod, {from : refundCreator});
         const logs = helper.decodeVotingParameters(tx);
         refund = Refund.at(logs[0]);
@@ -148,7 +149,7 @@ contract("Refund", accounts => {
         const [backersToWei, backersToOption] = [{}, {}];
         for (let i = 0; i < backers.length; i++) {
             backersToWei[`${backers[i]}`] = web3.toWei(5, "ether");
-            backersToOption[`${backers[i]}`] = i % 2 == 0 ? 1 : 2; // 10 eth (in tokens) for "yes" and 10 eth (in tokens) for "no"
+            backersToOption[`${backers[i]}`] = i % 2 === 0 ? 1 : 2; // 10 eth (in tokens) for "yes" and 10 eth (in tokens) for "no"
         }
 
         await makeDAOAndCreateRefund(backersToWei, backersToOption, backer1, true, true);
@@ -266,5 +267,18 @@ contract("Refund", accounts => {
         await helper.rpcCall(web3, "evm_mine", null);
 
         return helper.handleErrorTransaction(() => withdrawal.finish());
+    });
+
+    it("Should not let create proposal if not enough DXC for voting price was transferred", async () => {
+        const dxc = await helper.mintDXC(accounts[0], web3.toWei('0.09'));
+        await dxc.contributeTo.sendTransaction(dao.address, web3.toWei('0.09'));
+
+        return helper.handleErrorTransaction(() => dao.addRefund(name, 'Test description', minimalDurationPeriod, {from : accounts[0]}));
+    });
+
+    it("Should not let create proposal if not enough DXC for voting price was transferred", async () => {
+        await helper.payForVoting(dao, accounts[9]);
+
+        return helper.handleErrorTransaction(() => dao.addRefund(name, 'Test description', minimalDurationPeriod, {from : accounts[9]}));
     });
 });

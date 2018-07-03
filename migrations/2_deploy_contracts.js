@@ -42,7 +42,7 @@ module.exports = (deployer) => {
                 deployer.deploy(DAODeployer)
             )
             .then(() => deployer.link(DAODeployer, CrowdsaleDAOFactory))
-            .then(() => deployer.deploy(CrowdsaleDAOFactory, DAOx.address, VotingFactory.address, [State.address, Payment.address, VotingDecisions.address, Crowdsale.address]))
+            .then(() => deployer.deploy(CrowdsaleDAOFactory, DAOx.address, VotingFactory.address, DXC.address, [State.address, Payment.address, VotingDecisions.address, Crowdsale.address]))
             .catch(console.error);
 
     /*

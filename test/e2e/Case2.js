@@ -144,6 +144,7 @@ contract("Case#2", accounts => {
 
     it("Refund should be accepted", async () => {
         const withdrawalDuration = web3.toBigNumber(7 * 24 * 60 * 60);
+        await helper.payForVoting(dao, backer2);
         const tx = await dao.addRefund("Refund#2", "Project could", withdrawalDuration.toNumber(), {from: backer2});
         const logs = helper.decodeVotingParameters(tx);
         refund = Refund.at(logs[0]);
@@ -182,6 +183,6 @@ contract("Case#2", accounts => {
 
     it("Balance after refund should be correct", async () => {
         assert.isTrue(await helper.getBalance(web3, dao.address) / etherBalanceAfterCrowdsale * 100 <= 1.5);
-        assert.isTrue(await DXC.balanceOf(dao.address) / dxcBalanceAfterCrowdsale * 100 <= 1.5);
+        assert.isTrue((await DXC.balanceOf(dao.address)).minus(await dao.initialCapital()) / dxcBalanceAfterCrowdsale * 100 <= 1.5);
     });
 });

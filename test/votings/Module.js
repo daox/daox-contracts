@@ -21,13 +21,14 @@ contract("Module", accounts => {
     let module, dao, cdf, timestamp;
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
     beforeEach(async () => {
-        dao = await helper.createCrowdsaleDAO(cdf);
+        dao = await helper.createCrowdsaleDAO(cdf, accounts);
         await dao.initBonuses.sendTransaction([teamPerson1, teamPerson2], teamBonuses, [], [], [], [10000, 10000], [false, false]);
     });
 
     const makeDAOAndCreateModule = async (backersToWei, backersToOptions, creator, moduleName, newModuleAddress, finish = true, shiftTime = false) => {
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
+        await helper.payForVoting(dao, creator);
         const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, moduleName, newModuleAddress, {from: creator});
         const logs = helper.decodeVotingParameters(tx);
         module = Module.at(logs[0]);
@@ -272,10 +273,24 @@ contract("Module", accounts => {
 
         await helper.makeCrowdsaleNew(web3, cdf, dao, serviceAccount, backersToWei);
 
+        await helper.payForVoting(dao, backers[0]);
         const tx = await dao.addModule(name, "Test description", 0, 4, "0x1", {from: backers[0]});
         const logs = helper.decodeVotingParameters(tx);
         module = Module.at(logs[0]);
 
         assert.deepEqual(web3.toBigNumber(0), await module.duration());
+    });
+
+    it("Should not let create proposal if not enough DXC for voting price was transferred", async () => {
+        const dxc = await helper.mintDXC(accounts[0], web3.toWei('0.09'));
+        await dxc.contributeTo.sendTransaction(dao.address, web3.toWei('0.09'));
+
+        return helper.handleErrorTransaction(() => dao.addModule(name, "Test description", minimalDurationPeriod, "Name", newModuleAddress1, {from: accounts[0]}));
+    });
+
+    it("Should not let create proposal if not enough DXC for voting price was transferred", async () => {
+        await helper.payForVoting(dao, accounts[9]);
+
+        return helper.handleErrorTransaction(() => dao.addModule(name, "Test description", minimalDurationPeriod, "Name", newModuleAddress1, {from: accounts[9]}));
     });
 });

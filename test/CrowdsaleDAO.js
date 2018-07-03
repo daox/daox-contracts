@@ -7,7 +7,7 @@ contract("CrowdsaleDAO", accounts => {
     let cdf, dao;
 
     before(async () => cdf = await helper.createCrowdsaleDAOFactory());
-    beforeEach(async () => dao = await helper.createCrowdsaleDAO(cdf));
+    beforeEach(async () => dao = await helper.createCrowdsaleDAO(cdf, accounts));
 
     it("Should initiate bonus periods and token bonuses for team", async () => {
         const [date,] = await helper.initBonuses(dao, accounts, web3);

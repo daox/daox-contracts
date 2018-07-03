@@ -35,6 +35,7 @@ contract("VotingDecisions", accounts => {
     backersToWei[backers[4]] = web3.toWei(10);
 
     const revertVotingDecisions = async (oldVotingDecisionsModule) => {
+        await helper.payForVoting(dao, backer2);
         const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.VotingDecisions, oldVotingDecisionsModule, {from: backer2});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
@@ -91,6 +92,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Regular#1: equal votes for 2 options", async () => {
+        await helper.payForVoting(dao, backer1);
         const tx = await dao.addRegular(name, "Test description", minimalDurationPeriod, ["Option1", "Option2"], {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const regular = Regular.at(logs[0]);
@@ -109,6 +111,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Regular#2: 0 votes white entire voting", async () => {
+        await helper.payForVoting(dao, backer1);
         const tx = await dao.addRegular(name, "Test description", minimalDurationPeriod, ["Option1", "Option2"], {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const regular = Regular.at(logs[0]);
@@ -122,6 +125,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Regular#3: usual voting process", async () => {
+        await helper.payForVoting(dao, backer1);
         const tx = await dao.addRegular(name, "Test description", minimalDurationPeriod, ["Option1", "Option2", "Option3"], {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const regular = Regular.at(logs[0]);
@@ -139,6 +143,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Module#1: should not accept module changing when amount of votes for option#1 < 80%", async () => {
+        await helper.payForVoting(dao, backer1);
         const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.State, "0x1", {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
@@ -154,10 +159,13 @@ contract("VotingDecisions", accounts => {
         assert.equal(0, (await module.result.call())[0].toNumber());
     });
 
-    it("Module#2: should not create module with invalid module name", async () =>
-        helper.handleErrorTransaction(() => dao.addModule(name, "Test description", minimalDurationPeriod, 5, "0x1", {from: backer1})));
+    it("Module#2: should not create module with invalid module name", async () => {
+        await helper.payForVoting(dao, backer1);
+        return helper.handleErrorTransaction(() => dao.addModule(name, "Test description", minimalDurationPeriod, 5, "0x1", {from: backer1}))
+    });
 
     it("Module#3: should change state address when amount of votes for option#1 >= 80%", async () => {
+        await helper.payForVoting(dao, backer1);
         const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.State, unknownAccount, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
@@ -174,6 +182,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Module#4: should change crowdsale address when amount of votes for option#1 >= 80%", async () => {
+        await helper.payForVoting(dao, backer1);
         const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.Crowdsale, unknownAccount, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
@@ -193,6 +202,7 @@ contract("VotingDecisions", accounts => {
 
     it("Module#5: should change voting decisions address when amount of votes for option#1 >= 80%", async () => {
         const oldVotingDecisionsModule = await dao.votingDecisionModule.call();
+        await helper.payForVoting(dao, backer2);
         const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.VotingDecisions, unknownAccount, {from: backer2});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
@@ -214,6 +224,8 @@ contract("VotingDecisions", accounts => {
 
     it("Module#6: should change payment address when amount of votes for option#1 >= 80%", async () => {
         const oldPaymentModule = await dao.paymentModule.call();
+        await helper.payForVoting(dao, backer2);
+        await helper.payForVoting(dao, backer2);
         const tx = await dao.addModule(name, "Test description", minimalDurationPeriod, Modules.Payment, unknownAccount, {from: backer2});
         const logs = helper.decodeVotingParameters(tx);
         const module = Module.at(logs[0]);
@@ -308,6 +320,7 @@ contract("VotingDecisions", accounts => {
 
     it("Refund#1: should be not accepted when <90% votes for option#1", async () => {
         const withdrawalSum = web3.toWei(1);
+        await helper.payForVoting(dao, backer1);
         const tx = await dao.addRefund(name, "Test description", minimalDurationPeriod, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const refund = Refund.at(logs[0]);
@@ -323,6 +336,7 @@ contract("VotingDecisions", accounts => {
     });
 
     it("Refund#2: should be accepted when >=90% votes for option#1", async () => {
+        await helper.payForVoting(dao, backer1);
         const tx = await dao.addRefund(name, "Test description", minimalDurationPeriod, {from: backer1});
         const logs = helper.decodeVotingParameters(tx);
         const refund = Refund.at(logs[0]);
