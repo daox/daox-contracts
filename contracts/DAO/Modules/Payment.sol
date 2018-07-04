@@ -48,7 +48,7 @@ contract Payment is CrowdsaleDAOFields {
 
     modifier crowdsaleNotOngoing() {
         require(
-            startTime > now || (crowdsaleFinished && !refundableSoftCap),
+            canInitCrowdsaleParameters || startTime > now || (crowdsaleFinished && !refundableSoftCap),
             "Method can be called only after successful crowdsale or before it"
         );
         _;

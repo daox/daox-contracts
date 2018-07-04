@@ -46,7 +46,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _amount Amount of tokens which were sent
     */
     function handleDXCPayment(address _from, uint _amount) {
-        if(now < startTime || (crowdsaleFinished && !refundableSoftCap)) DAOProxy.delegatedHandleDXCPayment(paymentModule, _from, _amount);
+        if(canInitCrowdsaleParameters || now < startTime || (crowdsaleFinished && !refundableSoftCap)) DAOProxy.delegatedHandleDXCPayment(paymentModule, _from, _amount);
         else if(now >= startTime && now <= endTime && !crowdsaleFinished) DAOProxy.delegatedHandleDXCPayment(crowdsaleModule, _from, _amount);
     }
 
