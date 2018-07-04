@@ -14,11 +14,10 @@ contract("Payment", accounts => {
 
     beforeEach(async () => {
         dao = await helper.createCrowdsaleDAO(cdf, accounts, [daoName, daoDescription]);
-
-        [softCap, hardCap, etherRate, DXCRate, startTime, endTime] = await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
     });
 
     it("Should refund when soft cap was not reached", async () => {
+        [softCap, hardCap, etherRate, DXCRate, startTime, endTime] = await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
         const DXCAmount = 5;
         const dxc = await helper.mintDXC(accounts[2], DXCAmount);
         await dao.sendTransaction({from: accounts[2], value: web3.toWei(softCap / 2), gasPrice: 0});
@@ -48,6 +47,7 @@ contract("Payment", accounts => {
     });
 
     it("Should not refund when soft cap was reached", async () => {
+        [softCap, hardCap, etherRate, DXCRate, startTime, endTime] = await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
         await dao.sendTransaction({
             from: accounts[2],
             value: web3.toWei(softCap, "ether"),
@@ -73,6 +73,7 @@ contract("Payment", accounts => {
     });
 
     it("Should not refund to unknown account when soft cap was not reached", async () => {
+        [softCap, hardCap, etherRate, DXCRate, startTime, endTime] = await helper.startCrowdsale(web3, cdf, dao, serviceAccount);
         await dao.sendTransaction({
             from: accounts[2],
             value: web3.toWei(softCap / 2, "ether"),
@@ -95,5 +96,52 @@ contract("Payment", accounts => {
             from: unknownAccount,
             gasPrice: 0
         }));
+    });
+
+    it("Should accept DXC for initial capital only when crowdsale is not ongoing", async () => {
+        const initialCapital = await dao.initialCapital();
+        const dxc = await helper.mintDXC(serviceAccount, 4);
+        await dxc.contributeTo.sendTransaction(dao.address, 1);
+
+        assert.deepEqual(web3.toBigNumber(1), await dao.initialCapitalIncr(serviceAccount));
+        assert.deepEqual(initialCapital.plus(1), await dao.initialCapital());
+
+        const [, crowdsaleParams] = await Promise.all([
+            helper.initState(cdf, dao, serviceAccount),
+            helper.initCrowdsaleParameters(dao, serviceAccount, web3, true, null, 0)
+        ]);
+        await helper.rpcCall(web3, "evm_increaseTime", [30]);
+        await helper.rpcCall(web3, "evm_mine", null);
+        [softCap, hardCap, etherRate, DXCRate, startTime, endTime] = crowdsaleParams;
+
+        await dxc.contributeTo.sendTransaction(dao.address, 1);
+        assert.deepEqual(web3.toBigNumber(2), await dao.initialCapitalIncr(serviceAccount));
+        assert.deepEqual(initialCapital.plus(2), await dao.initialCapital());
+
+        await helper.rpcCall(web3, "evm_increaseTime", [30]);
+        await helper.rpcCall(web3, "evm_mine", null);
+
+        await dao.sendTransaction({
+            from: accounts[2],
+            value: web3.toWei(softCap, "ether"),
+            gasPrice: 0
+        });
+
+        await helper.rpcCall(web3, "evm_increaseTime", [shiftTime]);
+        await helper.rpcCall(web3, "evm_mine", null);
+
+        await dxc.contributeTo.sendTransaction(dao.address, 1);
+        assert.notDeepEqual(web3.toBigNumber(3), await dao.initialCapitalIncr(serviceAccount));
+        assert.notDeepEqual(initialCapital.plus(3), await dao.initialCapital());
+
+        await dao.finish.sendTransaction({
+            from: accounts[2],
+            gasPrice: 0
+        });
+        await dxc.contributeTo.sendTransaction(dao.address, 1);
+
+        assert.deepEqual(web3.toBigNumber(3), await dao.initialCapitalIncr(serviceAccount));
+        assert.deepEqual(initialCapital.plus(3), await dao.initialCapital());
+
     });
 });

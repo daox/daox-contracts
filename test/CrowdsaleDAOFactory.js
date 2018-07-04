@@ -22,6 +22,9 @@ contract("CrowdsaleDAOFactory", accounts => {
         return helper.handleErrorTransaction(() => dxc.contributeTo.sendTransaction(cdf.address, web3.toWei('0.5')));
     });
 
+    it("Should increase dxc deposit only when called by DXC contract", async () =>
+        helper.handleErrorTransaction(() => cdf.handleDXCPayment.sendTransaction(accounts[1], web3.toWei('1'), {from: accounts[1]})));
+
     it("Should not create DAO with dxc deposit made by another user", async () => {
         const [daoName, daoDescription] = ["DAO NAME", "THIS IS A DESCRIPTION"];
         const dxc = await helper.mintDXC(accounts[1], web3.toWei('1'));
