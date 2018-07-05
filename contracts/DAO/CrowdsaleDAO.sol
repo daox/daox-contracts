@@ -41,7 +41,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     /*
     * @dev Receives info about address which sent DXC tokens to current contract and about amount of sent tokens from
-    *       DXC token contract and then forwards this data to the crowdsale module
+    *       DXC token contract and then forwards this data to the crowdsale/payment module
     * @param _from Address which sent DXC tokens
     * @param _amount Amount of tokens which were sent
     */

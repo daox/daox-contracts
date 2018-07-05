@@ -40,8 +40,12 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         return keccak256(DAOs[_address]) != keccak256("");
     }
 
-
-
+    /*
+    * @dev Receives info about address which sent DXC tokens to current contract and about amount of sent tokens from
+    *       DXC token contract and then saves this information to DXCDeposit mapping
+    * @param _from Address which sent DXC tokens
+    * @param _amount Amount of tokens which were sent
+    */
     function handleDXCPayment(address _from, uint _dxcAmount) external onlyDXC {
         require(_dxcAmount >= 10**18, "Amount of DXC for initial deposit must be equal or greater than 1 DXC");
 
@@ -53,6 +57,7 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     *      and saves address of created contract to DAOs mapping
     * @param _name Name of the DAO
     * @param _name Description for the DAO
+    * @param _initialCapital initial capital for DAO that will be created
     */
     function createCrowdsaleDAO(string _name, string _description, uint _initialCapital) public correctInitialCapital(_initialCapital) enoughDXC(_initialCapital) {
         address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, serviceContractAddress, votingFactoryContractAddress, DXC, _initialCapital);

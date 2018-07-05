@@ -41,6 +41,12 @@ contract Payment is CrowdsaleDAOFields {
         msg.sender.transfer(weiAmount);
     }
 
+    /*
+    * @dev Receives info about address which sent DXC tokens to current contract and about amount of sent tokens from
+    *       DXC token contract and then increases initial capital of DAO and amount of sent tokens for sender
+    * @param _from Address which sent DXC tokens
+    * @param _amount Amount of tokens which were sent
+    */
     function handleDXCPayment(address _from, uint _dxcAmount) external crowdsaleNotOngoing onlyDXC {
         initialCapital += _dxcAmount;
         initialCapitalIncr[_from] += _dxcAmount;

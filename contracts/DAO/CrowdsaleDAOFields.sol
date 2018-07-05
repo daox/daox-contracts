@@ -4,7 +4,7 @@ import "../Token/TokenInterface.sol";
 import "../Votings/VotingFactoryInterface.sol";
 
 contract CrowdsaleDAOFields {
-    string constant public version = "1.0.0";
+    bytes32 constant public version = "1.0.0";
     uint public etherRate;
     uint public DXCRate;
     uint public softCap;
