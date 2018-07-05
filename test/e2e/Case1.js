@@ -102,24 +102,6 @@ contract("Case#1", accounts => {
         assert.deepEqual(tokensShouldBeMintedByEther.plus(tokensShouldBeMintedByDXC).times(teamBonuses[1] / 100), await token.balanceOf(teamPerson2));
     });
 
-    it("Commission should be calculated correct", async () => {
-        assert.deepEqual(weiDeposited, await dao.weiRaised());
-        assert.deepEqual(weiDeposited, await dao.commissionRaised());
-        assert.deepEqual(weiDeposited.times(commissionRate), await DAOX.balance());
-        assert.deepEqual(weiDeposited.times(1 - commissionRate), web3.toBigNumber(await helper.getBalance(web3, dao.address, false)));
-    });
-
-    it("Commission should be withdrawable", async () => {
-        const serviceBalanceBefore = web3.toBigNumber(web3.toWei(await helper.getBalance(web3, serviceAccount)));
-
-        await DAOX.withdraw.sendTransaction(weiDeposited.times(commissionRate), {from: serviceAccount, gasPrice: 0});
-
-        const serviceBalanceAfter = web3.toBigNumber(web3.toWei(await helper.getBalance(web3, serviceAccount)));
-
-        assert.deepEqual(weiDeposited.times(commissionRate).plus(serviceBalanceBefore), serviceBalanceAfter);
-        assert.deepEqual(web3.toBigNumber(0), await DAOX.balance());
-    });
-
     it("Should not accept withdraw", async () => {
         const withdrawalDuration = web3.toBigNumber(7 * 24 * 60 * 60);
         const withdrawalSum = web3.toBigNumber(web3.toWei(8.99));

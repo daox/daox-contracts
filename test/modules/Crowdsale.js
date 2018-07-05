@@ -238,12 +238,6 @@ contract("Crowdsale", accounts => {
         assert.equal(true, await token.mintingFinished.call());
         assert.equal(latestBlock.timestamp + holdTime, (await token.held.call(serviceAccount)).toNumber());
         assert.equal(latestBlock.timestamp + holdTime, (await token.held.call(unknownAccount)).toNumber());
-        const serviceContract = await dao.serviceContract.call();
-        const [serviceContractBalance, commissionRaised] = await Promise.all([
-            helper.rpcCall(web3, "eth_getBalance", [serviceContract]),
-            dao.commissionRaised.call()
-        ]);
-        assert.equal(web3.fromWei((commissionRaised / 100) * 4), web3.fromWei(serviceContractBalance.result));
     });
 
     it("Should finish crowdsale with softCap which was achieved via DXC", async () => {
