@@ -5,6 +5,15 @@ import "./DAODeployer.sol";
 import "../Common.sol";
 import "../Token/TokenInterface.sol";
 
+interface IDAOModules {
+    function setStateModule(address _stateModule) external;
+    function setPaymentModule(address _paymentModule) external;
+    function setVotingDecisionModule(address _votingDecisionModule) external;
+    function setCrowdsaleModule(address _crowdsaleModule) external;
+    function setProxyAPI(address _proxyAPI) external;
+    function setApiSettersModule(address _allowedSetters) external;
+}
+
 contract CrowdsaleDAOFactory is DAOFactoryInterface {
     event CrowdsaleDAOCreated(
         address _address,
@@ -18,9 +27,9 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     // DAOs created by factory
     mapping(address => string) DAOs;
     // Functional modules which will be used by DAOs to delegate calls
-    address[4] modules;
+    address[6] modules;
 
-    function CrowdsaleDAOFactory(address _serviceContractAddress, address _votingFactoryAddress, address _DXC, address[4] _modules) {
+    function CrowdsaleDAOFactory(address _serviceContractAddress, address _votingFactoryAddress, address _DXC, address[6] _modules) {
         require(_serviceContractAddress != 0x0 && _votingFactoryAddress != 0x0 && _DXC != 0x0);
         serviceContractAddress = _serviceContractAddress;
         DXC = _DXC;
@@ -64,10 +73,12 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
         DXCDeposit[msg.sender] -= _initialCapital;
         TokenInterface(DXC).transfer(dao, _initialCapital);
 
-        require(dao.call(bytes4(keccak256("setStateModule(address)")), modules[0]));
-        require(dao.call(bytes4(keccak256("setPaymentModule(address)")), modules[1]));
-        require(dao.call(bytes4(keccak256("setVotingDecisionModule(address)")), modules[2]));
-        require(dao.call(bytes4(keccak256("setCrowdsaleModule(address)")), modules[3]));
+        IDAOModules(dao).setStateModule(modules[0]);
+        IDAOModules(dao).setPaymentModule(modules[1]);
+        IDAOModules(dao).setVotingDecisionModule(modules[2]);
+        IDAOModules(dao).setCrowdsaleModule(modules[3]);
+        IDAOModules(dao).setProxyAPI(modules[4]);
+        IDAOModules(dao).setApiSettersModule(modules[5]);
         DAODeployer.transferOwnership(dao, msg.sender);
 
         DAOs[dao] = _name;

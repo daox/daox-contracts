@@ -1,4 +1,4 @@
-pragma solidity ^0.4.11;
+pragma solidity 0.4.24;
 
 import "./DAOLib.sol";
 import "./CrowdsaleDAOFields.sol";
@@ -6,11 +6,16 @@ import "../Common.sol";
 import "./Owned.sol";
 import "./DAOProxy.sol";
 
+interface IProxyAPI {
+    function callService(address _address, bytes32 method, bytes32[10] _bytes) external;
+}
+
 contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     address public stateModule;
     address public paymentModule;
     address public votingDecisionModule;
     address public crowdsaleModule;
+    address public apiSettersModule;
 
     function CrowdsaleDAO(string _name, string _description, address _serviceContract, address _votingFactory, address _DXC, uint _initialCapital)
     Owned(msg.sender) {
@@ -95,6 +100,14 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     function setVotingFactoryAddress(address _votingFactory) external canSetAddress(votingFactory) {
         votingFactory = VotingFactoryInterface(_votingFactory);
+    }
+
+    function setProxyAPI(address _proxyAPI) external canSetAddress(proxyAPI) {
+        proxyAPI = _proxyAPI;
+    }
+
+    function setApiSettersModule(address _apiSettersModule) external canSetAddress(apiSettersModule) {
+        apiSettersModule = _apiSettersModule;
     }
 
     /*
@@ -260,6 +273,14 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         canSetWhiteList = false;
     }
 
+    function callService(address service, bytes32 method, bytes32[10] args) external {
+        IProxyAPI(proxyAPI).callService(service, method, args);
+    }
+
+    function handleAPICall(string signature, bytes32 value) external onlyProxyAPI {
+        require(apiSettersModule.delegatecall(bytes4(keccak256(signature)), value));
+    }
+
     function handleCreatedVoting(address _voting) private {
         votings[_voting] = msg.sender;
         initialCapitalIncr[msg.sender] -= votingPrice;
@@ -271,6 +292,11 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     modifier canSetAddress(address module) {
         require(votings[msg.sender] != 0x0 || (module == 0x0 && msg.sender == owner));
+        _;
+    }
+
+    modifier onlyProxyAPI() {
+        require(msg.sender == proxyAPI, "Method can be called only by ProxyAPI contract");
         _;
     }
 }
