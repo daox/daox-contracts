@@ -11,6 +11,8 @@ const State = artifacts.require("./DAO/Modules/State.sol");
 const Payment = artifacts.require("./DAO/Modules/Payment.sol");
 const VotingDecisions = artifacts.require("./DAO/Modules/VotingDecisions.sol");
 const Crowdsale = artifacts.require("./DAO/Modules/Crowdsale.sol");
+const ProxyAPI = artifacts.require("./DAO/API/ProxyAPI.sol");
+const AllowedSetters = artifacts.require("./DAO/API/AllowedSetters.sol");
 CrowdsaleDAOFactory.link(DAOProxy);
 CrowdsaleDAOFactory.link(DAOLib);
 const DAOJson = require("../../build/contracts/CrowdsaleDAO");
@@ -26,7 +28,7 @@ const createCrowdsaleDAOFactory = async () => {
         _DAOx.address,
         _VotingFactory.address,
         DXC.address,
-        [State.address, Payment.address, VotingDecisions.address, Crowdsale.address]
+        [State.address, Payment.address, VotingDecisions.address, Crowdsale.address, ProxyAPI.address, AllowedSetters.address]
     );
 };
 

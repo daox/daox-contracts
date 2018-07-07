@@ -12,6 +12,10 @@ const Voting = artifacts.require("./DAO/Votings/Voting.sol");
 const DAODeployer = artifacts.require("./DAO/DAODeployer.sol");
 const DAOProxy = artifacts.require("./DAO/DAOProxy.sol");
 const DXC = artifacts.require("./Token/DXC.sol");
+const TypesConverter = artifacts.require("./DAO/API/TypesConverter.sol");
+const ExampleModule = artifacts.require("./DAO/API/ExampleModule.sol");
+const ProxyAPI = artifacts.require("./DAO/API/ProxyAPI.sol");
+const AllowedSetters = artifacts.require("./DAO/API/AllowedSetters.sol");
 
 module.exports = (deployer) => {
     const deployVotingFactory = () =>
@@ -33,6 +37,12 @@ module.exports = (deployer) => {
             .then(() => deployer.deploy(VotingDecisions))
             .then(() => deployer.deploy(Crowdsale));
 
+    const deployAPI = () =>
+        deployer.deploy(TypesConverter)
+            .then(() => deployer.link(TypesConverter, [AllowedSetters, ExampleModule, ProxyAPI]) && deployer.deploy(AllowedSetters))
+            .then(() => deployer.deploy(ProxyAPI))
+            .then(() => deployer.deploy(ExampleModule, ProxyAPI.address));
+
     const deployCrowdsaleDAOFactory = () =>
         deployer.deploy(DAOProxy)
             .then(() =>
@@ -42,7 +52,8 @@ module.exports = (deployer) => {
                 deployer.deploy(DAODeployer)
             )
             .then(() => deployer.link(DAODeployer, CrowdsaleDAOFactory))
-            .then(() => deployer.deploy(CrowdsaleDAOFactory, DAOx.address, VotingFactory.address, DXC.address, [State.address, Payment.address, VotingDecisions.address, Crowdsale.address]))
+            .then(() => deployer.deploy(CrowdsaleDAOFactory, DAOx.address, VotingFactory.address, DXC.address,
+                [State.address, Payment.address, VotingDecisions.address, Crowdsale.address, ProxyAPI.address, AllowedSetters.address]))
             .catch(console.error);
 
     /*
@@ -52,6 +63,7 @@ module.exports = (deployer) => {
         .then(() => deployDXC())
         .then(() => deployDAOx())
         .then(() => deployModules())
+        .then(() => deployAPI())
         .then(() => deployCrowdsaleDAOFactory());
 };
 
