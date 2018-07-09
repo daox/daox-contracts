@@ -1,8 +1,8 @@
 pragma solidity ^0.4.11;
 
-import "./VotingLib.sol";
-import "../Common.sol";
-import "./BaseProposal.sol";
+import "../VotingLib.sol";
+import "../../Common.sol";
+import "../BaseProposal.sol";
 
 contract Withdrawal is BaseProposal {
     uint public withdrawalSum;

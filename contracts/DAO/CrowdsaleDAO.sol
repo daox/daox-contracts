@@ -17,12 +17,13 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     address public crowdsaleModule;
     address public apiSettersModule;
 
-    function CrowdsaleDAO(string _name, string _description, address _serviceContract, address _votingFactory, address _DXC, uint _initialCapital)
+    function CrowdsaleDAO(string _name, string _description, address _serviceContract, address _votingFactory, address _serviceVotingFactory, address _DXC, uint _initialCapital)
     Owned(msg.sender) {
         name = _name;
         description = _description;
         serviceContract = _serviceContract;
         votingFactory = VotingFactoryInterface(_votingFactory);
+        serviceVotingFactory = IServiceVotingFactory(_serviceVotingFactory);
         DXC = TokenInterface(_DXC);
         initialCapital = _initialCapital;
         votingPrice = _initialCapital/10 != 0 ? _initialCapital/10 : 1;
@@ -70,6 +71,10 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     */
     function makeRefundableByVotingDecision() external {
         DAOProxy.delegatedMakeRefundableByVotingDecision(votingDecisionModule);
+    }
+
+    function connectService(address _service) external {
+        DAOProxy.delegatedConnectService(votingDecisionModule, _service);
     }
 
     /*
@@ -188,7 +193,19 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _newAddress Address of new module
     */
     function addModule(string _name, string _description, uint _duration, uint _module, address _newAddress) public {
-        address voting = DAOLib.delegatedCreateModule(votingFactory, _name, _description, _duration, _module, _newAddress, this);
+        address voting = DAOLib.delegatedCreateModule(serviceVotingFactory, _name, _description, _duration, _module, _newAddress, this);
+        handleCreatedVoting(voting);
+    }
+
+    /*
+    * @dev Delegates request of creating "new service" voting and saves the address of created voting contract to votings list
+    * @param _name Name for voting
+    * @param _description Description for voting that will be created
+    * @param _duration Time in seconds from current moment until voting will be finished
+    * @param _service Address of service that needs to be connected to DAO
+    */
+    function addNewService(string _name, string _description, uint _duration, address _service) public {
+        address voting = DAOLib.delegatedCreateNewService(serviceVotingFactory, _name, _description, _duration, _service, this);
         handleCreatedVoting(voting);
     }
 

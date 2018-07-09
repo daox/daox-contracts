@@ -1,7 +1,8 @@
 pragma solidity ^0.4.0;
 
 import "../Token/TokenInterface.sol";
-import "../Votings/VotingFactoryInterface.sol";
+import "../Votings/Common/VotingFactoryInterface.sol";
+import "../Votings/Service/IServiceVotingFactory.sol";
 import '../../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 
 library DAOLib {
@@ -61,9 +62,16 @@ library DAOLib {
         return _votingAddress;
     }
 
-    function delegatedCreateModule(VotingFactoryInterface _votingFactory, string _name, string _description, uint _duration, uint _module, address _newAddress, address _dao) returns (address) {
+    function delegatedCreateModule(IServiceVotingFactory _votingFactory, string _name, string _description, uint _duration, uint _module, address _newAddress, address _dao) returns (address) {
         address _votingAddress = _votingFactory.createModule(msg.sender, _name, _description, _duration, _module, _newAddress);
         VotingCreated(_votingAddress, "Module", _dao, _name, _description, _duration, msg.sender);
+
+        return _votingAddress;
+    }
+
+    function delegatedCreateNewService(IServiceVotingFactory _votingFactory, string _name, string _description, uint _duration, address _service, address _dao) returns (address) {
+        address _votingAddress = _votingFactory.createNewService(msg.sender, _name, _description, _duration, _service);
+        VotingCreated(_votingAddress, "New Service", _dao, _name, _description, _duration, msg.sender);
 
         return _votingAddress;
     }

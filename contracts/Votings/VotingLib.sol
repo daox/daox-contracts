@@ -1,6 +1,7 @@
-pragma solidity ^0.4.11;
+pragma solidity 0.4.24;
 
 import "../DAO/ICrowdsaleDAO.sol";
+import "../DAO/API/IService.sol";
 import "../Common.sol";
 
 library VotingLib {
@@ -28,6 +29,12 @@ library VotingLib {
     }
 
     function isValidWithdrawal(address _dao, uint _sum, bool _dxc) constant returns(bool) {
-        return !_dxc ? _dao.balance >= _sum  : ICrowdsaleDAO(_dao).DXC().balanceOf(_dao) >= _sum;
+        return !_dxc ? _dao.balance >= _sum  : (ICrowdsaleDAO(_dao).DXC().balanceOf(_dao) - ICrowdsaleDAO(_dao).initialCapital()) >= _sum;
+    }
+
+    function isValidService(address _dao, address _service) internal view {
+        require(_service.call(bytes4(keccak256("price()"))), "No price property in provided contract");
+        uint price = IService(_service).price();
+        require(price <= ICrowdsaleDAO(_dao).initialCapital(), "Not enough DXC in initial capital to connect this service");
     }
 }

@@ -1,8 +1,8 @@
 pragma solidity ^0.4.0;
 
-import "./VotingLib.sol";
-import "../Common.sol";
-import "./BaseProposal.sol";
+import "../VotingLib.sol";
+import "../../Common.sol";
+import "../BaseProposal.sol";
 
 contract Refund is BaseProposal {
     function Refund(address _baseVoting, address _dao, string _name, string _description, uint _duration) {

@@ -1,8 +1,8 @@
 pragma solidity ^0.4.0;
 
-import "./VotingLib.sol";
-import "./VotingFields.sol";
-import "../Common.sol";
+import "../VotingLib.sol";
+import "../VotingFields.sol";
+import "../../Common.sol";
 
 contract Regular is VotingFields {
     address baseVoting;

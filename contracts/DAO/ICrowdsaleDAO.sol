@@ -10,6 +10,7 @@ contract ICrowdsaleDAO is IDAO {
     uint public weiRaised;
     uint public softCap;
     uint public fundsRaised;
+    uint public initialCapital;
 
     function addRegular(string _description, uint _duration, bytes32[] _options) external;
 
@@ -24,6 +25,8 @@ contract ICrowdsaleDAO is IDAO {
     function makeRefundableByVotingDecision();
 
     function withdrawal(address _address, uint withdrawalSum, bool dxc);
+
+    function connectService(address _service);
 
     function setStateModule(address _stateModule);
 

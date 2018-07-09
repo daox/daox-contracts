@@ -1,6 +1,7 @@
 pragma solidity 0.4.24;
 
 import "./TypesConverter.sol";
+import "./BaseService.sol";
 
 interface IProxyAPI {
     function availableCalls(address _this) constant returns(address);
@@ -11,12 +12,8 @@ interface IDAO {
     function votingPrice() view returns (uint);
 }
 
-contract ExampleModule {
-    address public proxyAPI;
-
-    constructor(address _proxyAPI) {
-        proxyAPI = _proxyAPI;
-    }
+contract ExampleService is BaseService {
+    constructor(uint _price, address _DXC, address _proxyAPI) BaseService(_price, _DXC, _proxyAPI) {}
 
     function changeVotingPrice(bytes32[10] args) onlyProxyAPI {
         uint multiplier = TypesConverter.bytes32ToUint(args[0]);

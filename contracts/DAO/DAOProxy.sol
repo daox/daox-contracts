@@ -63,4 +63,8 @@ library DAOProxy {
     function delegatedHandleDXCPayment(address module, address _from, uint _amount) {
         require(module.delegatecall(bytes4(keccak256("handleDXCPayment(address,uint256)")), _from, _amount));
     }
+
+    function delegatedConnectService(address module, address _service) {
+        require(module.delegatecall(bytes4(keccak256("connectService(address)")), _service));
+    }
 }

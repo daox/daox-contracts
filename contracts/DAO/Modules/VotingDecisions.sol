@@ -1,9 +1,10 @@
-pragma solidity ^0.4.0;
+pragma solidity 0.4.24;
 
 import '../../../node_modules/zeppelin-solidity/contracts/math/SafeMath.sol';
 import "../DAOLib.sol";
 import "../../Token/TokenInterface.sol";
 import "../CrowdsaleDAOFields.sol";
+import "../API/IService.sol";
 
 contract VotingDecisions is CrowdsaleDAOFields {
 
@@ -13,7 +14,7 @@ contract VotingDecisions is CrowdsaleDAOFields {
     * @param _withdrawalSum Amount of ether/DXC to be sent
     * @param _dxc Should withdrawal be in DXC tokens
     */
-    function withdrawal(address _address, uint _withdrawalSum, bool _dxc) notInRefundableState onlyVoting external {
+    function withdrawal(address _address, uint _withdrawalSum, bool _dxc) external notInRefundableState onlyVoting {
         lastWithdrawalTimestamp = block.timestamp;
         _dxc ? DXC.transfer(_address, _withdrawalSum) : _address.transfer(_withdrawalSum);
     }
@@ -37,7 +38,7 @@ contract VotingDecisions is CrowdsaleDAOFields {
     /*
     * @dev Change DAO's mode to `refundable`. Calls from this contract `makeRefundableByUser` or `makeRefundableByVotingDecision` functions
     */
-    function makeRefundable() notInRefundableState private {
+    function makeRefundable() private notInRefundableState {
         refundable = true;
         newEtherRate = SafeMath.mul(this.balance * etherRate, multiplier) / tokensMintedByEther;
         newDXCRate = tokensMintedByDXC != 0 ? SafeMath.mul((DXC.balanceOf(this) - initialCapital) * DXCRate, multiplier) / tokensMintedByDXC : 0;
@@ -48,8 +49,15 @@ contract VotingDecisions is CrowdsaleDAOFields {
     * @param _address Address of tokenholder
     * @param _duration Hold's duration in seconds
     */
-    function holdTokens(address _address, uint _duration) onlyVoting external {
+    function holdTokens(address _address, uint _duration) external onlyVoting {
         token.hold(_address, _duration);
+    }
+
+    function connectService(address _service) external onlyVoting validInitialCapital(_service) {
+        uint price = IService(_service).price();
+        initialCapital -= price;
+        DXC.contributeTo(_service, price);
+        modules[_service] = true;
     }
 
     /*
@@ -65,6 +73,11 @@ contract VotingDecisions is CrowdsaleDAOFields {
     */
     modifier notInRefundableState {
         require(!refundable && !refundableSoftCap);
+        _;
+    }
+
+    modifier validInitialCapital(address _service) {
+        require(IService(_service).price() <= initialCapital, "Not enough funds to connect module");
         _;
     }
 }

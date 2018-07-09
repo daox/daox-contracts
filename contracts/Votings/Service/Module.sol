@@ -1,8 +1,8 @@
 pragma solidity ^0.4.0;
 
-import "./VotingLib.sol";
-import "../Common.sol";
-import "./BaseProposal.sol";
+import "../VotingLib.sol";
+import "../../Common.sol";
+import "../BaseProposal.sol";
 
 contract Module is BaseProposal {
     enum Modules{State, Payment, VotingDecisions, Crowdsale, VotingFactory}

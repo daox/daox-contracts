@@ -21,7 +21,8 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     );
 
     address public serviceContractAddress;
-    address public votingFactoryContractAddress;
+    address public votingFactory;
+    address public serviceVotingFactory;
     address public DXC;
     mapping(address => uint) DXCDeposit;
     // DAOs created by factory
@@ -29,14 +30,16 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     // Functional modules which will be used by DAOs to delegate calls
     address[6] modules;
 
-    function CrowdsaleDAOFactory(address _serviceContractAddress, address _votingFactoryAddress, address _DXC, address[6] _modules) {
-        require(_serviceContractAddress != 0x0 && _votingFactoryAddress != 0x0 && _DXC != 0x0);
-        serviceContractAddress = _serviceContractAddress;
+    function CrowdsaleDAOFactory(address _serviceContract, address _votingFactory, address _serviceVotingFactory, address _DXC, address[6] _modules) {
+        require(_serviceContract != 0x0 && _votingFactory != 0x0 && _serviceVotingFactory != 0x0 && _DXC != 0x0);
+        serviceContractAddress = _serviceContract;
         DXC = _DXC;
-        votingFactoryContractAddress = _votingFactoryAddress;
+        votingFactory = _votingFactory;
+        serviceVotingFactory = _serviceVotingFactory;
         modules = _modules;
 
-        require(votingFactoryContractAddress.call(bytes4(keccak256("setDaoFactory(address)")), this));
+        require(votingFactory.call(bytes4(keccak256("setDaoFactory(address)")), this));
+        require(serviceVotingFactory.call(bytes4(keccak256("setDaoFactory(address)")), this));
         require(serviceContractAddress.call(bytes4(keccak256("setDaoFactory(address)")), this));
     }
 
@@ -69,7 +72,7 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
     * @param _initialCapital initial capital for DAO that will be created
     */
     function createCrowdsaleDAO(string _name, string _description, uint _initialCapital) public correctInitialCapital(_initialCapital) enoughDXC(_initialCapital) {
-        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, serviceContractAddress, votingFactoryContractAddress, DXC, _initialCapital);
+        address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, serviceContractAddress, votingFactory, serviceVotingFactory, DXC, _initialCapital);
         DXCDeposit[msg.sender] -= _initialCapital;
         TokenInterface(DXC).transfer(dao, _initialCapital);
 

@@ -1,7 +1,8 @@
 pragma solidity ^0.4.0;
 
 import "../Token/TokenInterface.sol";
-import "../Votings/VotingFactoryInterface.sol";
+import "../Votings/Common/VotingFactoryInterface.sol";
+import "../Votings/Service/IServiceVotingFactory.sol";
 
 contract CrowdsaleDAOFields {
     bytes32 constant public version = "1.0.0";
@@ -33,6 +34,7 @@ contract CrowdsaleDAOFields {
     bool[] public teamServiceMember;
     TokenInterface public token;
     VotingFactoryInterface public votingFactory;
+    IServiceVotingFactory public serviceVotingFactory;
     address public commissionContract; //Contract that is used to mark funds which were provided through daox.org platform
     string public name;
 	string public description;
@@ -57,6 +59,7 @@ contract CrowdsaleDAOFields {
     uint public votingPrice = 0; // Amount of DXC needed to create voting
     mapping(address => uint) public initialCapitalIncr; // Amount of DXC that user transferred to DAO
     address public proxyAPI;
+    mapping(address => bool) public modules;
     uint internal constant multiplier = 100000;
     uint internal constant percentMultiplier = 100;
 }
