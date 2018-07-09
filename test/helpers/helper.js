@@ -213,10 +213,10 @@ const EPSILON = 1e-9;
 const doesApproximatelyEqual = (a, b) =>
     a + EPSILON >= b && a - EPSILON <= b;
 
-const payForVoting = async (dao, account) => {
+const payForVoting = async (dao, account, price) => {
     const votingPrice = await dao.votingPrice();
     const dxc = await mintDXC(account, votingPrice);
-    await dxc.contributeTo.sendTransaction(dao.address, votingPrice, {from: account});
+    await dxc.contributeTo.sendTransaction(dao.address, votingPrice + (price || 0), {from: account});
 };
 
 

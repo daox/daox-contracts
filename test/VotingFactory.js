@@ -5,6 +5,7 @@ const Withdrawal = artifacts.require('./Votings/Withdrawal.sol');
 const Refund = artifacts.require('./Votings/Refund.sol');
 const Module = artifacts.require('./Votings/Module.sol');
 const VotingFactory = artifacts.require('./Votings/VotingFactory.sol');
+const ExampleService = artifacts.require('./DAO/API/ExampleService.sol');
 
 contract("VotingFactory", accounts => {
     const [serviceAccount, unknownAccount] = [accounts[0], accounts[1]];
@@ -99,6 +100,27 @@ contract("VotingFactory", accounts => {
         assert.equal(1, await module.module.call());
         assert.equal(unknownAccount, await module.newModuleAddress.call());
         assert.equal(false, await module.finished.call());
+    });
+
+    it("Should create newService", async () => {
+        const description = 'Test Description';
+        await helper.payForVoting(dao, serviceAccount, 1);
+        const tx = await dao.addNewService(name, description, minimalDurationPeriod, ExampleService.address);
+        // const logs = helper.decodeVotingParameters(tx);
+        // const module = Module.at(logs[0]);
+        //
+        // const [option1, option2] = await Promise.all([
+        //     module.options.call(1),
+        //     module.options.call(2),
+        // ]);
+        //
+        // assert.equal(description, await module.description.call());
+        // assert.equal(helper.fillZeros(web3.toHex('yes')), option1[1]);
+        // assert.equal(helper.fillZeros(web3.toHex('no')), option2[1]);
+        // assert.equal(minimalDurationPeriod, await module.duration.call());
+        // assert.equal(1, await module.module.call());
+        // assert.equal(unknownAccount, await module.newModuleAddress.call());
+        // assert.equal(false, await module.finished.call());
     });
 
     it("Should not be able to create any voting from not participant", async () => {
