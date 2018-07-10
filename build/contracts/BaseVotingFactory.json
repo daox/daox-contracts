@@ -1,0 +1,2571 @@
+{
+  "contractName": "BaseVotingFactory",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "daoFactory",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "_baseVoting",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_dao",
+          "type": "address"
+        }
+      ],
+      "name": "setDaoFactory",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b506040516020806101da833981016040525160008054600160a060020a03909216600160a060020a0319909216919091179055610188806100526000396000f30060806040526004361061004b5763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166348f7f2a38114610050578063dfc061f01461008e575b600080fd5b34801561005c57600080fd5b506100656100be565b6040805173ffffffffffffffffffffffffffffffffffffffff9092168252519081900360200190f35b34801561009a57600080fd5b506100bc73ffffffffffffffffffffffffffffffffffffffff600435166100da565b005b60015473ffffffffffffffffffffffffffffffffffffffff1681565b60015473ffffffffffffffffffffffffffffffffffffffff16158015610115575073ffffffffffffffffffffffffffffffffffffffff811615155b151561012057600080fd5b6001805473ffffffffffffffffffffffffffffffffffffffff191673ffffffffffffffffffffffffffffffffffffffff929092169190911790555600a165627a7a72305820c1da200d96606e907e238a807bf375de7232cc00d7a5dc6f670110599f1044bd0029",
+  "deployedBytecode": "0x60806040526004361061004b5763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166348f7f2a38114610050578063dfc061f01461008e575b600080fd5b34801561005c57600080fd5b506100656100be565b6040805173ffffffffffffffffffffffffffffffffffffffff9092168252519081900360200190f35b34801561009a57600080fd5b506100bc73ffffffffffffffffffffffffffffffffffffffff600435166100da565b005b60015473ffffffffffffffffffffffffffffffffffffffff1681565b60015473ffffffffffffffffffffffffffffffffffffffff16158015610115575073ffffffffffffffffffffffffffffffffffffffff811615155b151561012057600080fd5b6001805473ffffffffffffffffffffffffffffffffffffffff191673ffffffffffffffffffffffffffffffffffffffff929092169190911790555600a165627a7a72305820c1da200d96606e907e238a807bf375de7232cc00d7a5dc6f670110599f1044bd0029",
+  "sourceMap": "93:1040:29:-;;;194:81;8:9:-1;5:2;;;30:1;27;20:12;5:2;194:81:29;;;;;;;;;;;;;244:10;:24;;-1:-1:-1;;;;;244:24:29;;;-1:-1:-1;;;;;;244:24:29;;;;;;;;;93:1040;;;;;;",
+  "deployedSourceMap": "93:1040:29:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;150:37;;8:9:-1;5:2;;;30:1;27;20:12;5:2;150:37:29;;;;;;;;;;;;;;;;;;;;;;;406:161;;8:9:-1;5:2;;;30:1;27;20:12;5:2;-1:-1;406:161:29;;;;;;;;;150:37;;;;;;:::o;406:161::-;478:10;;;;470:26;:41;;;;-1:-1:-1;500:11:29;;;;;470:41;462:50;;;;;;;;522:10;:38;;-1:-1:-1;;522:38:29;;;;;;;;;;;;406:161::o",
+  "source": "pragma solidity ^0.4.0;\n\nimport \"../DAO/DAOFactoryInterface.sol\";\nimport \"../DAO/IDAO.sol\";\n\ncontract BaseVotingFactory {\n    address baseVoting;\n    DAOFactoryInterface public daoFactory;\n\n    constructor(address _baseVoting) public {\n        baseVoting = _baseVoting;\n    }\n\n    /*\n    * @dev Set dao factory address. Calls ones from just deployed DAO\n    * @param _dao Address of dao factory\n    */\n    function setDaoFactory(address _dao) external {\n        require(address(daoFactory) == 0x0 && _dao != 0x0);\n        daoFactory = DAOFactoryInterface(_dao);\n    }\n\n    /*\n    * @dev Throws if caller is not correct DAO\n    */\n    modifier onlyDAO() {\n        require(daoFactory.exists(msg.sender));\n        _;\n    }\n\n    /*\n    * @dev Throws if creator is not participant of passed DAO\n    */\n    modifier onlyParticipantWithEnoughDXC(address creator) {\n        require(IDAO(msg.sender).isParticipant(creator), \"You need to be a participant to call this method\");\n        require(IDAO(msg.sender).initialCapitalIncr(creator) >= IDAO(msg.sender).votingPrice(), \"You don't have enough DXC to call this method.\");\n        _;\n    }\n}\n",
+  "sourcePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Votings/BaseVotingFactory.sol",
+  "ast": {
+    "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Votings/BaseVotingFactory.sol",
+    "exportedSymbols": {
+      "BaseVotingFactory": [
+        6242
+      ]
+    },
+    "id": 6243,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 6154,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:29"
+      },
+      {
+        "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/DAO/DAOFactoryInterface.sol",
+        "file": "../DAO/DAOFactoryInterface.sol",
+        "id": 6155,
+        "nodeType": "ImportDirective",
+        "scope": 6243,
+        "sourceUnit": 2730,
+        "src": "25:40:29",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/DAO/IDAO.sol",
+        "file": "../DAO/IDAO.sol",
+        "id": 6156,
+        "nodeType": "ImportDirective",
+        "scope": 6243,
+        "sourceUnit": 3610,
+        "src": "66:25:29",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 6242,
+        "linearizedBaseContracts": [
+          6242
+        ],
+        "name": "BaseVotingFactory",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 6158,
+            "name": "baseVoting",
+            "nodeType": "VariableDeclaration",
+            "scope": 6242,
+            "src": "126:18:29",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 6157,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "126:7:29",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 6160,
+            "name": "daoFactory",
+            "nodeType": "VariableDeclaration",
+            "scope": 6242,
+            "src": "150:37:29",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+              "typeString": "contract DAOFactoryInterface"
+            },
+            "typeName": {
+              "contractScope": null,
+              "id": 6159,
+              "name": "DAOFactoryInterface",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 2729,
+              "src": "150:19:29",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                "typeString": "contract DAOFactoryInterface"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 6169,
+              "nodeType": "Block",
+              "src": "234:41:29",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 6167,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 6165,
+                      "name": "baseVoting",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 6158,
+                      "src": "244:10:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 6166,
+                      "name": "_baseVoting",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 6162,
+                      "src": "257:11:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "244:24:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 6168,
+                  "nodeType": "ExpressionStatement",
+                  "src": "244:24:29"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6170,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 6163,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6162,
+                  "name": "_baseVoting",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6170,
+                  "src": "206:19:29",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 6161,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "206:7:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "205:21:29"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 6164,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "234:0:29"
+            },
+            "scope": 6242,
+            "src": "194:81:29",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 6193,
+              "nodeType": "Block",
+              "src": "452:115:29",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "commonType": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        "id": 6184,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "argumentTypes": null,
+                          "commonType": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          },
+                          "id": 6180,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "argumentTypes": null,
+                            "arguments": [
+                              {
+                                "argumentTypes": null,
+                                "id": 6177,
+                                "name": "daoFactory",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 6160,
+                                "src": "478:10:29",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                                  "typeString": "contract DAOFactoryInterface"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                                  "typeString": "contract DAOFactoryInterface"
+                                }
+                              ],
+                              "id": 6176,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "nodeType": "ElementaryTypeNameExpression",
+                              "src": "470:7:29",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_type$_t_address_$",
+                                "typeString": "type(address)"
+                              },
+                              "typeName": "address"
+                            },
+                            "id": 6178,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "kind": "typeConversion",
+                            "lValueRequested": false,
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "470:19:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "==",
+                          "rightExpression": {
+                            "argumentTypes": null,
+                            "hexValue": "307830",
+                            "id": 6179,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "number",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "493:3:29",
+                            "subdenomination": null,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_rational_0_by_1",
+                              "typeString": "int_const 0"
+                            },
+                            "value": "0x0"
+                          },
+                          "src": "470:26:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": "&&",
+                        "rightExpression": {
+                          "argumentTypes": null,
+                          "commonType": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          },
+                          "id": 6183,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "argumentTypes": null,
+                            "id": 6181,
+                            "name": "_dao",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 6172,
+                            "src": "500:4:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "!=",
+                          "rightExpression": {
+                            "argumentTypes": null,
+                            "hexValue": "307830",
+                            "id": 6182,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "number",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "508:3:29",
+                            "subdenomination": null,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_rational_0_by_1",
+                              "typeString": "int_const 0"
+                            },
+                            "value": "0x0"
+                          },
+                          "src": "500:11:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          }
+                        },
+                        "src": "470:41:29",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      ],
+                      "id": 6175,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        8416,
+                        8417
+                      ],
+                      "referencedDeclaration": 8416,
+                      "src": "462:7:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
+                        "typeString": "function (bool) pure"
+                      }
+                    },
+                    "id": 6185,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "462:50:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 6186,
+                  "nodeType": "ExpressionStatement",
+                  "src": "462:50:29"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 6191,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 6187,
+                      "name": "daoFactory",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 6160,
+                      "src": "522:10:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                        "typeString": "contract DAOFactoryInterface"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "arguments": [
+                        {
+                          "argumentTypes": null,
+                          "id": 6189,
+                          "name": "_dao",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 6172,
+                          "src": "555:4:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        ],
+                        "id": 6188,
+                        "name": "DAOFactoryInterface",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 2729,
+                        "src": "535:19:29",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_DAOFactoryInterface_$2729_$",
+                          "typeString": "type(contract DAOFactoryInterface)"
+                        }
+                      },
+                      "id": 6190,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "typeConversion",
+                      "lValueRequested": false,
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "535:25:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                        "typeString": "contract DAOFactoryInterface"
+                      }
+                    },
+                    "src": "522:38:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                      "typeString": "contract DAOFactoryInterface"
+                    }
+                  },
+                  "id": 6192,
+                  "nodeType": "ExpressionStatement",
+                  "src": "522:38:29"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6194,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "setDaoFactory",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 6173,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6172,
+                  "name": "_dao",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6194,
+                  "src": "429:12:29",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 6171,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "429:7:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "428:14:29"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 6174,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "452:0:29"
+            },
+            "scope": 6242,
+            "src": "406:161:29",
+            "stateMutability": "nonpayable",
+            "superFunction": 6686,
+            "visibility": "external"
+          },
+          {
+            "body": {
+              "id": 6205,
+              "nodeType": "Block",
+              "src": "653:66:29",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "arguments": [
+                          {
+                            "argumentTypes": null,
+                            "expression": {
+                              "argumentTypes": null,
+                              "id": 6199,
+                              "name": "msg",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 8413,
+                              "src": "689:3:29",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_magic_message",
+                                "typeString": "msg"
+                              }
+                            },
+                            "id": 6200,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberName": "sender",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": null,
+                            "src": "689:10:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": null,
+                            "id": 6197,
+                            "name": "daoFactory",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 6160,
+                            "src": "671:10:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                              "typeString": "contract DAOFactoryInterface"
+                            }
+                          },
+                          "id": 6198,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "memberName": "exists",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": 2728,
+                          "src": "671:17:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_bool_$",
+                            "typeString": "function (address) view external returns (bool)"
+                          }
+                        },
+                        "id": 6201,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "kind": "functionCall",
+                        "lValueRequested": false,
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "671:29:29",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      ],
+                      "id": 6196,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        8416,
+                        8417
+                      ],
+                      "referencedDeclaration": 8416,
+                      "src": "663:7:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
+                        "typeString": "function (bool) pure"
+                      }
+                    },
+                    "id": 6202,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "663:38:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 6203,
+                  "nodeType": "ExpressionStatement",
+                  "src": "663:38:29"
+                },
+                {
+                  "id": 6204,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "711:1:29"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6206,
+            "name": "onlyDAO",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 6195,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "650:2:29"
+            },
+            "src": "634:85:29",
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 6240,
+              "nodeType": "Block",
+              "src": "856:275:29",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "arguments": [
+                          {
+                            "argumentTypes": null,
+                            "id": 6216,
+                            "name": "creator",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 6208,
+                            "src": "905:7:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": null,
+                            "arguments": [
+                              {
+                                "argumentTypes": null,
+                                "expression": {
+                                  "argumentTypes": null,
+                                  "id": 6212,
+                                  "name": "msg",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 8413,
+                                  "src": "879:3:29",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_magic_message",
+                                    "typeString": "msg"
+                                  }
+                                },
+                                "id": 6213,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "memberName": "sender",
+                                "nodeType": "MemberAccess",
+                                "referencedDeclaration": null,
+                                "src": "879:10:29",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                }
+                              ],
+                              "id": 6211,
+                              "name": "IDAO",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 3609,
+                              "src": "874:4:29",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_type$_t_contract$_IDAO_$3609_$",
+                                "typeString": "type(contract IDAO)"
+                              }
+                            },
+                            "id": 6214,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "kind": "typeConversion",
+                            "lValueRequested": false,
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "874:16:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_contract$_IDAO_$3609",
+                              "typeString": "contract IDAO"
+                            }
+                          },
+                          "id": 6215,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "memberName": "isParticipant",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": 3582,
+                          "src": "874:30:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_bool_$",
+                            "typeString": "function (address) view external returns (bool)"
+                          }
+                        },
+                        "id": 6217,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "kind": "functionCall",
+                        "lValueRequested": false,
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "874:39:29",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "596f75206e65656420746f2062652061207061727469636970616e7420746f2063616c6c2074686973206d6574686f64",
+                        "id": 6218,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "915:50:29",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_bef168ef48946ea86d5fb340d80bb8c33deba39d5d9399bc7e254de60fee91c8",
+                          "typeString": "literal_string \"You need to be a participant to call this method\""
+                        },
+                        "value": "You need to be a participant to call this method"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_bef168ef48946ea86d5fb340d80bb8c33deba39d5d9399bc7e254de60fee91c8",
+                          "typeString": "literal_string \"You need to be a participant to call this method\""
+                        }
+                      ],
+                      "id": 6210,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        8416,
+                        8417
+                      ],
+                      "referencedDeclaration": 8417,
+                      "src": "866:7:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
+                        "typeString": "function (bool,string memory) pure"
+                      }
+                    },
+                    "id": 6219,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "866:100:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 6220,
+                  "nodeType": "ExpressionStatement",
+                  "src": "866:100:29"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "commonType": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        },
+                        "id": 6235,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "argumentTypes": null,
+                          "arguments": [
+                            {
+                              "argumentTypes": null,
+                              "id": 6227,
+                              "name": "creator",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 6208,
+                              "src": "1020:7:29",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": null,
+                              "arguments": [
+                                {
+                                  "argumentTypes": null,
+                                  "expression": {
+                                    "argumentTypes": null,
+                                    "id": 6223,
+                                    "name": "msg",
+                                    "nodeType": "Identifier",
+                                    "overloadedDeclarations": [],
+                                    "referencedDeclaration": 8413,
+                                    "src": "989:3:29",
+                                    "typeDescriptions": {
+                                      "typeIdentifier": "t_magic_message",
+                                      "typeString": "msg"
+                                    }
+                                  },
+                                  "id": 6224,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "memberName": "sender",
+                                  "nodeType": "MemberAccess",
+                                  "referencedDeclaration": null,
+                                  "src": "989:10:29",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_address",
+                                    "typeString": "address"
+                                  }
+                                }
+                              ],
+                              "expression": {
+                                "argumentTypes": [
+                                  {
+                                    "typeIdentifier": "t_address",
+                                    "typeString": "address"
+                                  }
+                                ],
+                                "id": 6222,
+                                "name": "IDAO",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 3609,
+                                "src": "984:4:29",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_type$_t_contract$_IDAO_$3609_$",
+                                  "typeString": "type(contract IDAO)"
+                                }
+                              },
+                              "id": 6225,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "kind": "typeConversion",
+                              "lValueRequested": false,
+                              "names": [],
+                              "nodeType": "FunctionCall",
+                              "src": "984:16:29",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_contract$_IDAO_$3609",
+                                "typeString": "contract IDAO"
+                              }
+                            },
+                            "id": 6226,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberName": "initialCapitalIncr",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 3603,
+                            "src": "984:35:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_uint256_$",
+                              "typeString": "function (address) view external returns (uint256)"
+                            }
+                          },
+                          "id": 6228,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "984:44:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": ">=",
+                        "rightExpression": {
+                          "argumentTypes": null,
+                          "arguments": [],
+                          "expression": {
+                            "argumentTypes": [],
+                            "expression": {
+                              "argumentTypes": null,
+                              "arguments": [
+                                {
+                                  "argumentTypes": null,
+                                  "expression": {
+                                    "argumentTypes": null,
+                                    "id": 6230,
+                                    "name": "msg",
+                                    "nodeType": "Identifier",
+                                    "overloadedDeclarations": [],
+                                    "referencedDeclaration": 8413,
+                                    "src": "1037:3:29",
+                                    "typeDescriptions": {
+                                      "typeIdentifier": "t_magic_message",
+                                      "typeString": "msg"
+                                    }
+                                  },
+                                  "id": 6231,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "memberName": "sender",
+                                  "nodeType": "MemberAccess",
+                                  "referencedDeclaration": null,
+                                  "src": "1037:10:29",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_address",
+                                    "typeString": "address"
+                                  }
+                                }
+                              ],
+                              "expression": {
+                                "argumentTypes": [
+                                  {
+                                    "typeIdentifier": "t_address",
+                                    "typeString": "address"
+                                  }
+                                ],
+                                "id": 6229,
+                                "name": "IDAO",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 3609,
+                                "src": "1032:4:29",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_type$_t_contract$_IDAO_$3609_$",
+                                  "typeString": "type(contract IDAO)"
+                                }
+                              },
+                              "id": 6232,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "kind": "typeConversion",
+                              "lValueRequested": false,
+                              "names": [],
+                              "nodeType": "FunctionCall",
+                              "src": "1032:16:29",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_contract$_IDAO_$3609",
+                                "typeString": "contract IDAO"
+                              }
+                            },
+                            "id": 6233,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberName": "votingPrice",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 3608,
+                            "src": "1032:28:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_external_view$__$returns$_t_uint256_$",
+                              "typeString": "function () view external returns (uint256)"
+                            }
+                          },
+                          "id": 6234,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "1032:30:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "src": "984:78:29",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "596f7520646f6e2774206861766520656e6f7567682044584320746f2063616c6c2074686973206d6574686f642e",
+                        "id": 6236,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1064:48:29",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_3f140bb2ce076cfff724f1eeb7e9028f2957e471f1af26c67102002d29fea4bd",
+                          "typeString": "literal_string \"You don't have enough DXC to call this method.\""
+                        },
+                        "value": "You don't have enough DXC to call this method."
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_3f140bb2ce076cfff724f1eeb7e9028f2957e471f1af26c67102002d29fea4bd",
+                          "typeString": "literal_string \"You don't have enough DXC to call this method.\""
+                        }
+                      ],
+                      "id": 6221,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        8416,
+                        8417
+                      ],
+                      "referencedDeclaration": 8417,
+                      "src": "976:7:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
+                        "typeString": "function (bool,string memory) pure"
+                      }
+                    },
+                    "id": 6237,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "976:137:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 6238,
+                  "nodeType": "ExpressionStatement",
+                  "src": "976:137:29"
+                },
+                {
+                  "id": 6239,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "1123:1:29"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6241,
+            "name": "onlyParticipantWithEnoughDXC",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 6209,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6208,
+                  "name": "creator",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6241,
+                  "src": "839:15:29",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 6207,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "839:7:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "838:17:29"
+            },
+            "src": "801:330:29",
+            "visibility": "internal"
+          }
+        ],
+        "scope": 6243,
+        "src": "93:1040:29"
+      }
+    ],
+    "src": "0:1134:29"
+  },
+  "legacyAST": {
+    "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/Votings/BaseVotingFactory.sol",
+    "exportedSymbols": {
+      "BaseVotingFactory": [
+        6242
+      ]
+    },
+    "id": 6243,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 6154,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:29"
+      },
+      {
+        "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/DAO/DAOFactoryInterface.sol",
+        "file": "../DAO/DAOFactoryInterface.sol",
+        "id": 6155,
+        "nodeType": "ImportDirective",
+        "scope": 6243,
+        "sourceUnit": 2730,
+        "src": "25:40:29",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/DAO/IDAO.sol",
+        "file": "../DAO/IDAO.sol",
+        "id": 6156,
+        "nodeType": "ImportDirective",
+        "scope": 6243,
+        "sourceUnit": 3610,
+        "src": "66:25:29",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 6242,
+        "linearizedBaseContracts": [
+          6242
+        ],
+        "name": "BaseVotingFactory",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 6158,
+            "name": "baseVoting",
+            "nodeType": "VariableDeclaration",
+            "scope": 6242,
+            "src": "126:18:29",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_address",
+              "typeString": "address"
+            },
+            "typeName": {
+              "id": 6157,
+              "name": "address",
+              "nodeType": "ElementaryTypeName",
+              "src": "126:7:29",
+              "typeDescriptions": {
+                "typeIdentifier": "t_address",
+                "typeString": "address"
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          },
+          {
+            "constant": false,
+            "id": 6160,
+            "name": "daoFactory",
+            "nodeType": "VariableDeclaration",
+            "scope": 6242,
+            "src": "150:37:29",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+              "typeString": "contract DAOFactoryInterface"
+            },
+            "typeName": {
+              "contractScope": null,
+              "id": 6159,
+              "name": "DAOFactoryInterface",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 2729,
+              "src": "150:19:29",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                "typeString": "contract DAOFactoryInterface"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 6169,
+              "nodeType": "Block",
+              "src": "234:41:29",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 6167,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 6165,
+                      "name": "baseVoting",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 6158,
+                      "src": "244:10:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 6166,
+                      "name": "_baseVoting",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 6162,
+                      "src": "257:11:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "src": "244:24:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "id": 6168,
+                  "nodeType": "ExpressionStatement",
+                  "src": "244:24:29"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6170,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 6163,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6162,
+                  "name": "_baseVoting",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6170,
+                  "src": "206:19:29",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 6161,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "206:7:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "205:21:29"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 6164,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "234:0:29"
+            },
+            "scope": 6242,
+            "src": "194:81:29",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 6193,
+              "nodeType": "Block",
+              "src": "452:115:29",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "commonType": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        "id": 6184,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "argumentTypes": null,
+                          "commonType": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          },
+                          "id": 6180,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "argumentTypes": null,
+                            "arguments": [
+                              {
+                                "argumentTypes": null,
+                                "id": 6177,
+                                "name": "daoFactory",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 6160,
+                                "src": "478:10:29",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                                  "typeString": "contract DAOFactoryInterface"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                                  "typeString": "contract DAOFactoryInterface"
+                                }
+                              ],
+                              "id": 6176,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "lValueRequested": false,
+                              "nodeType": "ElementaryTypeNameExpression",
+                              "src": "470:7:29",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_type$_t_address_$",
+                                "typeString": "type(address)"
+                              },
+                              "typeName": "address"
+                            },
+                            "id": 6178,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "kind": "typeConversion",
+                            "lValueRequested": false,
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "470:19:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "==",
+                          "rightExpression": {
+                            "argumentTypes": null,
+                            "hexValue": "307830",
+                            "id": 6179,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "number",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "493:3:29",
+                            "subdenomination": null,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_rational_0_by_1",
+                              "typeString": "int_const 0"
+                            },
+                            "value": "0x0"
+                          },
+                          "src": "470:26:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": "&&",
+                        "rightExpression": {
+                          "argumentTypes": null,
+                          "commonType": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          },
+                          "id": 6183,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "leftExpression": {
+                            "argumentTypes": null,
+                            "id": 6181,
+                            "name": "_dao",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 6172,
+                            "src": "500:4:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          },
+                          "nodeType": "BinaryOperation",
+                          "operator": "!=",
+                          "rightExpression": {
+                            "argumentTypes": null,
+                            "hexValue": "307830",
+                            "id": 6182,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": true,
+                            "kind": "number",
+                            "lValueRequested": false,
+                            "nodeType": "Literal",
+                            "src": "508:3:29",
+                            "subdenomination": null,
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_rational_0_by_1",
+                              "typeString": "int_const 0"
+                            },
+                            "value": "0x0"
+                          },
+                          "src": "500:11:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_bool",
+                            "typeString": "bool"
+                          }
+                        },
+                        "src": "470:41:29",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      ],
+                      "id": 6175,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        8416,
+                        8417
+                      ],
+                      "referencedDeclaration": 8416,
+                      "src": "462:7:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
+                        "typeString": "function (bool) pure"
+                      }
+                    },
+                    "id": 6185,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "462:50:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 6186,
+                  "nodeType": "ExpressionStatement",
+                  "src": "462:50:29"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 6191,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 6187,
+                      "name": "daoFactory",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 6160,
+                      "src": "522:10:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                        "typeString": "contract DAOFactoryInterface"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "arguments": [
+                        {
+                          "argumentTypes": null,
+                          "id": 6189,
+                          "name": "_dao",
+                          "nodeType": "Identifier",
+                          "overloadedDeclarations": [],
+                          "referencedDeclaration": 6172,
+                          "src": "555:4:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": [
+                          {
+                            "typeIdentifier": "t_address",
+                            "typeString": "address"
+                          }
+                        ],
+                        "id": 6188,
+                        "name": "DAOFactoryInterface",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 2729,
+                        "src": "535:19:29",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_DAOFactoryInterface_$2729_$",
+                          "typeString": "type(contract DAOFactoryInterface)"
+                        }
+                      },
+                      "id": 6190,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "typeConversion",
+                      "lValueRequested": false,
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "535:25:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                        "typeString": "contract DAOFactoryInterface"
+                      }
+                    },
+                    "src": "522:38:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                      "typeString": "contract DAOFactoryInterface"
+                    }
+                  },
+                  "id": 6192,
+                  "nodeType": "ExpressionStatement",
+                  "src": "522:38:29"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6194,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "setDaoFactory",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 6173,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6172,
+                  "name": "_dao",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6194,
+                  "src": "429:12:29",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 6171,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "429:7:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "428:14:29"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 6174,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "452:0:29"
+            },
+            "scope": 6242,
+            "src": "406:161:29",
+            "stateMutability": "nonpayable",
+            "superFunction": 6686,
+            "visibility": "external"
+          },
+          {
+            "body": {
+              "id": 6205,
+              "nodeType": "Block",
+              "src": "653:66:29",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "arguments": [
+                          {
+                            "argumentTypes": null,
+                            "expression": {
+                              "argumentTypes": null,
+                              "id": 6199,
+                              "name": "msg",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 8413,
+                              "src": "689:3:29",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_magic_message",
+                                "typeString": "msg"
+                              }
+                            },
+                            "id": 6200,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberName": "sender",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": null,
+                            "src": "689:10:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": null,
+                            "id": 6197,
+                            "name": "daoFactory",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 6160,
+                            "src": "671:10:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_contract$_DAOFactoryInterface_$2729",
+                              "typeString": "contract DAOFactoryInterface"
+                            }
+                          },
+                          "id": 6198,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "memberName": "exists",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": 2728,
+                          "src": "671:17:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_bool_$",
+                            "typeString": "function (address) view external returns (bool)"
+                          }
+                        },
+                        "id": 6201,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "kind": "functionCall",
+                        "lValueRequested": false,
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "671:29:29",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      ],
+                      "id": 6196,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        8416,
+                        8417
+                      ],
+                      "referencedDeclaration": 8416,
+                      "src": "663:7:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$returns$__$",
+                        "typeString": "function (bool) pure"
+                      }
+                    },
+                    "id": 6202,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "663:38:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 6203,
+                  "nodeType": "ExpressionStatement",
+                  "src": "663:38:29"
+                },
+                {
+                  "id": 6204,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "711:1:29"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6206,
+            "name": "onlyDAO",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 6195,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "650:2:29"
+            },
+            "src": "634:85:29",
+            "visibility": "internal"
+          },
+          {
+            "body": {
+              "id": 6240,
+              "nodeType": "Block",
+              "src": "856:275:29",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "arguments": [
+                          {
+                            "argumentTypes": null,
+                            "id": 6216,
+                            "name": "creator",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [],
+                            "referencedDeclaration": 6208,
+                            "src": "905:7:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_address",
+                              "typeString": "address"
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": null,
+                            "arguments": [
+                              {
+                                "argumentTypes": null,
+                                "expression": {
+                                  "argumentTypes": null,
+                                  "id": 6212,
+                                  "name": "msg",
+                                  "nodeType": "Identifier",
+                                  "overloadedDeclarations": [],
+                                  "referencedDeclaration": 8413,
+                                  "src": "879:3:29",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_magic_message",
+                                    "typeString": "msg"
+                                  }
+                                },
+                                "id": 6213,
+                                "isConstant": false,
+                                "isLValue": false,
+                                "isPure": false,
+                                "lValueRequested": false,
+                                "memberName": "sender",
+                                "nodeType": "MemberAccess",
+                                "referencedDeclaration": null,
+                                "src": "879:10:29",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                }
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": [
+                                {
+                                  "typeIdentifier": "t_address",
+                                  "typeString": "address"
+                                }
+                              ],
+                              "id": 6211,
+                              "name": "IDAO",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 3609,
+                              "src": "874:4:29",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_type$_t_contract$_IDAO_$3609_$",
+                                "typeString": "type(contract IDAO)"
+                              }
+                            },
+                            "id": 6214,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "kind": "typeConversion",
+                            "lValueRequested": false,
+                            "names": [],
+                            "nodeType": "FunctionCall",
+                            "src": "874:16:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_contract$_IDAO_$3609",
+                              "typeString": "contract IDAO"
+                            }
+                          },
+                          "id": 6215,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "memberName": "isParticipant",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": 3582,
+                          "src": "874:30:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_bool_$",
+                            "typeString": "function (address) view external returns (bool)"
+                          }
+                        },
+                        "id": 6217,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "kind": "functionCall",
+                        "lValueRequested": false,
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "874:39:29",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "596f75206e65656420746f2062652061207061727469636970616e7420746f2063616c6c2074686973206d6574686f64",
+                        "id": 6218,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "915:50:29",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_bef168ef48946ea86d5fb340d80bb8c33deba39d5d9399bc7e254de60fee91c8",
+                          "typeString": "literal_string \"You need to be a participant to call this method\""
+                        },
+                        "value": "You need to be a participant to call this method"
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_bef168ef48946ea86d5fb340d80bb8c33deba39d5d9399bc7e254de60fee91c8",
+                          "typeString": "literal_string \"You need to be a participant to call this method\""
+                        }
+                      ],
+                      "id": 6210,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        8416,
+                        8417
+                      ],
+                      "referencedDeclaration": 8417,
+                      "src": "866:7:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
+                        "typeString": "function (bool,string memory) pure"
+                      }
+                    },
+                    "id": 6219,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "866:100:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 6220,
+                  "nodeType": "ExpressionStatement",
+                  "src": "866:100:29"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "commonType": {
+                          "typeIdentifier": "t_uint256",
+                          "typeString": "uint256"
+                        },
+                        "id": 6235,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "lValueRequested": false,
+                        "leftExpression": {
+                          "argumentTypes": null,
+                          "arguments": [
+                            {
+                              "argumentTypes": null,
+                              "id": 6227,
+                              "name": "creator",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 6208,
+                              "src": "1020:7:29",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": [
+                              {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            ],
+                            "expression": {
+                              "argumentTypes": null,
+                              "arguments": [
+                                {
+                                  "argumentTypes": null,
+                                  "expression": {
+                                    "argumentTypes": null,
+                                    "id": 6223,
+                                    "name": "msg",
+                                    "nodeType": "Identifier",
+                                    "overloadedDeclarations": [],
+                                    "referencedDeclaration": 8413,
+                                    "src": "989:3:29",
+                                    "typeDescriptions": {
+                                      "typeIdentifier": "t_magic_message",
+                                      "typeString": "msg"
+                                    }
+                                  },
+                                  "id": 6224,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "memberName": "sender",
+                                  "nodeType": "MemberAccess",
+                                  "referencedDeclaration": null,
+                                  "src": "989:10:29",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_address",
+                                    "typeString": "address"
+                                  }
+                                }
+                              ],
+                              "expression": {
+                                "argumentTypes": [
+                                  {
+                                    "typeIdentifier": "t_address",
+                                    "typeString": "address"
+                                  }
+                                ],
+                                "id": 6222,
+                                "name": "IDAO",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 3609,
+                                "src": "984:4:29",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_type$_t_contract$_IDAO_$3609_$",
+                                  "typeString": "type(contract IDAO)"
+                                }
+                              },
+                              "id": 6225,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "kind": "typeConversion",
+                              "lValueRequested": false,
+                              "names": [],
+                              "nodeType": "FunctionCall",
+                              "src": "984:16:29",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_contract$_IDAO_$3609",
+                                "typeString": "contract IDAO"
+                              }
+                            },
+                            "id": 6226,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberName": "initialCapitalIncr",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 3603,
+                            "src": "984:35:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_external_view$_t_address_$returns$_t_uint256_$",
+                              "typeString": "function (address) view external returns (uint256)"
+                            }
+                          },
+                          "id": 6228,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "984:44:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "nodeType": "BinaryOperation",
+                        "operator": ">=",
+                        "rightExpression": {
+                          "argumentTypes": null,
+                          "arguments": [],
+                          "expression": {
+                            "argumentTypes": [],
+                            "expression": {
+                              "argumentTypes": null,
+                              "arguments": [
+                                {
+                                  "argumentTypes": null,
+                                  "expression": {
+                                    "argumentTypes": null,
+                                    "id": 6230,
+                                    "name": "msg",
+                                    "nodeType": "Identifier",
+                                    "overloadedDeclarations": [],
+                                    "referencedDeclaration": 8413,
+                                    "src": "1037:3:29",
+                                    "typeDescriptions": {
+                                      "typeIdentifier": "t_magic_message",
+                                      "typeString": "msg"
+                                    }
+                                  },
+                                  "id": 6231,
+                                  "isConstant": false,
+                                  "isLValue": false,
+                                  "isPure": false,
+                                  "lValueRequested": false,
+                                  "memberName": "sender",
+                                  "nodeType": "MemberAccess",
+                                  "referencedDeclaration": null,
+                                  "src": "1037:10:29",
+                                  "typeDescriptions": {
+                                    "typeIdentifier": "t_address",
+                                    "typeString": "address"
+                                  }
+                                }
+                              ],
+                              "expression": {
+                                "argumentTypes": [
+                                  {
+                                    "typeIdentifier": "t_address",
+                                    "typeString": "address"
+                                  }
+                                ],
+                                "id": 6229,
+                                "name": "IDAO",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 3609,
+                                "src": "1032:4:29",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_type$_t_contract$_IDAO_$3609_$",
+                                  "typeString": "type(contract IDAO)"
+                                }
+                              },
+                              "id": 6232,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "kind": "typeConversion",
+                              "lValueRequested": false,
+                              "names": [],
+                              "nodeType": "FunctionCall",
+                              "src": "1032:16:29",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_contract$_IDAO_$3609",
+                                "typeString": "contract IDAO"
+                              }
+                            },
+                            "id": 6233,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberName": "votingPrice",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": 3608,
+                            "src": "1032:28:29",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_external_view$__$returns$_t_uint256_$",
+                              "typeString": "function () view external returns (uint256)"
+                            }
+                          },
+                          "id": 6234,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "1032:30:29",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_uint256",
+                            "typeString": "uint256"
+                          }
+                        },
+                        "src": "984:78:29",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "hexValue": "596f7520646f6e2774206861766520656e6f7567682044584320746f2063616c6c2074686973206d6574686f642e",
+                        "id": 6236,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": true,
+                        "kind": "string",
+                        "lValueRequested": false,
+                        "nodeType": "Literal",
+                        "src": "1064:48:29",
+                        "subdenomination": null,
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_stringliteral_3f140bb2ce076cfff724f1eeb7e9028f2957e471f1af26c67102002d29fea4bd",
+                          "typeString": "literal_string \"You don't have enough DXC to call this method.\""
+                        },
+                        "value": "You don't have enough DXC to call this method."
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bool",
+                          "typeString": "bool"
+                        },
+                        {
+                          "typeIdentifier": "t_stringliteral_3f140bb2ce076cfff724f1eeb7e9028f2957e471f1af26c67102002d29fea4bd",
+                          "typeString": "literal_string \"You don't have enough DXC to call this method.\""
+                        }
+                      ],
+                      "id": 6221,
+                      "name": "require",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [
+                        8416,
+                        8417
+                      ],
+                      "referencedDeclaration": 8417,
+                      "src": "976:7:29",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_require_pure$_t_bool_$_t_string_memory_ptr_$returns$__$",
+                        "typeString": "function (bool,string memory) pure"
+                      }
+                    },
+                    "id": 6237,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "976:137:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 6238,
+                  "nodeType": "ExpressionStatement",
+                  "src": "976:137:29"
+                },
+                {
+                  "id": 6239,
+                  "nodeType": "PlaceholderStatement",
+                  "src": "1123:1:29"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 6241,
+            "name": "onlyParticipantWithEnoughDXC",
+            "nodeType": "ModifierDefinition",
+            "parameters": {
+              "id": 6209,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 6208,
+                  "name": "creator",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 6241,
+                  "src": "839:15:29",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 6207,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "839:7:29",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "838:17:29"
+            },
+            "src": "801:330:29",
+            "visibility": "internal"
+          }
+        ],
+        "scope": 6243,
+        "src": "93:1040:29"
+      }
+    ],
+    "src": "0:1134:29"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-07-10T13:42:04.586Z"
+}

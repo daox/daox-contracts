@@ -1,0 +1,226 @@
+{
+  "contractName": "IService",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "price",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "pragma solidity ^0.4.0;\n\ninterface IService {\n    function price() public view returns(uint);\n}\n",
+  "sourcePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/DAO/API/IService.sol",
+  "ast": {
+    "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/DAO/API/IService.sol",
+    "exportedSymbols": {
+      "IService": [
+        786
+      ]
+    },
+    "id": 787,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 780,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:5"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 786,
+        "linearizedBaseContracts": [
+          786
+        ],
+        "name": "IService",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": null,
+            "documentation": null,
+            "id": 785,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "price",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 781,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "64:2:5"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 784,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 783,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 785,
+                  "src": "87:4:5",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 782,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "87:4:5",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "86:6:5"
+            },
+            "scope": 786,
+            "src": "50:43:5",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 787,
+        "src": "25:70:5"
+      }
+    ],
+    "src": "0:96:5"
+  },
+  "legacyAST": {
+    "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/DAO/API/IService.sol",
+    "exportedSymbols": {
+      "IService": [
+        786
+      ]
+    },
+    "id": 787,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 780,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:23:5"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": null,
+        "fullyImplemented": false,
+        "id": 786,
+        "linearizedBaseContracts": [
+          786
+        ],
+        "name": "IService",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "body": null,
+            "documentation": null,
+            "id": 785,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "price",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 781,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "64:2:5"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 784,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 783,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 785,
+                  "src": "87:4:5",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 782,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "87:4:5",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "86:6:5"
+            },
+            "scope": 786,
+            "src": "50:43:5",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 787,
+        "src": "25:70:5"
+      }
+    ],
+    "src": "0:96:5"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-07-10T13:42:04.556Z"
+}
