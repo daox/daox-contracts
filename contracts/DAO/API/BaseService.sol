@@ -11,7 +11,7 @@ contract BaseService {
     address public owner;
     address public proxyAPI;
     uint public price;
-    mapping(address => bool) daos;
+    mapping(address => bool) public daos;
 
     constructor(uint _price, address _DXC, address _proxyAPI) public {
         owner = msg.sender;
@@ -21,7 +21,7 @@ contract BaseService {
     }
 
     function handleDXCPayment(address _from, uint _amount) correctPayment(_amount) {
-        daos[msg.sender] = true;
+        daos[_from] = true;
     }
 
     function withdrawDXC(uint _amount) onlyOwner {
