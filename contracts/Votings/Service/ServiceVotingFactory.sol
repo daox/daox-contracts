@@ -5,7 +5,7 @@ import "./NewService.sol";
 import "../BaseVotingFactory.sol";
 
 
-contract VotingFactory is BaseVotingFactory {
+contract ServiceVotingFactory is BaseVotingFactory {
 
     constructor(address _baseVoting) BaseVotingFactory(_baseVoting) {}
 

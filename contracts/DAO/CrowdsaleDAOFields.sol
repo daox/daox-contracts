@@ -59,7 +59,7 @@ contract CrowdsaleDAOFields {
     uint public votingPrice = 0; // Amount of DXC needed to create voting
     mapping(address => uint) public initialCapitalIncr; // Amount of DXC that user transferred to DAO
     address public proxyAPI;
-    mapping(address => bool) public modules;
+    mapping(address => bool) public services;
     uint internal constant multiplier = 100000;
     uint internal constant percentMultiplier = 100;
 }

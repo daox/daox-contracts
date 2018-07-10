@@ -115,6 +115,10 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         apiSettersModule = _apiSettersModule;
     }
 
+    function setServiceVotingFactory(address _serviceVotingFactory) external canSetAddress(serviceVotingFactory) {
+        serviceVotingFactory = IServiceVotingFactory(_serviceVotingFactory);
+    }
+
     /*
     * @dev Checks if provided address has tokens of current DAO
     * @param _participantAddress Address of potential participant

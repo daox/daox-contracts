@@ -57,7 +57,7 @@ contract VotingDecisions is CrowdsaleDAOFields {
         uint price = IService(_service).price();
         initialCapital -= price;
         DXC.contributeTo(_service, price);
-        modules[_service] = true;
+        services[_service] = true;
     }
 
     /*
