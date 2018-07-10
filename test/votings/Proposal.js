@@ -1,6 +1,6 @@
 "use strict";
 const helper = require('../helpers/helper.js');
-const Regular = artifacts.require('./Votings/Regular.sol');
+const Regular = artifacts.require('./Votings/Common/Regular.sol');
 const Token = artifacts.require('./Token/Token.sol');
 
 contract("Regular", accounts => {

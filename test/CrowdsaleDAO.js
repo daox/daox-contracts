@@ -111,4 +111,8 @@ contract("CrowdsaleDAO", accounts => {
         helper.handleErrorTransaction(
             () => dao.setVotingFactoryAddress.sendTransaction("0x1", {from: unknownAccount})));
 
+    it("Should not be able to set service voting factory address from not voting", () =>
+        helper.handleErrorTransaction(
+            () => dao.setServiceVotingFactory.sendTransaction("0x1", {from: unknownAccount})));
+
 });

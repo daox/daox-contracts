@@ -3,7 +3,8 @@ const CrowdsaleDAO = artifacts.require("./DAO/CrowdsaleDAO.sol");
 const DAOx = artifacts.require("./DAOx.sol");
 const Common = artifacts.require("./Common.sol");
 const Voting = artifacts.require("./Votings/Voting.sol");
-const VotingFactory = artifacts.require("./Votings/VotingFactory.sol");
+const VotingFactory = artifacts.require("./Votings/Common/VotingFactory.sol");
+const ServiceVotingFactory = artifacts.require("./Votings/Service/ServiceVotingFactory.sol");
 const Token = artifacts.require("./Token/Token.sol");
 const DAOProxy = artifacts.require("./DAO/DAOProxy.sol");
 const DAOLib = artifacts.require("./DAO/DAOLib.sol");
@@ -23,10 +24,12 @@ const web3 = new Web3();
 const createCrowdsaleDAOFactory = async () => {
     const _DAOx = await DAOx.new();
     const _VotingFactory = await VotingFactory.new(Voting.address);
+    const _ServiceVotingFactory = await ServiceVotingFactory.new(Voting.address);
 
     return CrowdsaleDAOFactory.new(
         _DAOx.address,
         _VotingFactory.address,
+        _ServiceVotingFactory.address,
         DXC.address,
         [State.address, Payment.address, VotingDecisions.address, Crowdsale.address, ProxyAPI.address, AllowedSetters.address]
     );
@@ -214,9 +217,9 @@ const doesApproximatelyEqual = (a, b) =>
     a + EPSILON >= b && a - EPSILON <= b;
 
 const payForVoting = async (dao, account, price) => {
-    const votingPrice = await dao.votingPrice();
+    const votingPrice = (await dao.votingPrice()).plus(price || 0);
     const dxc = await mintDXC(account, votingPrice);
-    await dxc.contributeTo.sendTransaction(dao.address, votingPrice + (price || 0), {from: account});
+    await dxc.contributeTo.sendTransaction(dao.address, votingPrice, {from: account});
 };
 
 

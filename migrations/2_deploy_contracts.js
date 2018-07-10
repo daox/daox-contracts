@@ -54,16 +54,16 @@ module.exports = (deployer) => {
                 deployer.deploy(DAODeployer)
             )
             .then(() => deployer.link(DAODeployer, CrowdsaleDAOFactory))
-            .then(() => deployer.deploy(CrowdsaleDAOFactory, DAOx.address, DXC.address, DXC.address,
+            .then(() => deployer.deploy(CrowdsaleDAOFactory, DAOx.address, VotingFactory.address, ServiceVotingFactory.address, DXC.address,
                 [State.address, Payment.address, VotingDecisions.address, Crowdsale.address, ProxyAPI.address, AllowedSetters.address]))
             .catch(console.error);
 
     /*
     Version with `Promise.all()` doesn't work properly
     */
-    /*deployVotingFactory()
-        .then(() => deployDXC())*/
-    deployer.deploy(Common).then(() => deployDXC()).then(() => deployDAOx())
+    deployVotingFactory()
+        .then(() => deployDXC())
+        .then(() => deployDAOx())
         .then(() => deployModules())
         .then(() => deployAPI())
         .then(() => deployCrowdsaleDAOFactory());

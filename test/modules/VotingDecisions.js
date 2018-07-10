@@ -1,9 +1,9 @@
 "use strict";
 const helper = require('../helpers/helper.js');
-const Withdrawal = artifacts.require('./Votings/Withdrawal.sol');
-const Module = artifacts.require('./Votings/Module.sol');
-const Regular = artifacts.require('./Votings/Regular.sol');
-const Refund = artifacts.require('./Votings/Refund.sol');
+const Withdrawal = artifacts.require('./Votings/Common/Withdrawal.sol');
+const Module = artifacts.require('./Votings/Service/Module.sol');
+const Regular = artifacts.require('./Votings/Common/Regular.sol');
+const Refund = artifacts.require('./Votings/Common/Refund.sol');
 const Token = artifacts.require('./Token/Token.sol');
 const DXCToken = artifacts.require("./Token/DXC.sol");
 

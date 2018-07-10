@@ -4,7 +4,7 @@ const Token = artifacts.require("./Token/Token.sol");
 const Commission = artifacts.require("./Commission.sol");
 const DXCToken = artifacts.require("./Token/DXC.sol");
 const daoxContract = artifacts.require("./DAOx.sol");
-const Refund = artifacts.require('./Votings/Refund.sol');
+const Refund = artifacts.require('./Votings/Common/Refund.sol');
 
 contract("Case#2", accounts => {
     const [serviceAccount] = [accounts[0]];

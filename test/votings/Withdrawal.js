@@ -1,6 +1,6 @@
 "use strict";
 const helper = require('../helpers/helper.js');
-const Withdrawal = artifacts.require('./Votings/Withdrawal.sol');
+const Withdrawal = artifacts.require('./Votings/Common/Withdrawal.sol');
 const Token = artifacts.require('./Token/Token.sol');
 
 contract("Withdrawal", accounts => {
