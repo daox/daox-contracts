@@ -43,4 +43,8 @@ contract ICrowdsaleDAO is IDAO {
     function token() constant returns (TokenInterface);
 
     function DXC() constant returns(TokenInterface);
+
+    function callService(address _service, bytes32 _method, bytes32[10] _args) external;
+
+    function services(address _service) public returns(bool);
 }

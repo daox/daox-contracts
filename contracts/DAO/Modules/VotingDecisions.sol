@@ -6,6 +6,10 @@ import "../../Token/TokenInterface.sol";
 import "../CrowdsaleDAOFields.sol";
 import "../API/IService.sol";
 
+interface IProxyAPI {
+    function callService(address _address, bytes32 method, bytes32[10] _bytes) external;
+}
+
 contract VotingDecisions is CrowdsaleDAOFields {
 
     /*
@@ -53,11 +57,20 @@ contract VotingDecisions is CrowdsaleDAOFields {
         token.hold(_address, _duration);
     }
 
-    function connectService(address _service) external onlyVoting validInitialCapital(_service) {
-        uint price = IService(_service).price();
+    function connectService(address _service) external onlyVoting validInitialCapital(_service, "connect") {
+        payForService(_service, "connect");
+        services[_service] = true;
+    }
+
+    function callService(address _service, bytes32 _method, bytes32[10] _args) external onlyVoting validInitialCapital(_service, "call") {
+        payForService(_service, "call");
+        IProxyAPI(proxyAPI).callService(_service, _method, _args);
+    }
+
+    function payForService(address _service, string action) private {
+        uint price = keccak256(action) == keccak256("call") ? IService(_service).priceToCall() : IService(_service).priceToConnect();
         initialCapital -= price;
         DXC.contributeTo(_service, price);
-        services[_service] = true;
     }
 
     /*
@@ -76,8 +89,9 @@ contract VotingDecisions is CrowdsaleDAOFields {
         _;
     }
 
-    modifier validInitialCapital(address _service) {
-        require(IService(_service).price() <= initialCapital, "Not enough funds to connect module");
+    modifier validInitialCapital(address _service, string action) {
+        uint price = keccak256(action) == keccak256("call") ? IService(_service).priceToCall() : IService(_service).priceToConnect();
+        require(price <= initialCapital, "Not enough funds to use module");
         _;
     }
 }

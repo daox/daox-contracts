@@ -67,4 +67,8 @@ library DAOProxy {
     function delegatedConnectService(address module, address _service) {
         require(module.delegatecall(bytes4(keccak256("connectService(address)")), _service));
     }
+
+    function delegatedCallService(address module, address _service, bytes32 _method, bytes32[10] _args) {
+        require(module.delegatecall(bytes4(keccak256("callService(address,bytes32,bytes32[10])")), _service, _method, _args));
+    }
 }

@@ -6,10 +6,6 @@ import "../Common.sol";
 import "./Owned.sol";
 import "./DAOProxy.sol";
 
-interface IProxyAPI {
-    function callService(address _address, bytes32 method, bytes32[10] _bytes) external;
-}
-
 contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     address public stateModule;
     address public paymentModule;
@@ -75,6 +71,10 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
     function connectService(address _service) external {
         DAOProxy.delegatedConnectService(votingDecisionModule, _service);
+    }
+
+    function callService(address _service, bytes32 _method, bytes32[10] _args) external {
+        DAOProxy.delegatedCallService(votingDecisionModule, _service, _method, _args);
     }
 
     /*
@@ -214,6 +214,20 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     }
 
     /*
+    * @dev Delegates request of creating "call service" voting and saves the address of created voting contract to votings list
+    * @param _name Name for voting
+    * @param _description Description for voting that will be created
+    * @param _duration Time in seconds from current moment until voting will be finished
+    * @param _service Address of service that needs to be called
+    * @param _method Method that must be called in service
+    * @param _args Arguments that will be provided to called method
+    */
+    function addCallService(string _name, string _description, uint _duration, address _service, bytes32 _method, bytes32[10] _args) public {
+        address voting = DAOLib.delegatedCreateCallService(serviceVotingFactory, _name, _description, _duration, _service, _method, _args, this);
+        handleCreatedVoting(voting);
+    }
+
+    /*
     * @dev Delegates request for going into refundable state to voting decisions module
     */
     function makeRefundableByUser() public {
@@ -292,10 +306,6 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
         }
 
         canSetWhiteList = false;
-    }
-
-    function callService(address service, bytes32 method, bytes32[10] args) external {
-        IProxyAPI(proxyAPI).callService(service, method, args);
     }
 
     function handleAPICall(string signature, bytes32 value) external onlyProxyAPI {

@@ -91,9 +91,6 @@ contract AllowedSetters is CrowdsaleDAOFields {
             lockup = TypesConverter.bytes32ToUint(_lockup);
         }
 
-        event Bytes32(bytes32);
-        event Uint(uint);
-        event Address(address);
         function setVotingPrice(bytes32 _votingPrice) external onlyServiceProxy {
             votingPrice = TypesConverter.bytes32ToUint(_votingPrice);
         }

@@ -6,5 +6,7 @@ interface IServiceVotingFactory {
 
     function createNewService(address _creator, string _name, string _description, uint _duration, address _service) external returns (address);
 
+    function createCallService(address _creator, string _name, string _description, uint _duration, address _service, bytes32 _method, bytes32[10] _args) external returns (address);
+
     function setDaoFactory(address _dao) external;
 }

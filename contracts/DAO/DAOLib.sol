@@ -76,6 +76,13 @@ library DAOLib {
         return _votingAddress;
     }
 
+    function delegatedCreateCallService(IServiceVotingFactory _votingFactory, string _name, string _description, uint _duration, address _service, bytes32 _method, bytes32[10] _args, address _dao) returns (address) {
+        address _votingAddress = _votingFactory.createCallService(msg.sender, _name, _description, _duration, _service, _method, _args);
+        VotingCreated(_votingAddress, "Call Service", _dao, _name, _description, _duration, msg.sender);
+
+        return _votingAddress;
+    }
+
     /*
     * @dev Counts the number of tokens that should be minted according to amount of sent funds and current rate
     * @param value Amount of sent funds

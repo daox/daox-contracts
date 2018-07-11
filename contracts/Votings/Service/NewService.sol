@@ -8,7 +8,7 @@ contract NewService is BaseProposal {
     address public service;
 
     function NewService(address _baseVoting, address _dao, string _name, string _description, uint _duration, address _service) {
-        VotingLib.isValidService(_dao, _service);
+        VotingLib.checkServicePrice("connect", _dao, _service);
         baseVoting = _baseVoting;
         service = _service;
         VotingLib.delegatecallCreate(baseVoting, _dao, _name, _description, _duration, 80);

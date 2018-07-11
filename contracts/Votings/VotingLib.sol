@@ -32,9 +32,12 @@ library VotingLib {
         return !_dxc ? _dao.balance >= _sum  : (ICrowdsaleDAO(_dao).DXC().balanceOf(_dao) - ICrowdsaleDAO(_dao).initialCapital()) >= _sum;
     }
 
-    function isValidService(address _dao, address _service) internal view {
-        require(_service.call(bytes4(keccak256("price()"))), "No price property in provided contract");
-        uint price = IService(_service).price();
+    function checkServicePrice(string action, address _dao, address _service) internal {
+        uint price = keccak256(action) == keccak256("call") ? IService(_service).priceToCall() : IService(_service).priceToConnect();
         require(price <= ICrowdsaleDAO(_dao).initialCapital(), "Not enough DXC in initial capital to connect this service");
+    }
+
+    function serviceConnected(address _dao, address _service) view returns(bool) {
+        return ICrowdsaleDAO(_dao).services(_service);
     }
 }
