@@ -109,7 +109,7 @@ contract("New Service", accounts => {
         assert.isTrue(isFinished, "Module was not finished");
         assert.isTrue(await dao.services(ExampleService.address));
         assert.isTrue(await service.daos(dao.address));
-        assert.deepEqual(initialCapitalBefore, initialCapitalAfter.plus(await service.price()));
+        assert.deepEqual(initialCapitalBefore, initialCapitalAfter.plus(await service.priceToConnect()));
     });
 
     it("Should not finish newService when time is not up", async () => {
@@ -249,7 +249,7 @@ contract("New Service", accounts => {
         backersToOption[`${backers[0]}`] = 1;
         backersToOption[`${backers[1]}`] = 2;
 
-        const service = await ExampleService.new(web3.toWei(2), DXC.address, ProxyAPI.address);
+        const service = await ExampleService.new(web3.toWei(2), 0, DXC.address, ProxyAPI.address);
         await helper.payForVoting(dao, accounts[0]);
         return helper.handleErrorTransaction(() => makeDAOAndCreateNewService(backersToWei, backersToOption, backer1, true, true, service.address));
     });

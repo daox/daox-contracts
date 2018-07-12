@@ -1,7 +1,7 @@
 "use strict";
-// const ExampleModule = artifacts.require("./DAO/API/ExampleModule.sol");
-// let TypesConverter = artifacts.require("./DAO/API/TypesConverter.sol");
-// const helper = require('../helpers/helper.js');
+const ExampleService = artifacts.require("./DAO/API/ExampleService.sol");
+let TypesConverter = artifacts.require("./DAO/API/TypesConverter.sol");
+const helper = require('../helpers/helper.js');
 
 contract("ExampleService", accounts => {
     // TypesConverter = TypesConverter.at(TypesConverter.address);
@@ -14,7 +14,7 @@ contract("ExampleService", accounts => {
     //     const multiplier = 15;
     //     const previousVotingPrice = await dao.votingPrice();
     //     const bytes32Multiplier = await TypesConverter.uintToBytes32(multiplier);
-    //     await dao.callService.sendTransaction(ExampleModule.address, web3.toHex("changeVotingPrice"),
+    //     await dao.callService.sendTransaction(ExampleService.address, web3.toHex("changeVotingPrice"),
     //         [bytes32Multiplier, web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null)]);
     //     const newVotingPrice = await dao.votingPrice();
     //     assert.deepEqual(previousVotingPrice.times(multiplier), newVotingPrice);

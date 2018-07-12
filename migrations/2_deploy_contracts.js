@@ -43,7 +43,7 @@ module.exports = (deployer) => {
         deployer.deploy(TypesConverter)
             .then(() => deployer.link(TypesConverter, [AllowedSetters, ExampleService, ProxyAPI]) && deployer.deploy(AllowedSetters))
             .then(() => deployer.deploy(ProxyAPI))
-            .then(() => deployer.deploy(ExampleService, 1, DXC.address, ProxyAPI.address));
+            .then(() => deployer.deploy(ExampleService, 1, 0, DXC.address, ProxyAPI.address));
 
     const deployCrowdsaleDAOFactory = () =>
         deployer.deploy(DAOProxy)
