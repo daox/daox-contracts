@@ -57,12 +57,12 @@ contract VotingDecisions is CrowdsaleDAOFields {
         token.hold(_address, _duration);
     }
 
-    function connectService(address _service) external onlyVoting validInitialCapital(_service, "connect") {
+    function connectService(address _service) external validServiceCaller(_service, "connect") validInitialCapital(_service, "connect") {
         payForService(_service, "connect");
         services[_service] = true;
     }
 
-    function callService(address _service, bytes32 _method, bytes32[10] _args) external onlyVoting validInitialCapital(_service, "call") {
+    function callService(address _service, bytes32 _method, bytes32[10] _args) external validServiceCaller(_service, _method) validInitialCapital(_service, "call") {
         payForService(_service, "call");
         IProxyAPI(proxyAPI).callService(_service, _method, _args);
     }
@@ -92,6 +92,12 @@ contract VotingDecisions is CrowdsaleDAOFields {
     modifier validInitialCapital(address _service, string action) {
         uint price = keccak256(action) == keccak256("call") ? IService(_service).priceToCall() : IService(_service).priceToConnect();
         require(price <= initialCapital, "Not enough funds to use module");
+        _;
+    }
+
+    modifier validServiceCaller(address _service, bytes32 _method) {
+        bool votingNeeded = canInitCrowdsaleParameters && _method == bytes32("connect") ? false : IService(_service).calledWithVoting(_method);
+        require(votingNeeded ? (votings[msg.sender] != 0x0) : true, "Method can be called only via voting");
         _;
     }
 }

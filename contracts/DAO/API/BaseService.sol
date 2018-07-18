@@ -15,6 +15,7 @@ contract BaseService {
     uint public priceToCall;
     mapping(address => bool) public daos;
     mapping(address => uint) public callDeposit;
+    mapping(bytes32 => bool) public calledWithVoting;
 
     constructor(uint _priceToConnect, uint _priceToCall, address _DXC, address _proxyAPI) public {
         owner = msg.sender;
@@ -22,6 +23,7 @@ contract BaseService {
         priceToCall = _priceToCall;
         DXC = _DXC;
         proxyAPI = _proxyAPI;
+        calledWithVoting["connect"] = true;
     }
 
     function handleDXCPayment(address _from, uint _amount) correctPayment(_amount, daos[_from]) onlyDXC {
