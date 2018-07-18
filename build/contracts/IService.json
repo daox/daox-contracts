@@ -3,25 +3,6 @@
   "abi": [
     {
       "constant": true,
-      "inputs": [
-        {
-          "name": "action",
-          "type": "bytes32"
-        }
-      ],
-      "name": "price",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
       "inputs": [],
       "name": "priceToConnect",
       "outputs": [
@@ -47,26 +28,45 @@
       "payable": false,
       "stateMutability": "view",
       "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "method",
+          "type": "bytes32"
+        }
+      ],
+      "name": "calledWithVoting",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
     }
   ],
   "bytecode": "0x",
   "deployedBytecode": "0x",
   "sourceMap": "",
   "deployedSourceMap": "",
-  "source": "pragma solidity ^0.4.0;\n\ninterface IService {\n    function price(bytes32 action) public view returns(uint);\n    function priceToConnect() public view returns(uint);\n    function priceToCall() public view returns(uint);\n}\n",
+  "source": "pragma solidity ^0.4.0;\n\ninterface IService {\n    function priceToConnect() public view returns(uint);\n    function priceToCall() public view returns(uint);\n    function calledWithVoting(bytes32 method) public view returns(bool);\n}\n",
   "sourcePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/DAO/API/IService.sol",
   "ast": {
     "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/DAO/API/IService.sol",
     "exportedSymbols": {
       "IService": [
-        903
+        944
       ]
     },
-    "id": 904,
+    "id": 945,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 885,
+        "id": 926,
         "literals": [
           "solidity",
           "^",
@@ -82,9 +82,9 @@
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 903,
+        "id": 944,
         "linearizedBaseContracts": [
-          903
+          944
         ],
         "name": "IService",
         "nodeType": "ContractDefinition",
@@ -92,24 +92,136 @@
           {
             "body": null,
             "documentation": null,
-            "id": 892,
+            "id": 931,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": true,
             "modifiers": [],
-            "name": "price",
+            "name": "priceToConnect",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 888,
+              "id": 927,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "73:2:7"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 930,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 887,
-                  "name": "action",
+                  "id": 929,
+                  "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 892,
-                  "src": "65:14:7",
+                  "scope": 931,
+                  "src": "96:4:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 928,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "96:4:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "95:6:7"
+            },
+            "scope": 944,
+            "src": "50:52:7",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 936,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "priceToCall",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 932,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "127:2:7"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 935,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 934,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 936,
+                  "src": "150:4:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 933,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "150:4:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "149:6:7"
+            },
+            "scope": 944,
+            "src": "107:49:7",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 943,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "calledWithVoting",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 939,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 938,
+                  "name": "method",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 943,
+                  "src": "187:14:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -117,10 +229,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 886,
+                    "id": 937,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "65:7:7",
+                    "src": "187:7:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -130,179 +242,67 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "64:16:7"
+              "src": "186:16:7"
             },
             "payable": false,
             "returnParameters": {
-              "id": 891,
+              "id": 942,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 890,
+                  "id": 941,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 892,
-                  "src": "101:4:7",
+                  "scope": 943,
+                  "src": "223:4:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 889,
-                    "name": "uint",
+                    "id": 940,
+                    "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "101:4:7",
+                    "src": "223:4:7",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
                     }
                   },
                   "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "100:6:7"
+              "src": "222:6:7"
             },
-            "scope": 903,
-            "src": "50:57:7",
-            "stateMutability": "view",
-            "superFunction": null,
-            "visibility": "public"
-          },
-          {
-            "body": null,
-            "documentation": null,
-            "id": 897,
-            "implemented": false,
-            "isConstructor": false,
-            "isDeclaredConst": true,
-            "modifiers": [],
-            "name": "priceToConnect",
-            "nodeType": "FunctionDefinition",
-            "parameters": {
-              "id": 893,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "135:2:7"
-            },
-            "payable": false,
-            "returnParameters": {
-              "id": 896,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 895,
-                  "name": "",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 897,
-                  "src": "158:4:7",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 894,
-                    "name": "uint",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "158:4:7",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                }
-              ],
-              "src": "157:6:7"
-            },
-            "scope": 903,
-            "src": "112:52:7",
-            "stateMutability": "view",
-            "superFunction": null,
-            "visibility": "public"
-          },
-          {
-            "body": null,
-            "documentation": null,
-            "id": 902,
-            "implemented": false,
-            "isConstructor": false,
-            "isDeclaredConst": true,
-            "modifiers": [],
-            "name": "priceToCall",
-            "nodeType": "FunctionDefinition",
-            "parameters": {
-              "id": 898,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "189:2:7"
-            },
-            "payable": false,
-            "returnParameters": {
-              "id": 901,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 900,
-                  "name": "",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 902,
-                  "src": "212:4:7",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 899,
-                    "name": "uint",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "212:4:7",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                }
-              ],
-              "src": "211:6:7"
-            },
-            "scope": 903,
-            "src": "169:49:7",
+            "scope": 944,
+            "src": "161:68:7",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 904,
-        "src": "25:195:7"
+        "scope": 945,
+        "src": "25:206:7"
       }
     ],
-    "src": "0:221:7"
+    "src": "0:232:7"
   },
   "legacyAST": {
     "absolutePath": "/Users/giddeonwyeth/PhpstormProjects/dao/daox-contracts/contracts/DAO/API/IService.sol",
     "exportedSymbols": {
       "IService": [
-        903
+        944
       ]
     },
-    "id": 904,
+    "id": 945,
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 885,
+        "id": 926,
         "literals": [
           "solidity",
           "^",
@@ -318,9 +318,9 @@
         "contractKind": "interface",
         "documentation": null,
         "fullyImplemented": false,
-        "id": 903,
+        "id": 944,
         "linearizedBaseContracts": [
-          903
+          944
         ],
         "name": "IService",
         "nodeType": "ContractDefinition",
@@ -328,24 +328,136 @@
           {
             "body": null,
             "documentation": null,
-            "id": 892,
+            "id": 931,
             "implemented": false,
             "isConstructor": false,
             "isDeclaredConst": true,
             "modifiers": [],
-            "name": "price",
+            "name": "priceToConnect",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 888,
+              "id": 927,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "73:2:7"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 930,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 887,
-                  "name": "action",
+                  "id": 929,
+                  "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 892,
-                  "src": "65:14:7",
+                  "scope": 931,
+                  "src": "96:4:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 928,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "96:4:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "95:6:7"
+            },
+            "scope": 944,
+            "src": "50:52:7",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 936,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "priceToCall",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 932,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "127:2:7"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 935,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 934,
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 936,
+                  "src": "150:4:7",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 933,
+                    "name": "uint",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "150:4:7",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "149:6:7"
+            },
+            "scope": 944,
+            "src": "107:49:7",
+            "stateMutability": "view",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": null,
+            "documentation": null,
+            "id": 943,
+            "implemented": false,
+            "isConstructor": false,
+            "isDeclaredConst": true,
+            "modifiers": [],
+            "name": "calledWithVoting",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 939,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 938,
+                  "name": "method",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 943,
+                  "src": "187:14:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -353,10 +465,10 @@
                     "typeString": "bytes32"
                   },
                   "typeName": {
-                    "id": 886,
+                    "id": 937,
                     "name": "bytes32",
                     "nodeType": "ElementaryTypeName",
-                    "src": "65:7:7",
+                    "src": "187:7:7",
                     "typeDescriptions": {
                       "typeIdentifier": "t_bytes32",
                       "typeString": "bytes32"
@@ -366,166 +478,54 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "64:16:7"
+              "src": "186:16:7"
             },
             "payable": false,
             "returnParameters": {
-              "id": 891,
+              "id": 942,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 890,
+                  "id": 941,
                   "name": "",
                   "nodeType": "VariableDeclaration",
-                  "scope": 892,
-                  "src": "101:4:7",
+                  "scope": 943,
+                  "src": "223:4:7",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
                   },
                   "typeName": {
-                    "id": 889,
-                    "name": "uint",
+                    "id": 940,
+                    "name": "bool",
                     "nodeType": "ElementaryTypeName",
-                    "src": "101:4:7",
+                    "src": "223:4:7",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
                     }
                   },
                   "value": null,
                   "visibility": "internal"
                 }
               ],
-              "src": "100:6:7"
+              "src": "222:6:7"
             },
-            "scope": 903,
-            "src": "50:57:7",
-            "stateMutability": "view",
-            "superFunction": null,
-            "visibility": "public"
-          },
-          {
-            "body": null,
-            "documentation": null,
-            "id": 897,
-            "implemented": false,
-            "isConstructor": false,
-            "isDeclaredConst": true,
-            "modifiers": [],
-            "name": "priceToConnect",
-            "nodeType": "FunctionDefinition",
-            "parameters": {
-              "id": 893,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "135:2:7"
-            },
-            "payable": false,
-            "returnParameters": {
-              "id": 896,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 895,
-                  "name": "",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 897,
-                  "src": "158:4:7",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 894,
-                    "name": "uint",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "158:4:7",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                }
-              ],
-              "src": "157:6:7"
-            },
-            "scope": 903,
-            "src": "112:52:7",
-            "stateMutability": "view",
-            "superFunction": null,
-            "visibility": "public"
-          },
-          {
-            "body": null,
-            "documentation": null,
-            "id": 902,
-            "implemented": false,
-            "isConstructor": false,
-            "isDeclaredConst": true,
-            "modifiers": [],
-            "name": "priceToCall",
-            "nodeType": "FunctionDefinition",
-            "parameters": {
-              "id": 898,
-              "nodeType": "ParameterList",
-              "parameters": [],
-              "src": "189:2:7"
-            },
-            "payable": false,
-            "returnParameters": {
-              "id": 901,
-              "nodeType": "ParameterList",
-              "parameters": [
-                {
-                  "constant": false,
-                  "id": 900,
-                  "name": "",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 902,
-                  "src": "212:4:7",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
-                  },
-                  "typeName": {
-                    "id": 899,
-                    "name": "uint",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "212:4:7",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
-                    }
-                  },
-                  "value": null,
-                  "visibility": "internal"
-                }
-              ],
-              "src": "211:6:7"
-            },
-            "scope": 903,
-            "src": "169:49:7",
+            "scope": 944,
+            "src": "161:68:7",
             "stateMutability": "view",
             "superFunction": null,
             "visibility": "public"
           }
         ],
-        "scope": 904,
-        "src": "25:195:7"
+        "scope": 945,
+        "src": "25:206:7"
       }
     ],
-    "src": "0:221:7"
+    "src": "0:232:7"
   },
   "compiler": {
     "name": "solc",
@@ -533,5 +533,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-07-11T16:06:33.284Z"
+  "updatedAt": "2018-07-18T15:32:46.154Z"
 }
