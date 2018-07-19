@@ -1,5 +1,8 @@
 "use strict";
 const helper = require('./helpers/helper.js');
+const ExampleService = artifacts.require('./DAO/API/ExampleService.sol');
+let TypesConverter = artifacts.require("./DAO/API/TypesConverter.sol");
+TypesConverter = TypesConverter.at(TypesConverter.address);
 
 contract("CrowdsaleDAO", accounts => {
     const [serviceAccount, unknownAccount] = [accounts[0], accounts[1]];
@@ -114,5 +117,34 @@ contract("CrowdsaleDAO", accounts => {
     it("Should not be able to set service voting factory address from not voting", () =>
         helper.handleErrorTransaction(
             () => dao.setServiceVotingFactory.sendTransaction("0x1", {from: unknownAccount})));
+
+    it("Should not be able to connect service before setting crowdsale params", async () => {
+        const initialCapitalBefore = await dao.initialCapital();
+        await dao.connectService(ExampleService.address);
+        const service = ExampleService.at(ExampleService.address);
+
+        assert.isTrue(await dao.services(ExampleService.address));
+        assert.isTrue(await service.daos(dao.address));
+        assert.deepEqual(initialCapitalBefore, (await dao.initialCapital()).plus(await service.priceToConnect()));
+    });
+
+    it("Should not be able to call method from service which requires voting", async () => {
+        await dao.connectService(ExampleService.address);
+        const bytes32Multiplier = await TypesConverter.uintToBytes32(2);
+        const args = [bytes32Multiplier, web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null)];
+
+        return helper.handleErrorTransaction(
+            () => dao.callService.sendTransaction(ExampleService.address, web3.toHex("changeVotingPrice"), args));
+    });
+
+    it("Should be able to call method from service which doesn't require voting", async () => {
+        await dao.connectService(ExampleService.address);
+        const args = [web3.toHex("Call Service Name"), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null), web3.toHex(null)];
+
+        await dao.callService.sendTransaction(ExampleService.address, web3.toHex("changeName"), args);
+
+        assert.equal("Call Service Name", await dao.name());
+    });
+
 
 });

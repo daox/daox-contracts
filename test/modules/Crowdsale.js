@@ -3,6 +3,7 @@ const helper = require('../helpers/helper.js');
 const Token = artifacts.require("./Token/Token.sol");
 const Commission = artifacts.require("./Commission.sol");
 const DXC = artifacts.require("./Token/DXC.sol");
+const ExampleService = artifacts.require('./DAO/API/ExampleService.sol');
 
 contract("Crowdsale", accounts => {
     const [serviceAccount, unknownAccount] = [accounts[0], accounts[1]];
@@ -170,6 +171,12 @@ contract("Crowdsale", accounts => {
         await helper.rpcCall(web3, "evm_mine", null);
 
         return helper.handleErrorTransaction(() => dao.sendTransaction({from: unknownAccount, value: weiAmount}));
+    });
+
+    it("Should not let connect service after crowdsale parameters were set", async () => {
+        await helper.initCrowdsaleParameters(dao, serviceAccount, web3);
+
+        return helper.handleErrorTransaction(() => dao.connectService(ExampleService.address));
     });
 
     it("Should not let send more ether than hardCap", async () => {
