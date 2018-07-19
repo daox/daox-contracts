@@ -1,4 +1,4 @@
-pragma solidity ^0.4.15;
+pragma solidity 0.4.24;
 
 interface TokenInterface {
 	function mint(address _to, uint256 _amount) public returns (bool);
@@ -18,7 +18,15 @@ interface VotingFactoryInterface {
 
 	function createRefund(address _creator, string _name, string _description, uint _duration) external returns (address);
 
+	function setDaoFactory(address _dao) external;
+}
+
+interface IServiceVotingFactory {
 	function createModule(address _creator, string _name, string _description, uint _duration, uint _module, address _newAddress) external returns (address);
+
+	function createNewService(address _creator, string _name, string _description, uint _duration, address _service) external returns (address);
+
+	function createCallService(address _creator, string _name, string _description, uint _duration, address _service, bytes32 _method, bytes32[10] _args) external returns (address);
 
 	function setDaoFactory(address _dao) external;
 }
@@ -45,8 +53,6 @@ library DAOLib {
     * @return uint Amount of tokens minted for team
     */
 	function handleFinishedCrowdsale(TokenInterface token, uint commissionRaised, address serviceContract, uint[] teamBonuses, address[] team, uint[] teamHold) returns (uint) {
-		uint commission = (commissionRaised / 100) * 4;
-		serviceContract.call.gas(200000).value(commission)();
 		uint totalSupply = token.totalSupply() / 100;
 		uint teamTokensAmount = 0;
 		for (uint i = 0; i < team.length; i++) {
@@ -82,9 +88,23 @@ library DAOLib {
 		return _votingAddress;
 	}
 
-	function delegatedCreateModule(VotingFactoryInterface _votingFactory, string _name, string _description, uint _duration, uint _module, address _newAddress, address _dao) returns (address) {
+	function delegatedCreateModule(IServiceVotingFactory _votingFactory, string _name, string _description, uint _duration, uint _module, address _newAddress, address _dao) returns (address) {
 		address _votingAddress = _votingFactory.createModule(msg.sender, _name, _description, _duration, _module, _newAddress);
 		VotingCreated(_votingAddress, "Module", _dao, _name, _description, _duration, msg.sender);
+
+		return _votingAddress;
+	}
+
+	function delegatedCreateNewService(IServiceVotingFactory _votingFactory, string _name, string _description, uint _duration, address _service, address _dao) returns (address) {
+		address _votingAddress = _votingFactory.createNewService(msg.sender, _name, _description, _duration, _service);
+		VotingCreated(_votingAddress, "New Service", _dao, _name, _description, _duration, msg.sender);
+
+		return _votingAddress;
+	}
+
+	function delegatedCreateCallService(IServiceVotingFactory _votingFactory, string _name, string _description, uint _duration, address _service, bytes32 _method, bytes32[10] _args, address _dao) returns (address) {
+		address _votingAddress = _votingFactory.createCallService(msg.sender, _name, _description, _duration, _service, _method, _args);
+		VotingCreated(_votingAddress, "Call Service", _dao, _name, _description, _duration, msg.sender);
 
 		return _votingAddress;
 	}
@@ -122,11 +142,12 @@ library DAOLib {
 	function countRefundSum(uint tokensAmount, uint etherRate, uint newRate, uint multiplier) constant returns (uint) {
 		uint fromPercentDivider = 100;
 
-		return (tokensAmount / fromPercentDivider * newRate) / (multiplier * etherRate);
+		return (tokensAmount * newRate / fromPercentDivider) / (multiplier * etherRate);
 	}
 }
 
 contract CrowdsaleDAOFields {
+	bytes32 constant public version = "1.0.0";
 	uint public etherRate;
 	uint public DXCRate;
 	uint public softCap;
@@ -155,11 +176,12 @@ contract CrowdsaleDAOFields {
 	bool[] public teamServiceMember;
 	TokenInterface public token;
 	VotingFactoryInterface public votingFactory;
+	IServiceVotingFactory public serviceVotingFactory;
 	address public commissionContract; //Contract that is used to mark funds which were provided through daox.org platform
 	string public name;
 	string public description;
 	uint public created_at = now; // UNIX time
-	mapping(address => bool) public votings;
+	mapping(address => address) public votings;
 	bool public refundable = false;
 	uint public lastWithdrawalTimestamp = 0;
 	address[] public whiteListArr;
@@ -169,11 +191,17 @@ contract CrowdsaleDAOFields {
 	uint[] public bonusEtherRates;
 	uint[] public bonusDXCRates;
 	uint public teamTokensAmount;
-	uint constant internal withdrawalPeriod = 120 * 24 * 60 * 60;
+	uint constant internal withdrawalPeriod = 60 * 60 * 24 * 90;
 	TokenInterface public DXC;
 	uint public tokensMintedByEther;
 	uint public tokensMintedByDXC;
 	bool public dxcPayments; //Flag indicating whether it is possible to invest via DXC token or not
+	uint public lockup = 0; // UNIX time
+	uint public initialCapital = 0;
+	uint public votingPrice = 0; // Amount of DXC needed to create voting
+	mapping(address => uint) public initialCapitalIncr; // Amount of DXC that user transferred to DAO
+	address public proxyAPI;
+	mapping(address => bool) public services;
 	uint internal constant multiplier = 100000;
 	uint internal constant percentMultiplier = 100;
 }
@@ -221,16 +249,15 @@ contract State is CrowdsaleDAOFields {
     *      DAO will be able to handle investments via DXC. Also function creates instance of Commission contract for this DAO
     * @param value Amount of sent funds
     */
-	function initState(address _tokenAddress, address _DXC)
+	function initState(address _tokenAddress)
 	external
 	onlyOwner(msg.sender)
 	canInit
 	crowdsaleNotStarted
 	{
-		require(_tokenAddress != 0x0 && _DXC != 0x0);
+		require(_tokenAddress != 0x0);
 
 		token = TokenInterface(_tokenAddress);
-		DXC = TokenInterface(_DXC);
 
 		created_at = block.timestamp;
 
@@ -280,6 +307,8 @@ contract Crowdsale is CrowdsaleDAOFields {
 		uint tokensAmount = DAOLib.countTokens(weiAmount, bonusPeriods, bonusEtherRates, etherRate);
 		tokensMintedByEther = SafeMath.add(tokensMintedByEther, tokensAmount);
 		token.mint(_sender, tokensAmount);
+
+		if(lockup > 0) token.hold(_sender, lockup - now);
 	}
 
 	/*
@@ -294,8 +323,9 @@ contract Crowdsale is CrowdsaleDAOFields {
 
 		uint tokensAmount = DAOLib.countTokens(_dxcAmount, bonusPeriods, bonusDXCRates, DXCRate);
 		tokensMintedByDXC = SafeMath.add(tokensMintedByDXC, tokensAmount);
-
 		token.mint(_from, tokensAmount);
+
+		if(lockup > 0) token.hold(_from, lockup - now);
 	}
 
 	/*
@@ -308,18 +338,19 @@ contract Crowdsale is CrowdsaleDAOFields {
     * @param _endTime Unix timestamp which indicates the moment when crowdsale will end
     * @param _dxcPayments Boolean indicating whether it is possible to invest via DXC token or not
     */
-	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXCRate, uint _startTime, uint _endTime, bool _dxcPayments)
-		external
-		onlyOwner(msg.sender)
-		canInit
+	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXCRate, uint _startTime, uint _endTime, bool _dxcPayments, uint _lockup)
+	external
+	onlyOwner(msg.sender)
+	canInit
 	{
 		require(_softCap != 0 && _hardCap != 0 && _etherRate != 0 && _DXCRate != 0 && _startTime != 0 && _endTime != 0);
 		require(_softCap < _hardCap && _startTime > block.timestamp);
+		require(_lockup == 0 || _lockup > _endTime);
 
 		softCap = _softCap * 1 ether;
 		hardCap = _hardCap * 1 ether;
 
-		(startTime, endTime) = (_startTime, _endTime);
+		(startTime, endTime, lockup) = (_startTime, _endTime, _lockup);
 
 		(dxcPayments, etherRate, DXCRate) = (_dxcPayments, _etherRate, _DXCRate);
 
@@ -332,7 +363,7 @@ contract Crowdsale is CrowdsaleDAOFields {
     *      parameters which were set for every member via initBonuses function. In addition function sends commission to service contract
     */
 	function finish() external {
-		fundsRaised = DXCRate != 0 ? weiRaised + (DXC.balanceOf(this)) / (etherRate / DXCRate) : weiRaised;
+		fundsRaised = DXCRate != 0 ? weiRaised + (DXCRaised) / (etherRate / DXCRate) : weiRaised;
 
 		require((block.timestamp >= endTime || fundsRaised == hardCap) && !crowdsaleFinished);
 
@@ -421,6 +452,25 @@ contract Payment is CrowdsaleDAOFields {
 		msg.sender.transfer(weiAmount);
 	}
 
+	/*
+    * @dev Receives info about address which sent DXC tokens to current contract and about amount of sent tokens from
+    *       DXC token contract and then increases initial capital of DAO and amount of sent tokens for sender
+    * @param _from Address which sent DXC tokens
+    * @param _amount Amount of tokens which were sent
+    */
+	function handleDXCPayment(address _from, uint _dxcAmount) external crowdsaleNotOngoing onlyDXC {
+		initialCapital += _dxcAmount;
+		initialCapitalIncr[_from] += _dxcAmount;
+	}
+
+	modifier crowdsaleNotOngoing() {
+		require(
+			canInitCrowdsaleParameters || startTime > now || (crowdsaleFinished && !refundableSoftCap),
+			"Method can be called only after successful crowdsale or before it"
+		);
+		_;
+	}
+
 	modifier whenRefundable() {
 		require(refundable);
 		_;
@@ -440,6 +490,23 @@ contract Payment is CrowdsaleDAOFields {
 		require(!teamMap[msg.sender]);
 		_;
 	}
+
+	modifier onlyDXC() {
+		require(msg.sender == address(DXC), "Method can be called only from DXC contract");
+		_;
+	}
+}
+
+interface IService {
+	function priceToConnect() public view returns(uint);
+
+	function priceToCall() public view returns(uint);
+
+	function calledWithVoting(bytes32 method) public view returns(bool);
+}
+
+interface IProxyAPI {
+	function callService(address _address, bytes32 method, bytes32[10] _bytes) external;
 }
 
 contract VotingDecisions is CrowdsaleDAOFields {
@@ -450,7 +517,7 @@ contract VotingDecisions is CrowdsaleDAOFields {
     * @param _withdrawalSum Amount of ether/DXC to be sent
     * @param _dxc Should withdrawal be in DXC tokens
     */
-	function withdrawal(address _address, uint _withdrawalSum, bool _dxc) notInRefundableState onlyVoting external {
+	function withdrawal(address _address, uint _withdrawalSum, bool _dxc) external notInRefundableState onlyVoting {
 		lastWithdrawalTimestamp = block.timestamp;
 		_dxc ? DXC.transfer(_address, _withdrawalSum) : _address.transfer(_withdrawalSum);
 	}
@@ -474,10 +541,10 @@ contract VotingDecisions is CrowdsaleDAOFields {
 	/*
     * @dev Change DAO's mode to `refundable`. Calls from this contract `makeRefundableByUser` or `makeRefundableByVotingDecision` functions
     */
-	function makeRefundable() notInRefundableState private {
+	function makeRefundable() private notInRefundableState {
 		refundable = true;
 		newEtherRate = SafeMath.mul(this.balance * etherRate, multiplier) / tokensMintedByEther;
-		newDXCRate = tokensMintedByDXC != 0 ? SafeMath.mul(DXC.balanceOf(this) * DXCRate, multiplier) / tokensMintedByDXC : 0;
+		newDXCRate = tokensMintedByDXC != 0 ? SafeMath.mul((DXC.balanceOf(this) - initialCapital) * DXCRate, multiplier) / tokensMintedByDXC : 0;
 	}
 
 	/*
@@ -485,15 +552,31 @@ contract VotingDecisions is CrowdsaleDAOFields {
     * @param _address Address of tokenholder
     * @param _duration Hold's duration in seconds
     */
-	function holdTokens(address _address, uint _duration) onlyVoting external {
+	function holdTokens(address _address, uint _duration) external onlyVoting {
 		token.hold(_address, _duration);
+	}
+
+	function connectService(address _service) external validServiceCaller(_service, "connect") validInitialCapital(_service, "connect") {
+		payForService(_service, "connect");
+		services[_service] = true;
+	}
+
+	function callService(address _service, bytes32 _method, bytes32[10] _args) external validServiceCaller(_service, _method) validInitialCapital(_service, "call") {
+		payForService(_service, "call");
+		IProxyAPI(proxyAPI).callService(_service, _method, _args);
+	}
+
+	function payForService(address _service, string action) private {
+		uint price = keccak256(action) == keccak256("call") ? IService(_service).priceToCall() : IService(_service).priceToConnect();
+		initialCapital -= price;
+		DXC.contributeTo(_service, price);
 	}
 
 	/*
     * @dev Throws if called not by any voting contract
     */
 	modifier onlyVoting() {
-		require(votings[msg.sender]);
+		require(votings[msg.sender] != 0x0);
 		_;
 	}
 
@@ -504,6 +587,18 @@ contract VotingDecisions is CrowdsaleDAOFields {
 		require(!refundable && !refundableSoftCap);
 		_;
 	}
+
+	modifier validInitialCapital(address _service, string action) {
+		uint price = keccak256(action) == keccak256("call") ? IService(_service).priceToCall() : IService(_service).priceToConnect();
+		require(price <= initialCapital, "Not enough funds to use module");
+		_;
+	}
+
+	modifier validServiceCaller(address _service, bytes32 _method) {
+		bool votingNeeded = canInitCrowdsaleParameters && _method == bytes32("connect") ? false : IService(_service).calledWithVoting(_method);
+		require(votingNeeded ? (votings[msg.sender] != 0x0) : true, "Method can be called only via voting");
+		_;
+	}
 }
 
 interface DAOFactoryInterface {
@@ -511,8 +606,16 @@ interface DAOFactoryInterface {
 }
 
 library DAODeployer {
-	function deployCrowdsaleDAO(string _name,  string _description, address _serviceContractAddress, address _votingFactoryContractAddress) returns(CrowdsaleDAO dao) {
-		dao = new CrowdsaleDAO(_name, _description, _serviceContractAddress, _votingFactoryContractAddress);
+	function deployCrowdsaleDAO(
+		string _name,
+		string _description,
+		address _serviceContractAddress,
+		address _votingFactory,
+		address _serviceVotingFactory,
+		address _DXC,
+		uint _initialCapital
+	) returns(CrowdsaleDAO dao) {
+		dao = new CrowdsaleDAO(_name, _description, _serviceContractAddress, _votingFactory, _serviceVotingFactory, _DXC, _initialCapital);
 	}
 
 	function transferOwnership(address _dao, address _newOwner) {
@@ -521,8 +624,8 @@ library DAODeployer {
 }
 
 library DAOProxy {
-	function delegatedInitState(address stateModule, address _tokenAddress, address _DXC) {
-		require(stateModule.delegatecall(bytes4(keccak256("initState(address,address)")), _tokenAddress, _DXC));
+	function delegatedInitState(address stateModule, address _tokenAddress) {
+		require(stateModule.delegatecall(bytes4(keccak256("initState(address)")), _tokenAddress));
 	}
 
 	function delegatedHoldState(address stateModule, uint _tokenHoldTime) {
@@ -565,10 +668,11 @@ library DAOProxy {
 		uint _DXCRate,
 		uint _startTime,
 		uint _endTime,
-		bool _dxcPayments
+		bool _dxcPayments,
+		uint _lockup
 	) {
-		require(crowdsaleModule.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256,uint256,bool)"))
-		, _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments));
+		require(crowdsaleModule.delegatecall(bytes4(keccak256("initCrowdsaleParameters(uint256,uint256,uint256,uint256,uint256,uint256,bool,uint256)"))
+		, _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments, _lockup));
 	}
 
 	function delegatedFinish(address crowdsaleModule) {
@@ -579,8 +683,16 @@ library DAOProxy {
 		require(crowdsaleModule.delegatecall(bytes4(keccak256("handlePayment(address,bool)")), _sender, _commission));
 	}
 
-	function delegatedHandleDXCPayment(address crowdsaleModule, address _from, uint _amount) {
-		require(crowdsaleModule.delegatecall(bytes4(keccak256("handleDXCPayment(address,uint256)")), _from, _amount));
+	function delegatedHandleDXCPayment(address module, address _from, uint _amount) {
+		require(module.delegatecall(bytes4(keccak256("handleDXCPayment(address,uint256)")), _from, _amount));
+	}
+
+	function delegatedConnectService(address module, address _service) {
+		require(module.delegatecall(bytes4(keccak256("connectService(address)")), _service));
+	}
+
+	function delegatedCallService(address module, address _service, bytes32 _method, bytes32[10] _args) {
+		require(module.delegatecall(bytes4(keccak256("callService(address,bytes32,bytes32[10])")), _service, _method, _args));
 	}
 }
 
@@ -619,10 +731,18 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 	address public paymentModule;
 	address public votingDecisionModule;
 	address public crowdsaleModule;
+	address public apiSettersModule;
 
-	function CrowdsaleDAO(string _name, string _description, address _serviceContractAddress, address _votingFactoryContractAddress)
+	function CrowdsaleDAO(string _name, string _description, address _serviceContract, address _votingFactory, address _serviceVotingFactory, address _DXC, uint _initialCapital)
 	Owned(msg.sender) {
-		(name, description, serviceContract, votingFactory) = (_name, _description, _serviceContractAddress, VotingFactoryInterface(_votingFactoryContractAddress));
+		name = _name;
+		description = _description;
+		serviceContract = _serviceContract;
+		votingFactory = VotingFactoryInterface(_votingFactory);
+		serviceVotingFactory = IServiceVotingFactory(_serviceVotingFactory);
+		DXC = TokenInterface(_DXC);
+		initialCapital = _initialCapital;
+		votingPrice = _initialCapital/10 != 0 ? _initialCapital/10 : 1;
 	}
 
 	/*
@@ -643,12 +763,13 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 
 	/*
     * @dev Receives info about address which sent DXC tokens to current contract and about amount of sent tokens from
-    *       DXC token contract and then forwards this data to the crowdsale module
+    *       DXC token contract and then forwards this data to the crowdsale/payment module
     * @param _from Address which sent DXC tokens
     * @param _amount Amount of tokens which were sent
     */
 	function handleDXCPayment(address _from, uint _amount) {
-		DAOProxy.delegatedHandleDXCPayment(crowdsaleModule, _from, _amount);
+		if(canInitCrowdsaleParameters || now < startTime || (crowdsaleFinished && !refundableSoftCap)) DAOProxy.delegatedHandleDXCPayment(paymentModule, _from, _amount);
+		else if(now >= startTime && now <= endTime && !crowdsaleFinished) DAOProxy.delegatedHandleDXCPayment(crowdsaleModule, _from, _amount);
 	}
 
 	/*
@@ -666,6 +787,14 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     */
 	function makeRefundableByVotingDecision() external {
 		DAOProxy.delegatedMakeRefundableByVotingDecision(votingDecisionModule);
+	}
+
+	function connectService(address _service) external {
+		DAOProxy.delegatedConnectService(votingDecisionModule, _service);
+	}
+
+	function callService(address _service, bytes32 _method, bytes32[10] _args) external {
+		DAOProxy.delegatedCallService(votingDecisionModule, _service, _method, _args);
 	}
 
 	/*
@@ -698,6 +827,18 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 		votingFactory = VotingFactoryInterface(_votingFactory);
 	}
 
+	function setProxyAPI(address _proxyAPI) external canSetAddress(proxyAPI) {
+		proxyAPI = _proxyAPI;
+	}
+
+	function setApiSettersModule(address _apiSettersModule) external canSetAddress(apiSettersModule) {
+		apiSettersModule = _apiSettersModule;
+	}
+
+	function setServiceVotingFactory(address _serviceVotingFactory) external canSetAddress(serviceVotingFactory) {
+		serviceVotingFactory = IServiceVotingFactory(_serviceVotingFactory);
+	}
+
 	/*
     * @dev Checks if provided address has tokens of current DAO
     * @param _participantAddress Address of potential participant
@@ -713,8 +854,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _tokenAddress Address of token which will be distributed during the crowdsale
     * @param _DXC Address of DXC contract
     */
-	function initState(address _tokenAddress, address _DXC) public {
-		DAOProxy.delegatedInitState(stateModule, _tokenAddress, _DXC);
+	function initState(address _tokenAddress) public {
+		DAOProxy.delegatedInitState(stateModule, _tokenAddress);
 	}
 
 	/*
@@ -727,8 +868,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _endTime Unix timestamp that indicates the moment when crowdsale will end
     * @param _dxcPayments Boolean indicating whether it is possible to invest via DXC token or not
     */
-	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXCRate, uint _startTime, uint _endTime, bool _dxcPayments) public {
-		DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments);
+	function initCrowdsaleParameters(uint _softCap, uint _hardCap, uint _etherRate, uint _DXCRate, uint _startTime, uint _endTime, bool _dxcPayments, uint _lockup) public {
+		DAOProxy.delegatedInitCrowdsaleParameters(crowdsaleModule, _softCap, _hardCap, _etherRate, _DXCRate, _startTime, _endTime, _dxcPayments, _lockup);
 	}
 
 	/*
@@ -739,7 +880,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _options List of options
     */
 	function addRegular(string _name, string _description, uint _duration, bytes32[] _options) public {
-		votings[DAOLib.delegatedCreateRegular(votingFactory, _name, _description, _duration, _options, this)] = true;
+		address voting = DAOLib.delegatedCreateRegular(votingFactory, _name, _description, _duration, _options, this);
+		handleCreatedVoting(voting);
 	}
 
 	/*
@@ -752,7 +894,7 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _dxc Boolean indicating whether withdrawal must be in DXC tokens or in ether
     */
 	function addWithdrawal(string _name, string _description, uint _duration, uint _sum, address _withdrawalWallet, bool _dxc) public {
-		votings[DAOLib.delegatedCreateWithdrawal(votingFactory, _name, _description, _duration, _sum, _withdrawalWallet, _dxc, this)] = true;
+		votings[DAOLib.delegatedCreateWithdrawal(votingFactory, _name, _description, _duration, _sum, _withdrawalWallet, _dxc, this)] = msg.sender;
 	}
 
 	/*
@@ -762,7 +904,8 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _duration Time in seconds from current moment until voting will be finished
     */
 	function addRefund(string _name, string _description, uint _duration) public {
-		votings[DAOLib.delegatedCreateRefund(votingFactory, _name, _description, _duration, this)] = true;
+		address voting = DAOLib.delegatedCreateRefund(votingFactory, _name, _description, _duration, this);
+		handleCreatedVoting(voting);
 	}
 
 	/*
@@ -774,7 +917,34 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
     * @param _newAddress Address of new module
     */
 	function addModule(string _name, string _description, uint _duration, uint _module, address _newAddress) public {
-		votings[DAOLib.delegatedCreateModule(votingFactory, _name, _description, _duration, _module, _newAddress, this)] = true;
+		address voting = DAOLib.delegatedCreateModule(serviceVotingFactory, _name, _description, _duration, _module, _newAddress, this);
+		handleCreatedVoting(voting);
+	}
+
+	/*
+    * @dev Delegates request of creating "new service" voting and saves the address of created voting contract to votings list
+    * @param _name Name for voting
+    * @param _description Description for voting that will be created
+    * @param _duration Time in seconds from current moment until voting will be finished
+    * @param _service Address of service that needs to be connected to DAO
+    */
+	function addNewService(string _name, string _description, uint _duration, address _service) public {
+		address voting = DAOLib.delegatedCreateNewService(serviceVotingFactory, _name, _description, _duration, _service, this);
+		handleCreatedVoting(voting);
+	}
+
+	/*
+    * @dev Delegates request of creating "call service" voting and saves the address of created voting contract to votings list
+    * @param _name Name for voting
+    * @param _description Description for voting that will be created
+    * @param _duration Time in seconds from current moment until voting will be finished
+    * @param _service Address of service that needs to be called
+    * @param _method Method that must be called in service
+    * @param _args Arguments that will be provided to called method
+    */
+	function addCallService(string _name, string _description, uint _duration, address _service, bytes32 _method, bytes32[10] _args) public {
+		address voting = DAOLib.delegatedCreateCallService(serviceVotingFactory, _name, _description, _duration, _service, _method, _args, this);
+		handleCreatedVoting(voting);
 	}
 
 	/*
@@ -858,12 +1028,26 @@ contract CrowdsaleDAO is CrowdsaleDAOFields, Owned {
 		canSetWhiteList = false;
 	}
 
+	function handleAPICall(string signature, bytes32 value) external onlyProxyAPI {
+		require(apiSettersModule.delegatecall(bytes4(keccak256(signature)), value));
+	}
+
+	function handleCreatedVoting(address _voting) private {
+		votings[_voting] = msg.sender;
+		initialCapitalIncr[msg.sender] -= votingPrice;
+	}
+
 	/*
     Modifiers
     */
 
 	modifier canSetAddress(address module) {
-		require(votings[msg.sender] || (module == 0x0 && msg.sender == owner));
+		require(votings[msg.sender] != 0x0 || (module == 0x0 && msg.sender == owner));
+		_;
+	}
+
+	modifier onlyProxyAPI() {
+		require(msg.sender == proxyAPI, "Method can be called only by ProxyAPI contract");
 		_;
 	}
 }
@@ -929,7 +1113,16 @@ library VotingLib {
 	}
 
 	function isValidWithdrawal(address _dao, uint _sum, bool _dxc) constant returns(bool) {
-		return !_dxc ? _dao.balance >= _sum  : ICrowdsaleDAO(_dao).DXC().balanceOf(_dao) >= _sum;
+		return !_dxc ? _dao.balance >= _sum  : (ICrowdsaleDAO(_dao).DXC().balanceOf(_dao) - ICrowdsaleDAO(_dao).initialCapital()) >= _sum;
+	}
+
+	function checkServicePrice(string action, address _dao, address _service) internal {
+		uint price = keccak256(action) == keccak256("call") ? IService(_service).priceToCall() : IService(_service).priceToConnect();
+		require(price <= ICrowdsaleDAO(_dao).initialCapital(), "Not enough DXC in initial capital to connect this service");
+	}
+
+	function serviceConnected(address _dao, address _service) view returns(bool) {
+		return ICrowdsaleDAO(_dao).services(_service);
 	}
 }
 
@@ -939,6 +1132,10 @@ contract IDAO {
 	function teamMap(address _address) external constant returns (bool);
 
 	function whiteList(address _address) constant returns (bool);
+
+	function initialCapitalIncr(address _address) constant returns (uint);
+
+	function votingPrice() constant returns (uint);
 }
 
 contract ICrowdsaleDAO is IDAO {
@@ -948,6 +1145,7 @@ contract ICrowdsaleDAO is IDAO {
 	uint public weiRaised;
 	uint public softCap;
 	uint public fundsRaised;
+	uint public initialCapital;
 
 	function addRegular(string _description, uint _duration, bytes32[] _options) external;
 
@@ -962,6 +1160,8 @@ contract ICrowdsaleDAO is IDAO {
 	function makeRefundableByVotingDecision();
 
 	function withdrawal(address _address, uint withdrawalSum, bool dxc);
+
+	function connectService(address _service);
 
 	function setStateModule(address _stateModule);
 
@@ -978,6 +1178,10 @@ contract ICrowdsaleDAO is IDAO {
 	function token() constant returns (TokenInterface);
 
 	function DXC() constant returns(TokenInterface);
+
+	function callService(address _service, bytes32 _method, bytes32[10] _args) external;
+
+	function services(address _service) public returns(bool);
 }
 
 contract VotingFields {
@@ -1047,9 +1251,9 @@ contract Regular is VotingFields {
 	}
 
 	/*
-	* @dev Returns amount of votes for all regular proposal's options
-	* @return Array[10] of int
-	*/
+    * @dev Returns amount of votes for all regular proposal's options
+    * @return Array[10] of int
+    */
 	function getOptions() external constant returns(uint[10]) {
 		return [options[1].votes, options[2].votes, options[3].votes, options[4].votes, options[5].votes,
 		options[6].votes, options[7].votes, options[8].votes, options[9].votes, options[10].votes];
@@ -1164,6 +1368,7 @@ contract Voting is VotingFields {
 		require(block.timestamp - duration >= created_at);
 		finished = true;
 
+
 		if (keccak256(votingType) == keccak256("Withdrawal")) return finishNotRegular();
 		if (keccak256(votingType) == keccak256("Regular")) return finishRegular();
 
@@ -1272,13 +1477,89 @@ contract Module is BaseProposal {
 	}
 }
 
-contract VotingFactory is VotingFactoryInterface {
+contract NewService is BaseProposal {
+	address public service;
+
+	function NewService(address _baseVoting, address _dao, string _name, string _description, uint _duration, address _service) {
+		VotingLib.checkServicePrice("connect", _dao, _service);
+		baseVoting = _baseVoting;
+		service = _service;
+		VotingLib.delegatecallCreate(baseVoting, _dao, _name, _description, _duration, 80);
+		createOptions();
+	}
+
+	/*
+    * @dev Delegates request of finishing to the Voting base contract
+    */
+	function finish() public {
+		VotingLib.delegatecallFinish(baseVoting);
+		if(result.description == "yes") dao.connectService(service);
+	}
+}
+
+contract CallService is BaseProposal {
+	address public service;
+	bytes32 public method;
+	bytes32[10] public args;
+
+	function CallService(address _baseVoting, address _dao, string _name, string _description, uint _duration, address _service, bytes32 _method, bytes32[10] _args) {
+		require(VotingLib.serviceConnected(_dao, _service), "Service must be connected to call it");
+		VotingLib.checkServicePrice("call", _dao, _service);
+		baseVoting = _baseVoting;
+		service = _service;
+		method = _method;
+		args = _args;
+		VotingLib.delegatecallCreate(baseVoting, _dao, _name, _description, _duration, 80);
+		createOptions();
+	}
+
+	/*
+    * @dev Delegates request of finishing to the Voting base contract
+    */
+	function finish() public {
+		VotingLib.delegatecallFinish(baseVoting);
+		if(result.description == "yes") dao.callService(service, method, args);
+	}
+}
+
+contract BaseVotingFactory {
 	address baseVoting;
 	DAOFactoryInterface public daoFactory;
 
-	function VotingFactory(address _baseVoting) {
+	constructor(address _baseVoting) public {
 		baseVoting = _baseVoting;
 	}
+
+	/*
+    * @dev Set dao factory address. Calls ones from just deployed DAO
+    * @param _dao Address of dao factory
+    */
+	function setDaoFactory(address _dao) external {
+		require(address(daoFactory) == 0x0 && _dao != 0x0);
+		daoFactory = DAOFactoryInterface(_dao);
+	}
+
+	/*
+    * @dev Throws if caller is not correct DAO
+    */
+	modifier onlyDAO() {
+		require(daoFactory.exists(msg.sender));
+		_;
+	}
+
+	/*
+    * @dev Throws if creator is not participant of passed DAO
+    */
+	modifier onlyParticipantWithEnoughDXC(address creator) {
+		require(IDAO(msg.sender).isParticipant(creator), "You need to be a participant to call this method");
+		require(IDAO(msg.sender).initialCapitalIncr(creator) >= IDAO(msg.sender).votingPrice(), "You don't have enough DXC to call this method.");
+		_;
+	}
+}
+
+contract VotingFactory is VotingFactoryInterface, BaseVotingFactory {
+
+	constructor(address _baseVoting) BaseVotingFactory(_baseVoting) {}
 
 	/*
     * @dev Create regular proposal with passed parameters. Calls from DAO contract
@@ -1291,7 +1572,7 @@ contract VotingFactory is VotingFactoryInterface {
 	function createRegular(address _creator, string _name, string _description, uint _duration, bytes32[] _options)
 	external
 	onlyDAO
-	onlyParticipant(_creator)
+	onlyParticipantWithEnoughDXC(_creator)
 	returns (address)
 	{
 		return new Regular(baseVoting, msg.sender, _name, _description, _duration, _options);
@@ -1324,51 +1605,8 @@ contract VotingFactory is VotingFactoryInterface {
     * @param _description Voting's description
     * @param _duration Voting's duration
     */
-	function createRefund(address _creator, string _name, string _description, uint _duration) external onlyDAO onlyParticipant(_creator) returns (address) {
+	function createRefund(address _creator, string _name, string _description, uint _duration) external onlyDAO onlyParticipantWithEnoughDXC(_creator) returns (address) {
 		return new Refund(baseVoting, msg.sender, _name, _description, _duration);
-	}
-
-	/*
-    * @dev Create module proposal with passed parameters. Calls from DAO contract
-    * @param _creator Address of caller of DAO's respectively function
-    * @param _name Voting's name
-    * @param _description Voting's description
-    * @param _duration Voting's duration
-    * @param _module Which module should be changed
-    * @param _newAddress Address of new module
-    */
-	function createModule(address _creator, string _name, string _description, uint _duration, uint _module, address _newAddress)
-	external
-	onlyDAO
-	onlyParticipant(_creator)
-	returns (address)
-	{
-		return new Module(baseVoting, msg.sender, _name, _description, _duration, _module, _newAddress);
-	}
-
-	/*
-    * @dev Set dao factory address. Calls ones from just deployed DAO
-    * @param _dao Address of dao factory
-    */
-	function setDaoFactory(address _dao) external {
-		require(address(daoFactory) == 0x0 && _dao != 0x0);
-		daoFactory = DAOFactoryInterface(_dao);
-	}
-
-	/*
-    * @dev Throws if caller is not correct DAO
-    */
-	modifier onlyDAO() {
-		require(daoFactory.exists(msg.sender));
-		_;
-	}
-
-	/*
-    * @dev Throws if creator is not participant of passed DAO
-    */
-	modifier onlyParticipant(address creator) {
-		require(IDAO(msg.sender).isParticipant(creator));
-		_;
 	}
 
 	/*
@@ -1385,6 +1623,65 @@ contract VotingFactory is VotingFactoryInterface {
 	modifier onlyWhiteList(address creator) {
 		require(IDAO(msg.sender).whiteList(creator));
 		_;
+	}
+}
+
+contract ServiceVotingFactory is BaseVotingFactory {
+
+	constructor(address _baseVoting) BaseVotingFactory(_baseVoting) {}
+
+	/*
+    * @dev Create module proposal with passed parameters. Calls from DAO contract
+    * @param _creator Address of caller of DAO's respectively function
+    * @param _name Voting's name
+    * @param _description Voting's description
+    * @param _duration Voting's duration
+    * @param _module Which module should be changed
+    * @param _newAddress Address of new module
+    */
+	function createModule(address _creator, string _name, string _description, uint _duration, uint _module, address _newAddress)
+	external
+	onlyDAO
+	onlyParticipantWithEnoughDXC(_creator)
+	returns (address)
+	{
+		return new Module(baseVoting, msg.sender, _name, _description, _duration, _module, _newAddress);
+	}
+
+	/*
+    * @dev Create new service proposal with passed parameters. Calls from DAO contract
+    * @param _creator Address of caller of DAO's respectively function
+    * @param _name Voting's name
+    * @param _description Voting's description
+    * @param _duration Voting's duration
+    * @param _service Address of new service
+    */
+	function createNewService(address _creator, string _name, string _description, uint _duration, address _service)
+	external
+	onlyDAO
+	onlyParticipantWithEnoughDXC(_creator)
+	returns (address)
+	{
+		return new NewService(baseVoting, msg.sender, _name, _description, _duration, _service);
+	}
+
+	/*
+    * @dev Create call service proposal with passed parameters. Calls from DAO contract
+    * @param _creator Address of caller of DAO's respectively function
+    * @param _name Voting's name
+    * @param _description Voting's description
+    * @param _duration Voting's duration
+    * @param _service Address of service
+    * @param _service Method inside service
+    * @param _service Arguments for provided method
+    */
+	function createCallService(address _creator, string _name, string _description, uint _duration, address _service, bytes32 _method, bytes32[10] _args)
+	external
+	onlyDAO
+	onlyParticipantWithEnoughDXC(_creator)
+	returns (address)
+	{
+		return new CallService(baseVoting, msg.sender, _name, _description, _duration, _service, _method, _args);
 	}
 }
 
@@ -1644,6 +1941,15 @@ contract DAOx is Ownable {
 	}
 }
 
+interface IDAOModules {
+	function setStateModule(address _stateModule) external;
+	function setPaymentModule(address _paymentModule) external;
+	function setVotingDecisionModule(address _votingDecisionModule) external;
+	function setCrowdsaleModule(address _crowdsaleModule) external;
+	function setProxyAPI(address _proxyAPI) external;
+	function setApiSettersModule(address _allowedSetters) external;
+}
+
 contract CrowdsaleDAOFactory is DAOFactoryInterface {
 	event CrowdsaleDAOCreated(
 		address _address,
@@ -1651,19 +1957,25 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
 	);
 
 	address public serviceContractAddress;
-	address public votingFactoryContractAddress;
+	address public votingFactory;
+	address public serviceVotingFactory;
+	address public DXC;
+	mapping(address => uint) DXCDeposit;
 	// DAOs created by factory
 	mapping(address => string) DAOs;
 	// Functional modules which will be used by DAOs to delegate calls
-	address[4] modules;
+	address[6] modules;
 
-	function CrowdsaleDAOFactory(address _serviceContractAddress, address _votingFactoryAddress, address[4] _modules) {
-		require(_serviceContractAddress != 0x0 && _votingFactoryAddress != 0x0);
-		serviceContractAddress = _serviceContractAddress;
-		votingFactoryContractAddress = _votingFactoryAddress;
+	function CrowdsaleDAOFactory(address _serviceContract, address _votingFactory, address _serviceVotingFactory, address _DXC, address[6] _modules) {
+		require(_serviceContract != 0x0 && _votingFactory != 0x0 && _serviceVotingFactory != 0x0 && _DXC != 0x0);
+		serviceContractAddress = _serviceContract;
+		DXC = _DXC;
+		votingFactory = _votingFactory;
+		serviceVotingFactory = _serviceVotingFactory;
 		modules = _modules;
 
-		require(votingFactoryContractAddress.call(bytes4(keccak256("setDaoFactory(address)")), this));
+		require(votingFactory.call(bytes4(keccak256("setDaoFactory(address)")), this));
+		require(serviceVotingFactory.call(bytes4(keccak256("setDaoFactory(address)")), this));
 		require(serviceContractAddress.call(bytes4(keccak256("setDaoFactory(address)")), this));
 	}
 
@@ -1677,22 +1989,55 @@ contract CrowdsaleDAOFactory is DAOFactoryInterface {
 	}
 
 	/*
+    * @dev Receives info about address which sent DXC tokens to current contract and about amount of sent tokens from
+    *       DXC token contract and then saves this information to DXCDeposit mapping
+    * @param _from Address which sent DXC tokens
+    * @param _amount Amount of tokens which were sent
+    */
+	function handleDXCPayment(address _from, uint _dxcAmount) external onlyDXC {
+		require(_dxcAmount >= 10**18, "Amount of DXC for initial deposit must be equal or greater than 1 DXC");
+
+		DXCDeposit[_from] += _dxcAmount;
+	}
+
+	/*
     * @dev Creates new CrowdsaleDAO contract, provides it with addresses of modules, transfers ownership to tx sender
     *      and saves address of created contract to DAOs mapping
     * @param _name Name of the DAO
     * @param _name Description for the DAO
+    * @param _initialCapital initial capital for DAO that will be created
     */
-	function createCrowdsaleDAO(string _name, string _description) public {
-		address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, serviceContractAddress, votingFactoryContractAddress);
+	function createCrowdsaleDAO(string _name, string _description, uint _initialCapital) public correctInitialCapital(_initialCapital) enoughDXC(_initialCapital) {
+		address dao = DAODeployer.deployCrowdsaleDAO(_name, _description, serviceContractAddress, votingFactory, serviceVotingFactory, DXC, _initialCapital);
+		DXCDeposit[msg.sender] -= _initialCapital;
+		TokenInterface(DXC).transfer(dao, _initialCapital);
 
-		require(dao.call(bytes4(keccak256("setStateModule(address)")), modules[0]));
-		require(dao.call(bytes4(keccak256("setPaymentModule(address)")), modules[1]));
-		require(dao.call(bytes4(keccak256("setVotingDecisionModule(address)")), modules[2]));
-		require(dao.call(bytes4(keccak256("setCrowdsaleModule(address)")), modules[3]));
+		IDAOModules(dao).setStateModule(modules[0]);
+		IDAOModules(dao).setPaymentModule(modules[1]);
+		IDAOModules(dao).setVotingDecisionModule(modules[2]);
+		IDAOModules(dao).setCrowdsaleModule(modules[3]);
+		IDAOModules(dao).setProxyAPI(modules[4]);
+		IDAOModules(dao).setApiSettersModule(modules[5]);
 		DAODeployer.transferOwnership(dao, msg.sender);
 
 		DAOs[dao] = _name;
 		CrowdsaleDAOCreated(dao, _name);
+	}
+
+	modifier onlyDXC() {
+		require(msg.sender == address(DXC), "Method can be called only from DXC contract");
+		_;
+	}
+
+	modifier correctInitialCapital(uint value) {
+		require(value >= 10**18, "Initial capital should be equal at least 1 DXC");
+		_;
+	}
+
+	modifier enoughDXC(uint value) {
+		require(value <= TokenInterface(DXC).balanceOf(this), "Not enough DXC tokens were transferred for such initial capital");
+		require(DXCDeposit[msg.sender] >= value, "Not enough DXC were transferred by your address");
+		_;
 	}
 }
 
@@ -1730,6 +2075,21 @@ contract DXC is MintableToken {
 		balances[_to] = balances[_to].add(_amount);
 		Mint(_to, _amount);
 		Transfer(0x0, _to, _amount);
+		return true;
+	}
+
+	/**
+     * @dev Transfer specified amount of tokens to the specified list of addresses
+     * @param _to The array of addresses that will receive tokens
+     * @param _amount The array of uint values indicates how much tokens will receive corresponding address
+     * @return True if all transfers were completed successfully
+    */
+	function transferTokens(address[] _to, uint256[] _amount) isOwnerOrAdditionalOwner public returns (bool) {
+		require(_to.length == _amount.length);
+		for (uint i = 0; i < _to.length; i++) {
+			transfer(_to[i], _amount[i]);
+		}
+
 		return true;
 	}
 
