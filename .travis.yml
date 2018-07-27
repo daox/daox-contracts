@@ -4,7 +4,7 @@ node_js:
   - "9.4.0"
 
 before_script:
-  - sudo npm i && sudo npm i -g truffle ganache-cli
+  - sudo $(which npm) i && sudo $(which npm) i -g truffle ganache-cli
 
 script:
   - bash ./test.sh
