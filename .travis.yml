@@ -4,7 +4,7 @@ node_js:
   - "9.4.0"
 
 before_script:
-  - sudo npm i && sudo npm i -g truffle ganache-cli
+  - npm i && npm i -g truffle ganache-cli
 
 script:
   - ganache-cli -p 8546 -l 7992000 \
